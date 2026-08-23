@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Basera — Demo &amp; Workflow Deck</title>
+<style>
+  :root{
+    --coral:#FF6B4A; --coral-dark:#F0512E; --navy:#1B2A4A; --navy-2:#243B60;
+    --yellow:#FFC857; --ink:#182338; --bg:#FFF8F5; --line:#E5E7EB; --muted:#64748B;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:Arial, "Segoe UI", sans-serif;background:#0C1526;color:var(--ink);}
+  .deck{max-width:1200px;margin:0 auto;padding:24px 0 80px;}
+  .slide{
+    width:1200px;max-width:100%;aspect-ratio:1200/675;background:var(--bg);
+    border-radius:18px;margin:0 auto 28px;box-shadow:0 24px 60px rgba(0,0,0,.35);
+    padding:56px 64px;position:relative;overflow:hidden;display:none;
+  }
+  .slide.active{display:block;}
+  .slide h1{font-size:40px;margin:0 0 6px;color:var(--ink);font-weight:800;}
+  .slide h2{font-size:28px;margin:0 0 18px;color:var(--ink);font-weight:800;}
+  .kicker{color:var(--coral-dark);font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:12px;margin-bottom:10px;}
+  .sub{color:var(--muted);font-size:16px;margin:0 0 20px;}
+  .cover{background:linear-gradient(135deg,var(--navy),var(--navy-2));color:#fff;}
+  .cover h1{color:#fff;font-size:56px;}
+  .cover .sub{color:#D7DEEC;font-size:18px;}
+  .badge-row{display:flex;gap:10px;margin-top:26px;flex-wrap:wrap;}
+  .badge{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:8px 16px;font-size:13px;font-weight:700;}
+  .cols{display:flex;gap:28px;}
+  .col{flex:1;}
+  ul.list{margin:0;padding-left:20px;color:var(--ink);font-size:15px;line-height:1.7;}
+  ul.list li{margin-bottom:6px;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 20px;}
+  .grid4{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+  .pill{display:inline-block;background:#FFE2D6;color:var(--coral-dark);font-weight:700;font-size:12px;border-radius:999px;padding:5px 12px;margin:0 6px 6px 0;}
+  .pill.navy{background:#D7DEEC;color:var(--navy);}
+  .pill.green{background:#E6FAF2;color:#087A55;}
+  .img-wrap{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff;}
+  .img-wrap img{width:100%;display:block;}
+  .foot{position:absolute;left:64px;bottom:24px;font-size:12px;color:var(--muted);}
+  .count{position:absolute;right:64px;bottom:24px;font-size:12px;color:var(--muted);}
+  .logo-mini{display:flex;align-items:center;gap:10px;position:absolute;top:40px;right:64px;font-weight:800;color:#fff;font-size:15px;}
+  .logo-mini .dot{width:28px;height:28px;border-radius:8px;background:var(--coral);display:inline-block;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{text-align:left;color:var(--muted);font-weight:700;padding:6px 10px;border-bottom:1px solid var(--line);}
+  td{padding:8px 10px;border-bottom:1px solid var(--line);color:var(--ink);}
+  .nav{max-width:1200px;margin:0 auto;display:flex;justify-content:center;gap:12px;padding-bottom:24px;}
+  .nav button{background:var(--coral);color:#fff;border:0;border-radius:10px;padding:10px 20px;font-weight:700;cursor:pointer;font-size:14px;}
+  .nav button.secondary{background:transparent;border:1px solid #445;color:#cbd5e1;}
+  .nav span{color:#cbd5e1;align-self:center;font-size:13px;}
+  @media print{
+    body{background:#fff;}
+    .nav{display:none;}
+    .slide{display:block !important;box-shadow:none;page-break-after:always;margin:0 auto;}
+  }
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+  <!-- 1 Cover -->
+  <section class="slide active cover">
+    <div class="kicker" style="color:#FFC857;">Product Demo Deck</div>
+    <h1>Basera</h1>
+    <div class="sub">Find your Basera. Verified student hostels, PGs, and rooms across Pakistan — booking, escrow-protected payments, and trust tools in one platform.</div>
+    <div class="badge-row">
+      <span class="badge">Verified &amp; Safe</span>
+      <span class="badge">Escrow-Protected Rent</span>
+      <span class="badge">AI Concierge (Claude)</span>
+      <span class="badge">Bilingual EN / اردو</span>
+    </div>
+    <div class="foot" style="color:#94A3B8;">Prepared August 22, 2026</div>
+  </section>
+
+  <!-- 2 Problem -->
+  <section class="slide">
+    <div class="kicker">The Problem</div>
+    <h2>Finding safe student housing in Pakistan is still informal</h2>
+    <div class="cols">
+      <div class="col card">
+        <ul class="list">
+          <li>Room hunting happens mostly through Facebook groups, WhatsApp forwards, and word of mouth.</li>
+          <li>No standard way to verify a hostel/host before sending money.</li>
+          <li>Parents have little visibility once a student moves in.</li>
+        </ul>
+      </div>
+      <div class="col card">
+        <ul class="list">
+          <li>Rent is usually paid in cash or direct transfer — no protection if a room doesn't match what was promised.</li>
+          <li>Price comparison across cities/universities is manual and time-consuming.</li>
+          <li>Disputes over deposits have no neutral third party.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot">Basera — Demo Deck</div><div class="count">2 / 16</div>
+  </section>
+
+  <!-- 3 Solution -->
+  <section class="slide">
+    <div class="kicker">The Solution</div>
+    <h2>A verified, escrow-protected marketplace built for Pakistani students</h2>
+    <div class="grid4">
+      <div class="card"><b>Verification</b><br/><span style="color:var(--muted);font-size:13px;">Host proof review, admin verification queue, field-visit scheduling.</span></div>
+      <div class="card"><b>Escrow Payments</b><br/><span style="color:var(--muted);font-size:13px;">Rent held until move-in + hold window; disputes freeze payout.</span></div>
+      <div class="card"><b>Contact Gating</b><br/><span style="color:var(--muted);font-size:13px;">Host phone/email hidden until a paid confirmed booking.</span></div>
+      <div class="card"><b>AI Concierge</b><br/><span style="color:var(--muted);font-size:13px;">Real Claude-powered assistant scoped to housing questions.</span></div>
+    </div>
+    <div class="foot">Basera — Demo Deck</div><div class="count">3 / 16</div>
+  </section>
+
+  <!-- 4 Homepage mockup -->
+  <section class="slide">
+    <h2>Homepage — live listings, not static content</h2>
+    <div class="sub">Previously hardcoded from mock data — now fetches real rooms/hostels from the API with mock data only as an offline fallback.</div>
+    <div class="img-wrap"><img src="mockup-01-homepage.svg" alt="Basera homepage mockup" /></div>
+    <div class="foot">Basera — Demo Deck</div><div class="count">4 / 16</div>
+  </section>
+
+  <!-- 5 Room detail mockup -->
+  <section class="slide">
+    <h2>Room Detail — match score, AI pricing insight, video reviews</h2>
+    <div class="img-wrap"><img src="mockup-02-room-detail.svg" alt="Basera room detail mockup" /></div>
+    <div class="foot">Basera — Demo Deck</div><div class="count">5 / 16</div>
+  </section>
+
+  <!-- 6 Booking workflow -->
+  <section class="slide">
+    <h2>Workflow — Student Booking &amp; Escrow</h2>
+    <div class="img-wrap"><img src="workflow-01-booking-escrow.svg" alt="Booking and escrow workflow" /></div>
+    <div class="foot">Basera — Demo Deck</div><div class="count">6 / 16</div>
+  </section>
+
+  <!-- 7 Student dashboard mockup -->
+  <section class="slide">
+    <h2>Student Dashboard — new: swipe roommate matching, leaderboard &amp; rewards</h2>
+    <div class="img-wrap"><img src="mockup-03-student-dashboard.svg" alt="Student dashboard mockup" /></div>
+    <div class="foot">Basera — Demo Deck</div><div class="count">7 / 16</div>
+  </section>
+
+  <!-- 8 Host workflow -->
+  <section class="slide">
+    <h2>Workflow — Host Listing &amp; Trust</h2>
+    <div class="img-wrap"><img src="workflow-02-host-listing.svg" alt="Host listing workflow" /></div>
+    <div class="foot">Basera — Demo Deck</div><div class="count">8 / 16</div>
+  </section>
+
+  <!-- 9 Host growth center mockup -->
+  <section class="slide">
+    <h2>Host Growth Center — enhanced dynamic pricing</h2>
+    <div class="sub">Now blends real occupancy history, comparable-room pricing, and academic-calendar seasonality into a plain-language suggestion.</div>
+    <div class="img-wrap"><img src="mockup-04-host-growth-center.svg" alt="Host growth center mockup" /></div>
+    <div class="foot">Basera — Demo Deck</div><div class="count">9 / 16</div>
+  </section>
+
+  <!-- 10 What's new -->
+  <section class="slide">
+    <div class="kicker">What Shipped This Round</div>
+    <h2>Rebrand, bug fixes, and new features</h2>
+    <div class="cols">
+      <div class="col">
+        <b style="font-size:14px;">Rebrand</b>
+        <p class="pill">Coral #FF6B4A</p><p class="pill navy">Navy #1B2A4A</p><p class="pill green">Yellow #FFC857</p>
+        <ul class="list" style="margin-top:10px;">
+          <li>New name, logo, full-repo rename</li>
+          <li>SEO metadata, sitemap, structured data</li>
+        </ul>
+      </div>
+      <div class="col">
+        <b style="font-size:14px;">New / Enhanced Features</b>
+        <ul class="list">
+          <li>Real Claude AI: concierge, listing gen, finance anomaly, dispute summary, review classifier</li>
+          <li>Bilingual EN/Urdu toggle (site-wide)</li>
+          <li>Referral leaderboard + rewards marketplace</li>
+          <li>Swipeable roommate matching</li>
+          <li>Video/voice review testimonials</li>
+          <li>Duplicate-photo fraud detection (perceptual hash)</li>
+          <li>OCR-ready ID verification (Google Vision, env-gated)</li>
+          <li>Deposit protection add-on (pilot)</li>
+          <li>WhatsApp click-to-chat, listing-alert signup</li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot">Basera — Demo Deck</div><div class="count">10 / 16</div>
+  </section>
+
+  <!-- 11 Tech stack -->
+  <section class="slide">
+    <h2>Tech Stack</h2>
+    <table>
+      <tr><th>Layer</th><th>Technology</th></tr>
+      <tr><td>Frontend</td><td>React 19, Vite, Tailwind CSS, Zustand, React Router, Framer Motion, Leaflet</td></tr>
+      <tr><td>Backend</td><td>Node.js, Express 5, MongoDB/Mongoose, JWT auth, Socket.io</td></tr>
+      <tr><td>AI</td><td>Anthropic Claude API (env-gated, template fallback)</td></tr>
+      <tr><td>Payments</td><td>JazzCash / EasyPaisa / Stripe (sandbox shells, ready for live credentials)</td></tr>
+      <tr><td>Maps</td><td>Leaflet + OpenStreetMap, OSRM routing</td></tr>
+      <tr><td>Hosting</td><td>Netlify (frontend), Railway (backend), MongoDB Atlas (database)</td></tr>
+    </table>
+    <div class="foot">Basera — Demo Deck</div><div class="count">11 / 16</div>
+  </section>
+
+  <!-- 12 Deployment -->
+  <section class="slide">
+    <h2>Deployment Architecture</h2>
+    <div class="img-wrap"><img src="workflow-03-deployment-architecture.svg" alt="Deployment architecture" /></div>
+    <div class="foot">Basera — Demo Deck</div><div class="count">12 / 16</div>
+  </section>
+
+  <!-- 13 Roadmap -->
+  <section class="slide">
+    <div class="kicker">Roadmap</div>
+    <h2>Advanced features for the next phase</h2>
+    <div class="grid4">
+      <div class="card"><b>SSR / Prerendering</b><br/><span style="color:var(--muted);font-size:13px;">For full search-engine crawlability</span></div>
+      <div class="card"><b>WhatsApp Business API</b><br/><span style="color:var(--muted);font-size:13px;">Book directly inside a chat</span></div>
+      <div class="card"><b>Native Mobile Apps</b><br/><span style="color:var(--muted);font-size:13px;">React Native + push notifications</span></div>
+      <div class="card"><b>Real Insurance Partner</b><br/><span style="color:var(--muted);font-size:13px;">Underwrite deposit protection for real</span></div>
+    </div>
+    <div class="foot">Basera — Demo Deck</div><div class="count">13 / 16</div>
+  </section>
+
+  <!-- 14 Marketing -->
+  <section class="slide">
+    <div class="kicker">Go-To-Market</div>
+    <h2>Social channel strategy (Pakistan, 2026 usage data)</h2>
+    <table>
+      <tr><th>Platform</th><th>Role</th></tr>
+      <tr><td>Instagram</td><td>Primary brand channel — Reels, carousels, city guides (core 18–24 audience)</td></tr>
+      <tr><td>TikTok</td><td>Growth/reach engine — room tours, myths vs. facts</td></tr>
+      <tr><td>Facebook</td><td>Broadest reach — listings, safety messaging, city groups</td></tr>
+      <tr><td>WhatsApp</td><td>Direct response — broadcast lists, in-app chat button</td></tr>
+    </table>
+    <p class="sub" style="margin-top:16px;">Full 4-week content calendar and daily Claude prompts in <i>Basera_Social_Media_Marketing_Plan.md</i>.</p>
+    <div class="foot">Basera — Demo Deck</div><div class="count">14 / 16</div>
+  </section>
+
+  <!-- 15 Status -->
+  <section class="slide">
+    <div class="kicker">Current Status</div>
+    <h2>Provisioned and ready — final push pending</h2>
+    <ul class="list">
+      <li>MongoDB Atlas cluster, Railway backend project, and Netlify frontend site are created under your accounts, with environment variables pre-filled.</li>
+      <li>Code changes exist locally; pushing to GitHub and connecting it to Railway/Netlify is the last manual step (see <i>DEPLOY_RUNBOOK.md</i>).</li>
+      <li>Database network access needs one explicit approval before the backend can connect.</li>
+    </ul>
+    <div class="foot">Basera — Demo Deck</div><div class="count">15 / 16</div>
+  </section>
+
+  <!-- 16 Hostel Groups -->
+  <section class="slide">
+    <div class="kicker">New — Phase 1</div>
+    <h2>Hostel Groups — chains like "Royal Group of Hostels"</h2>
+    <div class="sub">Searchable by group name, with a branded group page listing every branch.</div>
+    <div class="img-wrap"><img src="mockup-05-hostel-group.svg" alt="Hostel group page mockup" /></div>
+    <div class="foot">Basera — Demo Deck</div><div class="count">16 / 19</div>
+  </section>
+
+  <!-- 17 Warden dashboard -->
+  <section class="slide">
+    <div class="kicker">New — Phase 1</div>
+    <h2>Block Wardens — manual "Booked Offline" seat override</h2>
+    <div class="sub">When a seat is filled directly (cash, family arrangement), a warden marks it booked with a reason — reversible, and scoped only to their assigned block.</div>
+    <div class="img-wrap"><img src="mockup-06-warden-dashboard.svg" alt="Warden dashboard mockup" /></div>
+    <div class="foot">Basera — Demo Deck</div><div class="count">17 / 19</div>
+  </section>
+
+  <!-- 18 Stays / Hotels -->
+  <section class="slide">
+    <div class="kicker">New — Phase 1</div>
+    <h2>Hotels &amp; Guest Houses — a new vertical for travelers</h2>
+    <div class="sub">Nightly pricing, date-range booking, separate from the student monthly-rent flow — same verified-and-safe trust model.</div>
+    <div class="img-wrap"><img src="mockup-07-stays-hotels.svg" alt="Stays and hotels mockup" /></div>
+    <div class="foot">Basera — Demo Deck</div><div class="count">18 / 19</div>
+  </section>
+
+  <!-- 19 Thank you -->
+  <section class="slide cover">
+    <h1 style="font-size:44px;">Find your Basera.</h1>
+    <div class="sub">basera.pk · Verified student housing across Pakistan</div>
+    <div class="foot" style="color:#94A3B8;">Thank you</div>
+  </section>
+
+</div>
+
+<div class="nav">
+  <button class="secondary" onclick="go(-1)">◀ Prev</button>
+  <span id="pos">1 / 19</span>
+  <button onclick="go(1)">Next ▶</button>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  let i = 0;
+  function render(){
+    slides.forEach((s,idx)=>s.classList.toggle('active', idx===i));
+    document.getElementById('pos').textContent = (i+1)+' / '+slides.length;
+  }
+  function go(d){ i = Math.max(0, Math.min(slides.length-1, i+d)); render(); }
+  document.addEventListener('keydown', e=>{
+    if(e.key==='ArrowRight') go(1);
+    if(e.key==='ArrowLeft') go(-1);
+  });
+  render();
+</script>
+</body>
+</html>

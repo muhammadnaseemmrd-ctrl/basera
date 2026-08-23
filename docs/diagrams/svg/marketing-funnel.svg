@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 460" width="1240" height="460" font-family="Arial, sans-serif">
+  <rect width="1240" height="460" fill="#FFFFFF"/>
+  <text x="620" y="34" font-size="22" font-weight="800" fill="#182338" text-anchor="middle">Basera — Marketing Funnel &amp; Channel Roles</text>
+
+  <g font-size="13">
+    <polygon points="60,70 1180,70 1040,150 200,150" fill="#FFE2D6" stroke="#FF6B4A"/>
+    <text x="620" y="105" text-anchor="middle" font-weight="800" fill="#182338">AWARENESS</text>
+    <text x="620" y="128" text-anchor="middle" font-size="11" fill="#64748B">Facebook + TikTok video/reels — broad reach, brand/trust story</text>
+
+    <polygon points="200,160 1040,160 940,240 300,240" fill="#D7DEEC" stroke="#1B2A4A"/>
+    <text x="620" y="195" text-anchor="middle" font-weight="800" fill="#182338">CONSIDERATION</text>
+    <text x="620" y="218" text-anchor="middle" font-size="11" fill="#64748B">Instagram + Google Search — carousel ads, "hostel near [university]"</text>
+
+    <polygon points="300,250 940,250 840,330 400,330" fill="#FFF3C4" stroke="#E0A63A"/>
+    <text x="620" y="285" text-anchor="middle" font-weight="800" fill="#182338">CONVERSION</text>
+    <text x="620" y="308" text-anchor="middle" font-size="11" fill="#182338">Retargeting + lead-gen forms — dynamic listing ads, booking start</text>
+
+    <polygon points="400,340 840,340 780,410 460,410" fill="#E6FAF2" stroke="#0E9F6E"/>
+    <text x="620" y="370" text-anchor="middle" font-weight="800" fill="#182338">RETENTION</text>
+    <text x="620" y="392" text-anchor="middle" font-size="11" fill="#087A55">WhatsApp broadcast + email/push — renewals, referrals, rewards</text>
+  </g>
+
+  <text x="620" y="440" text-anchor="middle" font-size="11" fill="#94A3B8">Owned channels (WhatsApp, email, push) are free; every stage above them is a paid or organic acquisition layer</text>
+</svg>

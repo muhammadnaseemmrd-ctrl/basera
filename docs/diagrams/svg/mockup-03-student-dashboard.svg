@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 860" width="1280" height="860" font-family="Arial, sans-serif">
+  <rect width="1280" height="860" fill="#FFF8F5"/>
+  <rect width="1280" height="44" fill="#E5E7EB"/>
+  <circle cx="24" cy="22" r="6" fill="#F0512E"/><circle cx="46" cy="22" r="6" fill="#FFC857"/><circle cx="68" cy="22" r="6" fill="#1B2A4A"/>
+  <rect x="110" y="10" width="440" height="24" rx="12" fill="#FFFFFF"/>
+  <text x="130" y="27" font-size="13" fill="#334155">basera.pk/dashboard/student/engage</text>
+
+  <!-- sidebar -->
+  <rect x="0" y="44" width="260" height="816" fill="#FFFFFF"/>
+  <rect x="24" y="70" width="34" height="34" rx="9" fill="#1B2A4A"/>
+  <path d="M41 80 49.5 87.3V97.5a1.7 1.7 0 0 1-1.7 1.7h-5.3V91h-6.7v7.2h-5.3a1.7 1.7 0 0 1-1.7-1.7V87.3L41 80Z" fill="#FF6B4A"/>
+  <text x="70" y="94" font-size="18" font-weight="800" fill="#182338">Basera</text>
+
+  <g font-size="13" fill="#334155">
+    <rect x="16" y="130" width="228" height="38" rx="10" fill="#F0512E"/>
+    <text x="32" y="154" fill="#FFFFFF" font-weight="700">Overview</text>
+    <text x="32" y="200">My Bookings</text>
+    <text x="32" y="240">Payments</text>
+    <text x="32" y="280">Saved Hostels</text>
+    <rect x="16" y="300" width="228" height="38" rx="10" fill="#FFE2D6"/>
+    <text x="32" y="324" fill="#182338" font-weight="700">Explore &amp; Activities</text>
+    <text x="32" y="370">Community</text>
+    <text x="32" y="410">Support &amp; Safety</text>
+    <text x="32" y="450">Profile</text>
+  </g>
+
+  <!-- header -->
+  <text x="292" y="100" font-size="22" font-weight="800" fill="#182338">Explore &amp; Activities</text>
+  <text x="292" y="122" font-size="13" fill="#64748B">Decision tools, roommate matching, and community</text>
+
+  <!-- roommate swipe deck (new feature) -->
+  <text x="292" y="168" font-size="15" font-weight="700" fill="#182338">Roommate Matching — Swipe View (new)</text>
+  <rect x="292" y="182" width="330" height="230" rx="18" fill="#FFFFFF" stroke="#E5E7EB"/>
+  <rect x="292" y="182" width="330" height="230" rx="18" fill="none" stroke="#FF6B4A" stroke-width="2" transform="rotate(-3 457 297)"/>
+  <circle cx="457" cy="250" r="34" fill="#D7DEEC"/>
+  <text x="457" y="330" font-size="14" font-weight="700" fill="#182338" text-anchor="middle">Sana M. · 91% match</text>
+  <text x="457" y="350" font-size="11" fill="#64748B" text-anchor="middle">Non-smoker · Early sleeper · NUST</text>
+  <circle cx="410" cy="392" r="20" fill="#FDECEC"/>
+  <text x="410" y="398" font-size="14" text-anchor="middle" fill="#9B1C1C">✕</text>
+  <circle cx="505" cy="392" r="20" fill="#E6FAF2"/>
+  <text x="505" y="398" font-size="14" text-anchor="middle" fill="#087A55">♥</text>
+
+  <!-- leaderboard/rewards (new feature) -->
+  <text x="656" y="168" font-size="15" font-weight="700" fill="#182338">Referral Leaderboard &amp; Rewards (new)</text>
+  <rect x="656" y="182" width="536" height="230" rx="16" fill="#FFFFFF" stroke="#E5E7EB"/>
+  <text x="676" y="210" font-size="12" font-weight="700" fill="#64748B">Rank   Student        Points</text>
+  <text x="676" y="236" font-size="13" fill="#182338">1       Ahmed K.        4,200</text>
+  <text x="676" y="260" font-size="13" fill="#182338">2       Fatima S.        3,650</text>
+  <text x="676" y="284" font-size="13" fill="#182338">3       You (Bilal R.)   2,900</text>
+  <rect x="676" y="304" width="150" height="80" rx="10" fill="#FFF8F5"/>
+  <text x="688" y="324" font-size="11" font-weight="700" fill="#182338">Mobile Top-up</text>
+  <text x="688" y="340" font-size="11" fill="#64748B">1,500 pts</text>
+  <rect x="688" y="352" width="80" height="22" rx="6" fill="#FF6B4A"/>
+  <text x="700" y="367" font-size="10" fill="#FFFFFF">Redeem</text>
+  <rect x="840" y="304" width="150" height="80" rx="10" fill="#FFF8F5"/>
+  <text x="852" y="324" font-size="11" font-weight="700" fill="#182338">Food Voucher</text>
+  <text x="852" y="340" font-size="11" fill="#64748B">2,000 pts</text>
+  <rect x="852" y="352" width="80" height="22" rx="6" fill="#FF6B4A"/>
+  <text x="864" y="367" font-size="10" fill="#FFFFFF">Redeem</text>
+  <rect x="1004" y="304" width="150" height="80" rx="10" fill="#F1F5F9"/>
+  <text x="1016" y="324" font-size="11" font-weight="700" fill="#182338">Bookstore -10%</text>
+  <text x="1016" y="340" font-size="11" fill="#64748B">3,500 pts</text>
+  <rect x="1016" y="352" width="90" height="22" rx="6" fill="#CBD5E1"/>
+  <text x="1028" y="367" font-size="10" fill="#64748B">Need more pts</text>
+
+  <!-- rent split / cost estimator -->
+  <text x="292" y="452" font-size="15" font-weight="700" fill="#182338">Cost Estimator</text>
+  <rect x="292" y="466" width="900" height="120" rx="16" fill="#FFFFFF" stroke="#E5E7EB"/>
+  <text x="316" y="496" font-size="12" fill="#64748B">Monthly rent</text>
+  <text x="316" y="518" font-size="18" font-weight="800" fill="#182338">PKR 18,000</text>
+  <text x="480" y="496" font-size="12" fill="#64748B">Food + utilities</text>
+  <text x="480" y="518" font-size="18" font-weight="800" fill="#182338">PKR 9,500</text>
+  <text x="640" y="496" font-size="12" fill="#64748B">Deposit protection</text>
+  <text x="640" y="518" font-size="18" font-weight="800" fill="#182338">PKR 540</text>
+  <text x="820" y="496" font-size="12" fill="#64748B">Total this month</text>
+  <text x="820" y="518" font-size="18" font-weight="800" fill="#F0512E">PKR 28,040</text>
+
+  <text x="640" y="848" font-size="11" fill="#94A3B8" text-anchor="middle">Design mockup — illustrative UI, not a live screenshot</text>
+</svg>

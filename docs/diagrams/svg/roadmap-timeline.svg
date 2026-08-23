@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 520" width="1240" height="520" font-family="Arial, sans-serif">
+  <rect width="1240" height="520" fill="#FFFFFF"/>
+  <text x="620" y="34" font-size="22" font-weight="800" fill="#182338" text-anchor="middle">Basera — Phased Development Roadmap</text>
+
+  <g font-size="12">
+    <rect x="30" y="70" width="170" height="110" rx="12" fill="#E6FAF2" stroke="#0E9F6E"/>
+    <text x="115" y="94" text-anchor="middle" font-weight="800" fill="#087A55">✓ DONE</text>
+    <text x="115" y="116" text-anchor="middle" font-weight="800" fill="#182338">Phase 0</text>
+    <text x="115" y="134" text-anchor="middle" fill="#64748B">Rebrand to</text>
+    <text x="115" y="150" text-anchor="middle" fill="#64748B">Basera, bug</text>
+    <text x="115" y="166" text-anchor="middle" fill="#64748B">fixes, AI wired</text>
+
+    <rect x="220" y="70" width="170" height="110" rx="12" fill="#E6FAF2" stroke="#0E9F6E"/>
+    <text x="305" y="94" text-anchor="middle" font-weight="800" fill="#087A55">✓ DONE</text>
+    <text x="305" y="116" text-anchor="middle" font-weight="800" fill="#182338">Phase 1</text>
+    <text x="305" y="134" text-anchor="middle" fill="#64748B">Groups, Wardens,</text>
+    <text x="305" y="150" text-anchor="middle" fill="#64748B">roommate visibility,</text>
+    <text x="305" y="166" text-anchor="middle" fill="#64748B">Stays vertical</text>
+
+    <rect x="410" y="60" width="200" height="130" rx="12" fill="#FFE2D6" stroke="#FF6B4A"/>
+    <text x="510" y="84" text-anchor="middle" font-weight="800" fill="#B23A22">▶ NEXT — GO LIVE</text>
+    <text x="510" y="106" text-anchor="middle" font-weight="800" fill="#182338">Phase 1B</text>
+    <text x="510" y="124" text-anchor="middle" fill="#64748B">Build, push to GitHub,</text>
+    <text x="510" y="140" text-anchor="middle" fill="#64748B">deploy Railway + Netlify,</text>
+    <text x="510" y="156" text-anchor="middle" fill="#64748B">seed data, smoke test</text>
+    <text x="510" y="174" text-anchor="middle" fill="#64748B">— ready to demo publicly</text>
+
+    <rect x="630" y="70" width="180" height="110" rx="12" fill="#FFF3C4" stroke="#E0A63A"/>
+    <text x="720" y="94" text-anchor="middle" font-weight="800" fill="#8A6416">○ PLANNED</text>
+    <text x="720" y="116" text-anchor="middle" font-weight="800" fill="#182338">Phase 2</text>
+    <text x="720" y="134" text-anchor="middle" fill="#64748B">Mobile app build,</text>
+    <text x="720" y="150" text-anchor="middle" fill="#64748B">host block/warden UI,</text>
+    <text x="720" y="166" text-anchor="middle" fill="#64748B">real screenshots</text>
+
+    <rect x="830" y="70" width="180" height="110" rx="12" fill="#FFF3C4" stroke="#E0A63A"/>
+    <text x="920" y="94" text-anchor="middle" font-weight="800" fill="#8A6416">○ PLANNED</text>
+    <text x="920" y="116" text-anchor="middle" font-weight="800" fill="#182338">Phase 3</text>
+    <text x="920" y="134" text-anchor="middle" fill="#64748B">SEO/SSR, real OCR,</text>
+    <text x="920" y="150" text-anchor="middle" fill="#64748B">perceptual hashing,</text>
+    <text x="920" y="166" text-anchor="middle" fill="#64748B">insurance partner</text>
+
+    <rect x="1030" y="70" width="180" height="110" rx="12" fill="#FFF3C4" stroke="#E0A63A"/>
+    <text x="1120" y="94" text-anchor="middle" font-weight="800" fill="#8A6416">○ PLANNED</text>
+    <text x="1120" y="116" text-anchor="middle" font-weight="800" fill="#182338">Phase 4 &amp; 5</text>
+    <text x="1120" y="134" text-anchor="middle" fill="#64748B">Mobile parity, then</text>
+    <text x="1120" y="150" text-anchor="middle" fill="#64748B">Rides / Food / Jobs</text>
+    <text x="1120" y="166" text-anchor="middle" fill="#64748B">new verticals</text>
+  </g>
+
+  <line x1="30" y1="230" x2="1210" y2="230" stroke="#CBD5E1" stroke-width="2"/>
+  <g stroke="#94A3B8" stroke-width="2" fill="none" marker-end="url(#arrowT)">
+    <line x1="200" y1="125" x2="218" y2="125"/>
+    <line x1="390" y1="125" x2="408" y2="125"/>
+    <line x1="610" y1="125" x2="628" y2="125"/>
+    <line x1="810" y1="125" x2="828" y2="125"/>
+    <line x1="1010" y1="125" x2="1028" y2="125"/>
+  </g>
+  <defs>
+    <marker id="arrowT" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#94A3B8"/>
+    </marker>
+  </defs>
+
+  <rect x="30" y="260" width="1180" height="230" rx="14" fill="#FFF8F5" stroke="#E5E7EB"/>
+  <text x="56" y="292" font-size="14" font-weight="800" fill="#182338">Phase 1B — "Ready to Deploy" checklist (the focus of this roadmap)</text>
+  <g font-size="12" fill="#334155">
+    <text x="56" y="320">1. Push repository to a GitHub repo the owner controls</text>
+    <text x="56" y="344">2. Install dependencies and run production build + lint for client, server, and app</text>
+    <text x="56" y="368">3. Connect Railway (backend) and Netlify (frontend) to the pushed repo; environment variables already provisioned</text>
+    <text x="56" y="392">4. Set remaining secrets: JWT_SECRET, CLOUDINARY_*, CLAUDE_API_KEY (optional), payment gateway keys (optional for launch)</text>
+    <text x="56" y="416">5. Run the seed script against the live MongoDB Atlas database to populate demo accounts</text>
+    <text x="56" y="440">6. Verify: backend health check green, frontend loads live listings, demo login + booking flow works end-to-end</text>
+    <text x="640" y="320">7. Confirm sitemap/robots and SEO meta tags are live on the deployed domain</text>
+    <text x="640" y="344">8. Smoke-test all 7 role logins (student, host, group owner, warden, hotel owner, admin, parent link)</text>
+    <text x="640" y="368">9. Turn on real integrations only where ready (AI, OCR, payments) — everything else keeps working in template/demo mode</text>
+    <text x="640" y="392">10. Announce launch — hand off to the Marketing &amp; Social Media Plan</text>
+  </g>
+</svg>

@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" width="1200" height="300" font-family="Arial, sans-serif">
+  <rect width="1200" height="300" fill="#FFFFFF"/>
+  <text x="600" y="34" font-size="20" font-weight="800" fill="#182338" text-anchor="middle">Host Listing &amp; Trust Workflow</text>
+
+  <g font-size="12">
+    <rect x="20" y="70" width="176" height="90" rx="12" fill="#D7DEEC" stroke="#1B2A4A"/>
+    <text x="108" y="105" text-anchor="middle" font-weight="700" fill="#182338">1. Onboard</text>
+    <text x="108" y="123" text-anchor="middle" fill="#64748B">Proof upload,</text>
+    <text x="108" y="139" text-anchor="middle" fill="#64748B">plan selection</text>
+
+    <rect x="232" y="70" width="176" height="90" rx="12" fill="#D7DEEC" stroke="#1B2A4A"/>
+    <text x="320" y="105" text-anchor="middle" font-weight="700" fill="#182338">2. List Room</text>
+    <text x="320" y="123" text-anchor="middle" fill="#64748B">Photos, price,</text>
+    <text x="320" y="139" text-anchor="middle" fill="#64748B">AI description gen</text>
+
+    <rect x="444" y="70" width="176" height="90" rx="12" fill="#FFF3C4" stroke="#E0A63A"/>
+    <text x="532" y="105" text-anchor="middle" font-weight="700" fill="#182338">3. Auto Checks</text>
+    <text x="532" y="123" text-anchor="middle" fill="#64748B">Contact-leak filter,</text>
+    <text x="532" y="139" text-anchor="middle" fill="#64748B">duplicate-photo hash</text>
+
+    <rect x="656" y="70" width="176" height="90" rx="12" fill="#FFE2D6" stroke="#FF6B4A"/>
+    <text x="744" y="105" text-anchor="middle" font-weight="700" fill="#182338">4. Admin Review</text>
+    <text x="744" y="123" text-anchor="middle" fill="#64748B">Verification queue,</text>
+    <text x="744" y="139" text-anchor="middle" fill="#64748B">field visit scheduling</text>
+
+    <rect x="868" y="70" width="176" height="90" rx="12" fill="#E6FAF2" stroke="#0E9F6E"/>
+    <text x="956" y="105" text-anchor="middle" font-weight="700" fill="#182338">5. Published</text>
+    <text x="956" y="123" text-anchor="middle" fill="#64748B">Verified badge,</text>
+    <text x="956" y="139" text-anchor="middle" fill="#64748B">visible in search/map</text>
+
+    <rect x="1080" y="70" width="100" height="90" rx="12" fill="#E6FAF2" stroke="#0E9F6E"/>
+    <text x="1130" y="105" text-anchor="middle" font-weight="700" fill="#182338">6. Grows</text>
+    <text x="1130" y="123" text-anchor="middle" fill="#64748B">Smart pricing,</text>
+    <text x="1130" y="139" text-anchor="middle" fill="#64748B">reputation score</text>
+  </g>
+
+  <g stroke="#94A3B8" stroke-width="2" fill="none" marker-end="url(#arrow2)">
+    <line x1="196" y1="115" x2="230" y2="115"/>
+    <line x1="408" y1="115" x2="442" y2="115"/>
+    <line x1="620" y1="115" x2="654" y2="115"/>
+    <line x1="832" y1="115" x2="866" y2="115"/>
+    <line x1="1044" y1="115" x2="1078" y2="115"/>
+  </g>
+  <defs>
+    <marker id="arrow2" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#94A3B8"/>
+    </marker>
+  </defs>
+
+  <text x="600" y="220" font-size="12" fill="#64748B" text-anchor="middle">Duplicate-photo detection (perceptual hash) and OCR-assisted ID checks flag likely fraud for human review — never auto-reject</text>
+  <text x="600" y="242" font-size="12" fill="#64748B" text-anchor="middle">rather than blocking automatically, keeping false positives from hurting legitimate hosts.</text>
+</svg>

@@ -1,0 +1,482 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Feature &amp; Requirements Specification</title>
+    <style>
+@page { size: A4; margin: 20mm 16mm 20mm 16mm; }
+* { box-sizing: border-box; }
+body { font-family: Arial, "Segoe UI", sans-serif; color: #182338; font-size: 11.5pt; line-height: 1.55; }
+.cover {
+  background: linear-gradient(135deg, #1B2A4A, #243B60);
+  color: #fff; border-radius: 18px; padding: 70px 56px; margin-bottom: 26px;
+  page-break-after: always;
+}
+.cover .kicker { color: #FFC857; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; font-size: 12px; margin-bottom: 14px; }
+.cover h1 { color: #fff; font-size: 40px; margin: 0 0 14px; font-weight: 800; }
+.cover .sub { color: #D7DEEC; font-size: 16px; max-width: 640px; }
+.cover .date { color: #94A3B8; font-size: 12px; margin-top: 40px; }
+h1 { color: #1B2A4A; font-size: 21pt; border-bottom: 3px solid #FF6B4A; padding-bottom: 6px; margin-top: 30px; page-break-after: avoid; }
+h2 { color: #1B2A4A; font-size: 15.5pt; margin-top: 24px; page-break-after: avoid; }
+h3 { color: #F0512E; font-size: 12.5pt; margin-top: 16px; page-break-after: avoid; }
+h4 { color: #182338; font-size: 11.5pt; margin-top: 12px; page-break-after: avoid; }
+p { margin: 8px 0; }
+a { color: #F0512E; }
+ul, ol { margin: 6px 0; padding-left: 22px; }
+li { margin-bottom: 4px; }
+table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 10pt; }
+th { background: #1B2A4A; color: #fff; text-align: left; padding: 7px 10px; }
+td { border-bottom: 1px solid #E5E7EB; padding: 6px 10px; vertical-align: top; }
+tr:nth-child(even) td { background: #FAFAFA; }
+code { background: #F1F5F9; padding: 1px 5px; border-radius: 4px; font-size: 10pt; }
+pre { background: #182338; color: #E2E8F0; padding: 14px 16px; border-radius: 10px; overflow-x: auto; font-size: 9.5pt; }
+pre code { background: none; color: inherit; }
+blockquote { border-left: 4px solid #FFC857; background: #FFF8F5; margin: 12px 0; padding: 8px 16px; color: #64748B; }
+img { max-width: 100%; display: block; margin: 14px auto; border: 1px solid #E5E7EB; border-radius: 10px; }
+hr { border: none; border-top: 1px solid #E5E7EB; margin: 26px 0; }
+.figcap { text-align: center; font-size: 9.5pt; color: #64748B; margin-top: -8px; margin-bottom: 18px; }
+</style></head><body>
+    <div class="cover">
+      <div class="kicker">Basera Platform Documentation</div>
+      <h1>Feature &amp; Requirements Specification</h1>
+      <div class="sub">The complete product, architecture, and feature reference for the Basera platform</div>
+      <div><span style="background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:6px 14px;font-size:11px;font-weight:700;margin-right:8px;display:inline-block;margin-top:8px;">7 User Roles</span><span style="background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:6px 14px;font-size:11px;font-weight:700;margin-right:8px;display:inline-block;margin-top:8px;">60+ API Routes</span><span style="background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:6px 14px;font-size:11px;font-weight:700;margin-right:8px;display:inline-block;margin-top:8px;">Escrow-Protected</span><span style="background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:6px 14px;font-size:11px;font-weight:700;margin-right:8px;display:inline-block;margin-top:8px;">AI-Ready</span></div>
+      <div class="date">Prepared August 23, 2026</div>
+    </div>
+    <h1 id="basera-complete-feature-requirements-specification">Basera — Complete Feature &amp; Requirements Specification</h1>
+<p><em>Consolidated from all prior planning documents (V1, V2, V3, V5, V6, Modern Feature Expansion Roadmap), the rebrand audit, and the live codebase as of August 23, 2026. This is the single reference for what Basera is, who it serves, and everything it does or will do.</em></p>
+<hr />
+<h2 id="1-product-vision">1. Product Vision</h2>
+<p>Basera (Urdu for "nest, shelter, abode") is a trust-first accommodation marketplace for Pakistan. It has two connected sides:</p>
+<ul>
+<li><strong>Long-stay student housing</strong> — students and young professionals search, book, and pay for verified hostels, PGs, and shared or private rooms near their university, with rent held in escrow until they've actually moved in.</li>
+<li><strong>Short-stay Hotels &amp; Guest Houses</strong> — the same verification and booking infrastructure extended to travellers booking a night or a weekend, launched as a deliberately separate product vertical rather than a bolt-on.</li>
+</ul>
+<p>The core differentiator is <strong>trust, made concrete</strong>: verification badges that mean something, rent that is protected until move-in, host contact details that are gated until a real commitment is made, and — uniquely — visibility into <em>who you'll actually be living with</em> before you book. This directly answers how student housing is found informally today: word of mouth, Facebook groups, and OLX/Zameen listings with no protection if a room doesn't match its photos or a landlord takes a deposit and disappears.</p>
+<p><strong>Tagline:</strong> <em>"Find your Basera."</em></p>
+<hr />
+<h2 id="2-market-context">2. Market Context</h2>
+<h3 id="21-market-size-by-cityuniversity-cluster">2.1 Market size (by city/university cluster)</h3>
+<table>
+<thead>
+<tr>
+<th>University / City Cluster</th>
+<th>Students</th>
+<th>Off-Campus %</th>
+<th>Estimated Hostel Market (PKR/yr)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NUST, QAU, COMSATS — Islamabad/Rawalpindi</td>
+<td>120,000+</td>
+<td>60%</td>
+<td>1.08 Billion</td>
+</tr>
+<tr>
+<td>LUMS, UET, Punjab University — Lahore</td>
+<td>200,000+</td>
+<td>55%</td>
+<td>1.65 Billion</td>
+</tr>
+<tr>
+<td>IBA, NED, University of Karachi</td>
+<td>180,000+</td>
+<td>50%</td>
+<td>1.35 Billion</td>
+</tr>
+<tr>
+<td>UET, BZU — Faisalabad</td>
+<td>80,000+</td>
+<td>65%</td>
+<td>0.78 Billion</td>
+</tr>
+<tr>
+<td><strong>Total (four clusters)</strong></td>
+<td><strong>580,000+</strong></td>
+<td><strong>~58% avg</strong></td>
+<td><strong>~PKR 4.86 Billion/yr</strong></td>
+</tr>
+</tbody>
+</table>
+<p>A later planning pass revised this upward on a national basis: <strong>over 1.7 million outstation students</strong> are enrolled across universities in Islamabad, Lahore, Karachi, and Peshawar alone, of whom <strong>fewer than 30% secure on-campus housing</strong> — the remainder rely on informal, unprotected arrangements today.</p>
+<h3 id="22-personas">2.2 Personas</h3>
+<table>
+<thead>
+<tr>
+<th>Persona</th>
+<th>Age</th>
+<th>Primary Need</th>
+<th>How Basera Serves Them</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Outstation Student</td>
+<td>18–26</td>
+<td>Safe, affordable room near campus, fast</td>
+<td>Verified search, escrow-protected rent, roommate visibility</td>
+</tr>
+<tr>
+<td>Working Professional</td>
+<td>22–32</td>
+<td>Privacy, flexibility, no long lease commitment</td>
+<td>Shared/private room filters, flexible booking terms</td>
+</tr>
+<tr>
+<td>Hostel Owner (single or group)</td>
+<td>28–55</td>
+<td>Fill vacancies faster, reduce disputes, get paid reliably</td>
+<td>Growth Center, smart pricing, escrow payout, Hostel Groups branding</td>
+</tr>
+<tr>
+<td>Individual Landlord</td>
+<td>25–60</td>
+<td>List one property with minimal admin overhead</td>
+<td>Simple listing flow, contact gating protects them too</td>
+</tr>
+<tr>
+<td>Female Tenant</td>
+<td>18–26</td>
+<td>Safety signals specifically (verified, other-gender presence, warden oversight)</td>
+<td>Safety-confidence map layer, gender policy filters, warden-managed blocks</td>
+</tr>
+<tr>
+<td>Parent / Guardian</td>
+<td>40–60</td>
+<td>Reassurance without needing to personally verify everything</td>
+<td>Read-only Parent Portal share link, safety summaries</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-competitive-positioning">2.3 Competitive positioning</h3>
+<p>No existing Pakistani platform (OLX, Zameen, HamariWeb, informal Facebook groups) combines <strong>real-time booking with an in-platform management panel and escrow protection</strong> — they are listing boards, not marketplaces. Global reference points like Airbnb and Booking.com validate the trust-and-booking model but don't serve the student long-stay use case at all. Basera's roommate-visibility feature (below) has no direct analogue in any of these.</p>
+<hr />
+<h2 id="3-who-uses-the-platform-roles-access-model">3. Who Uses the Platform — Roles &amp; Access Model</h2>
+<p><img alt="User roles diagram" src="file:///E:/Hostel_Hub/docs/diagrams/user-roles-map.png" />
+<em>Figure 1: The seven people Basera is built for, and what each one comes to do.</em></p>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Demo Account</th>
+<th>What They Can Do</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Student / Young Professional</strong></td>
+<td><code>student@basera.pk</code></td>
+<td>Search, book, pay rent, message hosts (contact-gated), see roommate summaries, raise disputes, use the decision-lab tools</td>
+</tr>
+<tr>
+<td><strong>Independent Host / Landlord</strong></td>
+<td><code>landlord@basera.pk</code></td>
+<td>List rooms, manage tenants and bookings, use the Growth Center and smart pricing, request deposit deductions</td>
+</tr>
+<tr>
+<td><strong>Hostel Group Owner</strong></td>
+<td><code>owner@basera.pk</code></td>
+<td>Everything a Host can do, plus create a <code>HostelGroup</code> brand and attach multiple hostel branches under one verified identity</td>
+</tr>
+<tr>
+<td><strong>Warden</strong></td>
+<td><code>warden@basera.pk</code></td>
+<td>Manage only the specific <code>Block</code> they're assigned to (enforced server-side); mark seats booked-offline and release them</td>
+</tr>
+<tr>
+<td><strong>Hotel / Guest House Owner</strong></td>
+<td>uses the Host login, via <code>/host/stays</code></td>
+<td>List and manage short-stay <code>Property</code> records and nightly bookings, separate from the student-rental inventory</td>
+</tr>
+<tr>
+<td><strong>Admin / Trust &amp; Finance Ops</strong></td>
+<td><code>admin@basera.pk</code></td>
+<td>Verification queue, finance command room, dispute resolution, moderation, platform settings</td>
+</tr>
+<tr>
+<td><strong>Parent / Guardian</strong></td>
+<td>no login — share link</td>
+<td>Read-only safety and visit summary, generated and shared by the student</td>
+</tr>
+</tbody>
+</table>
+<p>Two additional roles exist at the <strong>database schema level</strong> (<code>property_manager</code> and <code>finance</code> in <code>User.js</code>'s role enum) but do not yet have a dedicated, documented dashboard or clearly scoped permission set — see the Gaps section (§9) and the Development Master Plan for the recommended next step.</p>
+<hr />
+<h2 id="4-system-architecture">4. System Architecture</h2>
+<p><img alt="System architecture diagram" src="file:///E:/Hostel_Hub/docs/diagrams/architecture-system.png" />
+<em>Figure 2: Basera's full technical architecture — client apps, API, database, hosting, and every optional external integration.</em></p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Technology</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Web frontend</td>
+<td>React 19, Vite, Tailwind CSS, Zustand, React Router 7, Framer Motion, Leaflet</td>
+<td><code>client/</code> — installable as a PWA</td>
+</tr>
+<tr>
+<td>Mobile app</td>
+<td>Expo / React Native (SDK 51), React Navigation, Zustand, Axios</td>
+<td><code>app/</code> — source-complete, not yet built/published (Phase 2)</td>
+</tr>
+<tr>
+<td>Backend API</td>
+<td>Node.js, Express 5, MongoDB/Mongoose, JWT auth, Socket.io</td>
+<td><code>server/</code> — REST under <code>/api/v1</code>, 60+ route modules</td>
+</tr>
+<tr>
+<td>AI</td>
+<td>Anthropic Claude API, env-gated (<code>CLAUDE_API_KEY</code>), template fallback when absent</td>
+<td><code>server/services/aiService.js</code></td>
+</tr>
+<tr>
+<td>Database</td>
+<td>MongoDB Atlas (<code>basera-cluster</code>, free M0 tier)</td>
+<td>Dual-mode: every route falls back to realistic in-memory demo data when no <code>MONGO_URI</code> is configured</td>
+</tr>
+<tr>
+<td>Hosting</td>
+<td>Netlify (frontend), Railway (backend)</td>
+<td>See the Development Master Plan for exact provisioned resource IDs and go-live steps</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The single most important architectural convention in this codebase is dual-mode demo/live behaviour.</strong> Nearly every route checks <code>mongoose.connection.readyState === 1</code> and serves realistic in-memory data otherwise. This is what lets the <em>entire</em> platform — including brand-new features — be explored and demoed convincingly with zero setup, and it is a hard requirement for any new feature going forward (see the Master Plan's working conventions).</p>
+<hr />
+<h2 id="5-core-data-model">5. Core Data Model</h2>
+<p><img alt="Simplified entity relationship diagram" src="file:///E:/Hostel_Hub/docs/diagrams/data-model-er.png" />
+<em>Figure 3: 14 of the platform's 60+ Mongoose models — the ones that drive the core booking and trust flow. The student long-stay path (escrow + contact gating) and the short-stay Hotels/Guest-Houses path are deliberately separate models sharing the same trust layer.</em></p>
+<p>The full model set spans identity (<code>User</code>, <code>RoommateProfile</code>), property structure (<code>HostelGroup</code>, <code>Hostel</code>, <code>Block</code>, <code>Room</code>, <code>BedBlock</code>, <code>Property</code>), transactions (<code>Booking</code>, <code>StayBooking</code>, <code>EscrowTransaction</code>, <code>LedgerEntry</code>, <code>Discount</code>, <code>RentOffer</code>), trust (<code>Dispute</code>, <code>DepositCase</code>, <code>Review</code>, <code>SafetyIncident</code>, <code>TrustScore</code>, <code>HostelDNAScore</code>), community (<code>CommunityPost</code>, <code>RoommateRequest</code>, <code>HostelPoll</code>, <code>MarketplaceItem</code>, <code>LostFoundItem</code>), and platform operations (<code>AuditLog</code>, <code>PolicyRule</code>, <code>WebhookEvent</code>, <code>JobLog</code>, <code>PlatformSetting</code>).</p>
+<hr />
+<h2 id="6-complete-feature-inventory">6. Complete Feature Inventory</h2>
+<h3 id="61-core-marketplace-foundational-complete">6.1 Core marketplace (foundational, complete)</h3>
+<p>Public listings and search; map-based discovery (bounding-box, polygon, and radius search; affordability, isochrone-commute, and safety-confidence overlays); hostel and room detail pages; booking flow; escrow-held payments (JazzCash/EasyPaisa/Stripe shells, ready for live credentials); student, host, and admin dashboards; contact gating until paid confirmation; chat with contact-leak filtering; discounts and coupons; referral loyalty points; PDF documents (receipts, ledgers, agreements, payout statements) with public QR verification; recurring rent reminders; dispute resolution workflow; deposit handling; review moderation; KYC/verification queue; community suite (feed, roommate requests, polls, marketplace, lost &amp; found); neighbourhood intelligence (points of interest, commute times, rickshaw fares); and the full "V6" platform layer (finance command room, trust center, growth ops, academic calendar, group bookings, digital tenancy agreements, mess menu ratings, live room board, student trust score).</p>
+<h3 id="62-booking-escrow-workflow">6.2 Booking &amp; Escrow Workflow</h3>
+<p><img alt="Booking and escrow workflow" src="file:///E:/Hostel_Hub/docs/diagrams/workflow-01-booking-escrow.png" />
+<em>Figure 4: How a student's rent moves from payment to host payout, and what happens if a dispute is raised.</em></p>
+<p>Student pays rent + deposit + service fee (with an optional Deposit Protection add-on); funds are held in escrow while commission is calculated; after move-in plus a 48-hour no-dispute hold window, the host is paid out and a statement is issued. A dispute raised before payout blocks release until an admin resolves it and issues a resolution letter. A report of an off-platform payment attempt also blocks payout automatically and opens a high-priority review case.</p>
+<h3 id="63-host-listing-workflow">6.3 Host Listing Workflow</h3>
+<p><img alt="Host listing workflow" src="file:///E:/Hostel_Hub/docs/diagrams/workflow-02-host-listing.png" />
+<em>Figure 5: How a host or hostel group gets a property live on the platform.</em></p>
+<h3 id="64-trust-safety-roommate-visibility-the-core-differentiator">6.4 Trust, Safety &amp; Roommate Visibility (the core differentiator)</h3>
+<ul>
+<li><strong>Contact gating</strong> — host phone/email/WhatsApp are hidden until a paid, confirmed booking (short-stay Hotels/Guest-Houses bookings are a deliberate exception — see §8).</li>
+<li><strong>Chat and listing filtering</strong> — phone numbers, emails, external links, and off-platform payment instructions are masked or flagged automatically, both in chat and in listing submissions before publishing.</li>
+<li><strong>Roommate visibility</strong> — a student's profile can optionally include an <code>occupantProfile</code> (type — student/teacher/working professional/freelancer/other, field/subject, study level, a short bio, and an opt-out toggle). Anyone browsing a shared room sees a category-level summary of who already lives there — <em>"Currently living here: 1 Working Professional (Schoolteacher, Mathematics) — quiet, early sleeper"</em> — without ever revealing a name, email, or phone number. This lets a student who specifically wants, say, a maths-teacher roommate find and choose that room, while respecting everyone's privacy.</li>
+<li><strong>Verification &amp; moderation</strong> — KYC/OCR review, listing quality scoring, audit logs, operational health checks, review moderation.</li>
+<li><strong>DNA score, trust score, and vacancy forecast</strong> — legitimate, deterministic scoring formulas (not machine learning, despite the naming) that surface a hostel's overall health at a glance.</li>
+</ul>
+<h3 id="65-hostel-groups-blocks-wardens">6.5 Hostel Groups, Blocks &amp; Wardens</h3>
+<p><img alt="Hostel group branded page" src="file:///E:/Hostel_Hub/docs/diagrams/mockup-05-hostel-group.png" />
+<em>Figure 6: A hostel chain's branded group page, listing every branch under one verified identity.</em></p>
+<p>Hostel chains/brands (e.g. "Royal Group of Hostels") are first-class: a <code>HostelGroup</code> model, <code>GET/POST /api/v1/hostel-groups</code>, a group-level branding page (<code>/hostel-groups/:slug</code>), and hostel search that matches group names too, so searching "Royal" surfaces every branch. Larger properties can be split into physical <code>Block</code>s, each with an assigned Warden — a role that can log in and see (and act on) only the blocks assigned to them, enforced server-side, not just hidden in the UI.</p>
+<p><img alt="Warden dashboard" src="file:///E:/Hostel_Hub/docs/diagrams/mockup-06-warden-dashboard.png" />
+<em>Figure 7: The Warden Dashboard, including the manual seat-booked override.</em></p>
+<p><strong>Manual seat-booked override</strong> lets a warden, host, or admin mark a specific bed as booked through an off-platform channel (e.g. "a family paid cash directly, verified on-site") with a reason note, using the existing bed-block mechanism extended with a <code>booked_offline</code> state — visually distinct from repair/cleaning holds, and reversible with a one-click Release.</p>
+<h3 id="66-hotels-guest-houses-the-new-vertical">6.6 Hotels &amp; Guest Houses (the new vertical)</h3>
+<p><img alt="Hotels and guest houses search" src="file:///E:/Hostel_Hub/docs/diagrams/mockup-07-stays-hotels.png" />
+<em>Figure 8: The parallel short-stay vertical, deliberately styled to look and feel different from the monthly student listings.</em></p>
+<p>A parallel short-stay product for travellers, built as separate models (<code>Property</code>, <code>StayBooking</code>) rather than overloading the student-hostel models, since nightly pricing, date-range booking, and guest-contact expectations are genuinely different from monthly rent plus escrow. Public search/detail pages (<code>/stays</code>, <code>/stays/:id</code>), a guest's own bookings (<code>/dashboard/stays</code>), and an owner-facing manager (<code>/host/stays</code>) reuse the same verification/trust infrastructure as the student side, extending Basera from "student housing marketplace" to "verified stays marketplace" without diluting the core product.</p>
+<h3 id="67-student-tools">6.7 Student Tools</h3>
+<p><img alt="Student dashboard" src="file:///E:/Hostel_Hub/docs/diagrams/mockup-03-student-dashboard.png" />
+<em>Figure 9: The student dashboard and decision-lab tools.</em></p>
+<p>Overview, bookings, payments/rent, reviews, disputes, documents, safety/support, emergency contact, alert acknowledgements, maintenance tickets; smart room comparison, roommate compatibility matching (including a swipeable Tinder-style UI), saved search alerts, referral loyalty points with a leaderboard and rewards marketplace, outdoor activity planning with contribution tracking; multi-stop route planner, saved/shareable routes, study session creation, packing checklist PDFs, commute/rickshaw fare cards, rent split calculator; AI room match quiz, room comparison board, cost estimator, roommate score, saved-search triggers, parent share link, visit scheduler, move-in checklist, refund preview, campus groups, wallet credits, and a student concierge (real Claude AI when configured); manual payment challans with proof upload, QR move-in pass, guardian portal share links, vendor marketplace ordering, waitlist automation, and campus ambassador applications.</p>
+<h3 id="68-host-tools">6.8 Host Tools</h3>
+<p><img alt="Host Growth Center" src="file:///E:/Hostel_Hub/docs/diagrams/mockup-04-host-growth-center.png" />
+<em>Figure 10: The Host Growth Center, including AI-informed smart pricing.</em></p>
+<p>Room inventory, booking requests, tenants, finance, ledger, maintenance, bed holds, chat, rent reminders; portfolio map with occupancy/revenue location cards and map-story publishing for neighbourhood tours; growth coach, smart pricing informed by real occupancy, comparable nearby prices, and academic-calendar seasonality (not a flat guess), occupancy heat calendar, bulk room editor, tenant CRM snapshot, maintenance SLA board, reply templates, reputation score, and an AI listing-description generator; Starter/Pro/Premium subscription management with monthly invoices and manual proof upload for hosts without gateway payments.</p>
+<h3 id="69-admin-finance-trust-operations">6.9 Admin, Finance &amp; Trust Operations</h3>
+<p>Platform stats, user management, verification queue, finance, loyalty claims, global alert approvals, operations monitoring, KYC/OCR review, listing quality scoring, review moderation, dynamic platform settings, discounts, payout queue, disputes; city analytics map, city comparison metrics, heatmap review, map cache invalidation; command-room finance KPIs, ledger explorer, escrow waterfall, payout approval room, deposit liability register, host statements, revenue forecast, trust queue, incident timeline, verification visit planner, policy rules, moderation explainability, city scorecard, finance anomaly detector, dispute summary assistant, and review classifier; manual-payment review, field-verification scheduling, host subscription invoices, vendor order oversight, trust timelines, review sentiment, and campus ambassador approvals.</p>
+<h3 id="610-ai-features">6.10 AI Features</h3>
+<p>Five <code>/ai/*</code> endpoints — concierge, listing description generator, finance anomaly detection, dispute summarizer, review classifier — all call the real Anthropic Claude API when <code>CLAUDE_API_KEY</code> is set, each with an 8-second timeout and automatic, silent fallback to the original deterministic template logic on any failure. <strong>Important labeling distinction:</strong> the DNA score, trust score, and vacancy-forecast features are legitimate deterministic formulas, not AI/ML — this document and all public-facing copy should be accurate about which features are genuinely AI-driven.</p>
+<h3 id="611-maps-neighbourhood-intelligence">6.11 Maps &amp; Neighbourhood Intelligence</h3>
+<p>Leaflet + OpenStreetMap tiles, OSRM route proxy with fallback, affordability layers, isochrone commute-ring summaries, safety-confidence cells, demand pulse, parent-safe map summaries, offline campus-pack metadata, and browser service-worker tile caching; nearby points of interest, a facilities score strip, commute times, rickshaw fare estimates, a hostel photo feed, and host-created map stories on room/hostel detail pages.</p>
+<h3 id="612-financial-infrastructure">6.12 Financial Infrastructure</h3>
+<p>Double-entry ledger, commissions, deposits, reconciliation, payout approvals, host statements, student wallet credits, refund previews with transparent ETA/reason, and revenue forecasts; host profit-and-loss, cash-flow forecast, an FBR withholding-tax helper, a utility-bill splitter, and consolidated multi-property finance for hostel groups.</p>
+<h3 id="613-communication-notifications">6.13 Communication &amp; Notifications</h3>
+<p>Socket.io real-time chat with contact-leak filtering; push notifications via a service worker (VAPID) for rent, escrow, and dispute updates; transactional email for receipts and reminders. <strong>SMS is intentionally not yet wired</strong> — see §9.</p>
+<h3 id="614-mobile-app">6.14 Mobile App</h3>
+<p>A complete Expo/React Native project at <code>app/</code> — navigation, auth, home/search/listing-detail/booking/bookings/profile screens, all calling the same <code>/api/v1</code> backend — plus three intentionally stubbed "Coming Soon" screens (Rider Booking, Food Ordering, Job Seeker), so the app visibly signals room to grow without being half-built. Not yet installed, built, or published — see the Development Master Plan, Phase 2.</p>
+<hr />
+<h2 id="7-monetization-revenue-model">7. Monetization &amp; Revenue Model</h2>
+<h3 id="71-live-configured-revenue-streams-current-implementation">7.1 Live, configured revenue streams (current implementation)</h3>
+<table>
+<thead>
+<tr>
+<th>Stream</th>
+<th>Current Config Default</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Commission on bookings</td>
+<td><code>COMMISSION_RATE_DEFAULT = 0.07</code> (7% flat)</td>
+<td>Applied at escrow release</td>
+</tr>
+<tr>
+<td>Student service fee</td>
+<td><code>STUDENT_SERVICE_FEE_PKR = 400</code></td>
+<td>Flat per booking</td>
+</tr>
+<tr>
+<td>Late payment fee</td>
+<td><code>LATE_FEE_PKR = 500</code></td>
+<td>Recurring rent</td>
+</tr>
+<tr>
+<td>Deposit protection add-on</td>
+<td><code>DEPOSIT_PROTECTION_FEE_RATE</code> + cap</td>
+<td>Optional, pilot/platform-backed, not yet underwritten</td>
+</tr>
+<tr>
+<td>Off-platform report credit</td>
+<td><code>OFF_PLATFORM_REPORT_CREDIT_PKR</code></td>
+<td>Incentivizes reporting off-platform payment attempts</td>
+</tr>
+<tr>
+<td>Host management fee (subscription)</td>
+<td><code>BASERA_MANAGEMENT_FEE_PKR = 1000</code></td>
+<td>Starter/Pro/Premium tiers</td>
+</tr>
+</tbody>
+</table>
+<h3 id="72-original-planning-document-detail-worth-preserving">7.2 Original planning-document detail worth preserving</h3>
+<p>The earliest planning documents specified a more granular commission structure and several monetization mechanics that have <strong>not been confirmed as fully implemented</strong> with these exact parameters — they are documented here as the original design intent, to be reconciled deliberately (not silently) as monetization matures:</p>
+<table>
+<thead>
+<tr>
+<th>Booking Value</th>
+<th>Commission</th>
+<th>Host Receives</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Up to PKR 10,000</td>
+<td>5%</td>
+<td>95%</td>
+</tr>
+<tr>
+<td>PKR 10,001–25,000</td>
+<td>7%</td>
+<td>93%</td>
+</tr>
+<tr>
+<td>PKR 25,001–60,000</td>
+<td>8%</td>
+<td>92%</td>
+</tr>
+<tr>
+<td>Above PKR 60,000</td>
+<td>6%</td>
+<td>94%</td>
+</tr>
+<tr>
+<td>Semester/Annual</td>
+<td>Flat 6%</td>
+<td>94%</td>
+</tr>
+<tr>
+<td>Trial Stay (3–7 days)</td>
+<td>10%</td>
+<td>90%</td>
+</tr>
+<tr>
+<td><strong>SuperHost tier</strong> (verified + 20 reviews + 4.5★ avg + 90% response rate + 0 upheld disputes in 6 months)</td>
+<td>5% (reduced)</td>
+<td>95%</td>
+</tr>
+</tbody>
+</table>
+<p>Additional fee ideas from the original plans, not yet confirmed as priced, live features: <strong>Featured/Spotlight listing</strong> (PKR 2,000–8,000/month), <strong>fast-track verification badge</strong> (PKR 1,000–1,500 one-time), <strong>instalment processing fee</strong> (PKR 200–500 per instalment), <strong>frivolous dispute fee</strong> (PKR 500, charged to the disputing party if a claim is dismissed as baseless).</p>
+<p><strong>SaaS tier pricing has drifted across three sources and should be reconciled explicitly:</strong> an early plan proposed Starter (free) / Growth (PKR 3,999/mo) / Pro (PKR 9,999/mo); a later plan proposed four tiers, Starter/Essential/Professional/Enterprise; the live platform today implements <strong>Starter/Pro/Premium</strong> with a single admin-configurable management fee and no publicly documented per-tier PKR pricing. Recommendation: pick one naming and pricing scheme and state it plainly in both the app and this document — see the Development Master Plan's backlog.</p>
+<h3 id="73-discount-engine">7.3 Discount engine</h3>
+<p>Automatic, coupon, and host-funded discount APIs exist today. The original design specified eight distinct discount <em>types</em> — Seasonal, City, Room Type, Referral, Host-Funded, <strong>Loyalty (auto 3% from the 2nd month)</strong>, <strong>Early Bird (auto 5% if booked 30+ days ahead)</strong>, and <strong>Last-Minute Deal (auto 8% for rooms vacant 7+ days)</strong> — of which the three auto-triggered types in bold are not confirmed as implemented rules today and are worth a focused build pass.</p>
+<hr />
+<h2 id="8-trust-safety-rules-business-logic-reference">8. Trust &amp; Safety Rules (Business Logic Reference)</h2>
+<ul>
+<li><strong>Escrow hold window:</strong> <code>ESCROW_HOLD_HOURS = 48</code> after move-in with no dispute before payout releases.</li>
+<li><strong>Contact gating is deliberate, not an oversight.</strong> Any feature connecting two users (host/student, property owner/guest, roommates) defaults to withholding direct contact details until there's a real commitment. The one documented exception is short-stay Hotels/Guest-Houses bookings, where guest contact is shared at booking time — a deliberate choice given the shorter, lower-risk nature of a 1–3 night stay.</li>
+<li><strong>Off-platform payment protection:</strong> a student's report of an off-platform payment attempt blocks escrow release and opens a high-priority case automatically.</li>
+<li><strong>Original design also specified</strong> (not yet confirmed as implemented with these exact rules): an <strong>escalation ladder</strong> for repeated off-platform behaviour (2+ months triggers admin contact, then listing pause); an <strong>automatic blacklist</strong> after 3+ verified complaints, pending investigation; a <strong>photo-guarantee/relocation policy</strong> (a free relocation booking if listing photos don't match the physical condition, on a successful dispute); and an <strong>automatic price-anomaly flag</strong> for listings priced above 2× or below 0.3× the market median for their area, held for admin review pending approval.</li>
+</ul>
+<hr />
+<h2 id="9-known-gaps-deliberate-simplifications-vs-original-plans">9. Known Gaps &amp; Deliberate Simplifications vs. Original Plans</h2>
+<p>These are honest, documented differences between the earliest specifications and what's live today — not silent omissions. Each should be treated as a real backlog candidate (tracked in the Development Master Plan), not a defect.</p>
+<table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Original Spec</th>
+<th>Current State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SMS (OTP, reminders)</td>
+<td>Twilio SMS wired for OTP and every rent-reminder stage</td>
+<td>Not wired — email and push are the only live notification channels; SMS credentials are reserved for future use</td>
+</tr>
+<tr>
+<td>Phone verification / OTP</td>
+<td><code>/auth/verify-otp</code>, <code>isPhoneVerified</code> field</td>
+<td>No OTP flow — registration is email + password only</td>
+</tr>
+<tr>
+<td>Auth tokens</td>
+<td><code>/auth/refresh-token</code> with rotation</td>
+<td>Single JWT, 7-day expiry, no refresh/rotation</td>
+</tr>
+<tr>
+<td>Password reset</td>
+<td><code>/auth/reset-password</code> with email template E-20</td>
+<td>Not confirmed as wired end-to-end</td>
+</tr>
+<tr>
+<td>SuperHost commission tier</td>
+<td>5% reduced commission for top-tier hosts</td>
+<td>Not implemented as a distinct, automated tier</td>
+</tr>
+<tr>
+<td>SEO content hub</td>
+<td>A blog of SEO-friendly articles ("Best Hostels near NUST 2026"), Google Business Profile + Search Console registration</td>
+<td>Per-page meta tags and sitemap exist; no content hub or GBP/GSC process yet</td>
+</tr>
+<tr>
+<td>Product analytics</td>
+<td>GA4 / PostHog event tracking</td>
+<td>Not implemented; Sentry error tracking is configured (optional)</td>
+</tr>
+<tr>
+<td>Bulk tenant messaging</td>
+<td>"Notify all tenants" broadcast from host dashboard</td>
+<td>Not clearly present in the current host feature set</td>
+</tr>
+<tr>
+<td><code>property_manager</code> / <code>finance</code> roles</td>
+<td>Distinct, scoped dashboards ("subset of Host, no financial access" / dedicated finance-room access)</td>
+<td>Present in the <code>User</code> schema's role enum only — no dedicated UI or documented server-side scoping yet</td>
+</tr>
+<tr>
+<td>Search engine visibility</td>
+<td>—</td>
+<td>This is a client-rendered single-page app; without server-side rendering or prerendering, search engines that don't fully execute JavaScript see a near-empty page. High-impact, moderate-effort fix flagged for Phase 3.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="10-non-functional-requirements">10. Non-Functional Requirements</h2>
+<ul>
+<li><strong>Explorability:</strong> the entire platform must remain fully demoable with zero setup — no database, no API keys — via the dual-mode demo/live pattern described in §4.</li>
+<li><strong>Graceful AI degradation:</strong> any AI-labeled feature must be env-key-gated, timeout-bounded, and fall back silently to deterministic logic on failure or absence of a key; UI copy must never claim AI/ML behaviour that is actually a fixed formula.</li>
+<li><strong>Bilingual support:</strong> English/Urdu toggle with RTL awareness (<code>useLocaleStore</code>), currently covering the parent portal fully and partially elsewhere — full-site coverage is a near-term roadmap item.</li>
+<li><strong>Security baseline:</strong> JWT secrets must never fall back to a hardcoded default in production (the server now logs a loud warning if <code>JWT_SECRET</code> is missing, though it does not yet refuse to boot); stale sessions for deleted/deactivated users must be rejected once a real database is connected.</li>
+<li><strong>Accessibility &amp; responsiveness:</strong> the product must work credibly on the low-to-mid-range Android devices most common among the Pakistani student demographic, and as an installable PWA where a native app isn't yet available.</li>
+<li><strong>Data protection for minors/roommate context:</strong> occupant/roommate visibility must never surface a name, email, or phone number — category-level information only, with a student-controlled opt-out.</li>
+</ul>
+<hr />
+<h2 id="11-incoming-future-features">11. Incoming / Future Features</h2>
+<p>See the <strong>Development Master Plan &amp; Phased Roadmap</strong> for the full phase-by-phase backlog. In brief, the next validated directions beyond the current build are: search-engine visibility (SSR/prerendering), a WhatsApp Business API booking assistant, full bilingual site coverage, native mobile app publication, genuine reverse-image/perceptual-hash fraud detection, real OCR-based ID verification, swipeable roommate matching taken further, real demand-based dynamic pricing trained on transaction history, a licensed deposit-protection insurance partner, a gamified referral rewards marketplace, video/voice testimonials, and — staged deliberately last, each requiring its own focused planning pass — three adjacent new verticals: <strong>rider booking</strong>, <strong>food ordering</strong> (starting from the existing mess-menu system), and a <strong>job/internship board</strong> for the same student audience.</p></body></html>

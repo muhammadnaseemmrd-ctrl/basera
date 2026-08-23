@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 520" width="1240" height="520" font-family="Arial, sans-serif">
+  <rect width="1240" height="520" fill="#FFFFFF"/>
+  <text x="620" y="34" font-size="22" font-weight="800" fill="#182338" text-anchor="middle">Basera — Demo Map: Where to Log In as Each Role</text>
+
+  <g font-size="12">
+    <rect x="30" y="66" width="270" height="100" rx="12" fill="#FFE2D6" stroke="#FF6B4A"/>
+    <text x="165" y="90" text-anchor="middle" font-weight="800" fill="#182338">Student</text>
+    <text x="165" y="110" text-anchor="middle" fill="#64748B">student@basera.pk</text>
+    <text x="165" y="128" text-anchor="middle" fill="#64748B">/dashboard</text>
+    <text x="165" y="146" text-anchor="middle" fill="#64748B">Search → book → pay → chat</text>
+
+    <rect x="330" y="66" width="270" height="100" rx="12" fill="#FFE2D6" stroke="#FF6B4A"/>
+    <text x="465" y="90" text-anchor="middle" font-weight="800" fill="#182338">Independent Host</text>
+    <text x="465" y="110" text-anchor="middle" fill="#64748B">landlord@basera.pk</text>
+    <text x="465" y="128" text-anchor="middle" fill="#64748B">/host/dashboard</text>
+    <text x="465" y="146" text-anchor="middle" fill="#64748B">Rooms → tenants → Growth Center</text>
+
+    <rect x="630" y="66" width="270" height="100" rx="12" fill="#D7DEEC" stroke="#1B2A4A"/>
+    <text x="765" y="90" text-anchor="middle" font-weight="800" fill="#182338">Hostel Group Owner</text>
+    <text x="765" y="110" text-anchor="middle" fill="#64748B">owner@basera.pk</text>
+    <text x="765" y="128" text-anchor="middle" fill="#64748B">/hostel-groups/royal-group</text>
+    <text x="765" y="146" text-anchor="middle" fill="#64748B">One brand, three branches</text>
+
+    <rect x="930" y="66" width="270" height="100" rx="12" fill="#D7DEEC" stroke="#1B2A4A"/>
+    <text x="1065" y="90" text-anchor="middle" font-weight="800" fill="#182338">Warden</text>
+    <text x="1065" y="110" text-anchor="middle" fill="#64748B">warden@basera.pk</text>
+    <text x="1065" y="128" text-anchor="middle" fill="#64748B">/warden/dashboard</text>
+    <text x="1065" y="146" text-anchor="middle" fill="#64748B">One block, mark seats booked</text>
+
+    <rect x="180" y="196" width="270" height="100" rx="12" fill="#FFF3C4" stroke="#E0A63A"/>
+    <text x="315" y="220" text-anchor="middle" font-weight="800" fill="#182338">Hotel / Guest House Owner</text>
+    <text x="315" y="240" text-anchor="middle" fill="#64748B">landlord@basera.pk</text>
+    <text x="315" y="258" text-anchor="middle" fill="#64748B">/host/stays</text>
+    <text x="315" y="276" text-anchor="middle" fill="#64748B">Nightly listings, date bookings</text>
+
+    <rect x="480" y="196" width="270" height="100" rx="12" fill="#FFF3C4" stroke="#E0A63A"/>
+    <text x="615" y="220" text-anchor="middle" font-weight="800" fill="#182338">Traveller / Guest</text>
+    <text x="615" y="240" text-anchor="middle" fill="#64748B">no login needed</text>
+    <text x="615" y="258" text-anchor="middle" fill="#64748B">/stays</text>
+    <text x="615" y="276" text-anchor="middle" fill="#64748B">Search Murree, Naran, book a stay</text>
+
+    <rect x="780" y="196" width="270" height="100" rx="12" fill="#E6FAF2" stroke="#0E9F6E"/>
+    <text x="915" y="220" text-anchor="middle" font-weight="800" fill="#182338">Admin</text>
+    <text x="915" y="240" text-anchor="middle" fill="#64748B">admin@basera.pk</text>
+    <text x="915" y="258" text-anchor="middle" fill="#64748B">/admin/dashboard</text>
+    <text x="915" y="276" text-anchor="middle" fill="#64748B">Verify, moderate, run finance</text>
+
+    <rect x="480" y="326" width="270" height="100" rx="12" fill="#FDECEC" stroke="#E02424"/>
+    <text x="615" y="350" text-anchor="middle" font-weight="800" fill="#182338">Parent / Guardian</text>
+    <text x="615" y="370" text-anchor="middle" fill="#64748B">no login — share link</text>
+    <text x="615" y="388" text-anchor="middle" fill="#64748B">/parent-portal/:token</text>
+    <text x="615" y="406" text-anchor="middle" fill="#64748B">Read-only safety &amp; visit view</text>
+  </g>
+
+  <text x="620" y="470" text-anchor="middle" font-size="12" fill="#182338" font-weight="700">All demo accounts use password: password123</text>
+  <text x="620" y="492" text-anchor="middle" font-size="11" fill="#94A3B8">Every screen below works in demo mode with zero database setup — see the step-by-step script for each role in this guide</text>
+</svg>

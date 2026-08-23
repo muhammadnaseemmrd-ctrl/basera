@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 620" width="1240" height="620" font-family="Arial, sans-serif">
+  <rect width="1240" height="620" fill="#FFFFFF"/>
+  <text x="620" y="36" font-size="22" font-weight="800" fill="#182338" text-anchor="middle">Basera — Who Uses the Platform</text>
+
+  <circle cx="620" cy="310" r="92" fill="#1B2A4A"/>
+  <text x="620" y="302" text-anchor="middle" font-size="18" font-weight="800" fill="#FFFFFF">Basera</text>
+  <text x="620" y="324" text-anchor="middle" font-size="12" fill="#D7DEEC">Trust-first</text>
+  <text x="620" y="340" text-anchor="middle" font-size="12" fill="#D7DEEC">marketplace</text>
+
+  <!-- 7 roles arranged around the hub -->
+  <g font-size="12">
+    <!-- Student -->
+    <rect x="40" y="70" width="230" height="88" rx="12" fill="#FFE2D6" stroke="#FF6B4A"/>
+    <text x="155" y="96" text-anchor="middle" font-weight="800" fill="#182338">Student / Young Professional</text>
+    <text x="155" y="116" text-anchor="middle" fill="#64748B">Searches, books, pays rent,</text>
+    <text x="155" y="132" text-anchor="middle" fill="#64748B">sees roommates, chats, disputes</text>
+
+    <!-- Independent Host -->
+    <rect x="970" y="70" width="230" height="88" rx="12" fill="#FFE2D6" stroke="#FF6B4A"/>
+    <text x="1085" y="96" text-anchor="middle" font-weight="800" fill="#182338">Independent Host / Landlord</text>
+    <text x="1085" y="116" text-anchor="middle" fill="#64748B">Lists rooms, manages tenants,</text>
+    <text x="1085" y="132" text-anchor="middle" fill="#64748B">uses Growth Center &amp; pricing</text>
+
+    <!-- Hostel Group Owner -->
+    <rect x="40" y="270" width="230" height="88" rx="12" fill="#D7DEEC" stroke="#1B2A4A"/>
+    <text x="155" y="296" text-anchor="middle" font-weight="800" fill="#182338">Hostel Group Owner</text>
+    <text x="155" y="316" text-anchor="middle" fill="#64748B">Runs a multi-branch brand,</text>
+    <text x="155" y="332" text-anchor="middle" fill="#64748B">one verified badge, many hostels</text>
+
+    <!-- Warden -->
+    <rect x="970" y="270" width="230" height="88" rx="12" fill="#D7DEEC" stroke="#1B2A4A"/>
+    <text x="1085" y="296" text-anchor="middle" font-weight="800" fill="#182338">Warden</text>
+    <text x="1085" y="316" text-anchor="middle" fill="#64748B">Manages one assigned block,</text>
+    <text x="1085" y="332" text-anchor="middle" fill="#64748B">marks offline seat bookings</text>
+
+    <!-- Hotel / Guest House Owner -->
+    <rect x="40" y="462" width="230" height="88" rx="12" fill="#FFF3C4" stroke="#E0A63A"/>
+    <text x="155" y="488" text-anchor="middle" font-weight="800" fill="#182338">Hotel / Guest House Owner</text>
+    <text x="155" y="508" text-anchor="middle" fill="#64748B">Nightly-rate stays for travellers,</text>
+    <text x="155" y="524" text-anchor="middle" fill="#64748B">separate from monthly rentals</text>
+
+    <!-- Parent -->
+    <rect x="970" y="462" width="230" height="88" rx="12" fill="#FFF3C4" stroke="#E0A63A"/>
+    <text x="1085" y="488" text-anchor="middle" font-weight="800" fill="#182338">Parent / Guardian</text>
+    <text x="1085" y="508" text-anchor="middle" fill="#64748B">Read-only safety view via a</text>
+    <text x="1085" y="524" text-anchor="middle" fill="#64748B">share link — no login needed</text>
+
+    <!-- Admin -->
+    <rect x="505" y="510" width="230" height="88" rx="12" fill="#E6FAF2" stroke="#0E9F6E"/>
+    <text x="620" y="536" text-anchor="middle" font-weight="800" fill="#182338">Admin / Finance / Trust Ops</text>
+    <text x="620" y="556" text-anchor="middle" fill="#64748B">Verifies, moderates, runs the</text>
+    <text x="620" y="572" text-anchor="middle" fill="#64748B">finance command room</text>
+  </g>
+
+  <g stroke="#CBD5E1" stroke-width="2">
+    <line x1="270" y1="114" x2="536" y2="270"/>
+    <line x1="970" y1="114" x2="704" y2="270"/>
+    <line x1="270" y1="314" x2="528" y2="310"/>
+    <line x1="970" y1="314" x2="712" y2="310"/>
+    <line x1="270" y1="506" x2="536" y2="350"/>
+    <line x1="970" y1="506" x2="704" y2="350"/>
+    <line x1="620" y1="510" x2="620" y2="402"/>
+  </g>
+</svg>

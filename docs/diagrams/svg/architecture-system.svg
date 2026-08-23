@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 640" width="1240" height="640" font-family="Arial, sans-serif">
+  <rect width="1240" height="640" fill="#FFFFFF"/>
+  <text x="620" y="36" font-size="22" font-weight="800" fill="#182338" text-anchor="middle">Basera — System Architecture</text>
+
+  <!-- Clients -->
+  <rect x="40" y="70" width="240" height="90" rx="14" fill="#FFE2D6" stroke="#FF6B4A"/>
+  <text x="160" y="102" text-anchor="middle" font-size="14" font-weight="800" fill="#182338">Web App (PWA)</text>
+  <text x="160" y="122" text-anchor="middle" font-size="11" fill="#64748B">React 19 · Vite · Tailwind</text>
+  <text x="160" y="140" text-anchor="middle" font-size="11" fill="#64748B">Zustand · Leaflet · i18n EN/UR</text>
+
+  <rect x="320" y="70" width="240" height="90" rx="14" fill="#FFE2D6" stroke="#FF6B4A"/>
+  <text x="440" y="102" text-anchor="middle" font-size="14" font-weight="800" fill="#182338">Mobile App</text>
+  <text x="440" y="122" text-anchor="middle" font-size="11" fill="#64748B">Expo / React Native (SDK 51)</text>
+  <text x="440" y="140" text-anchor="middle" font-size="11" fill="#64748B">Source-complete, Phase 2 build</text>
+
+  <!-- API -->
+  <rect x="180" y="220" width="380" height="110" rx="16" fill="#D7DEEC" stroke="#1B2A4A"/>
+  <text x="370" y="252" text-anchor="middle" font-size="16" font-weight="800" fill="#182338">Backend API — /api/v1</text>
+  <text x="370" y="274" text-anchor="middle" font-size="11" fill="#64748B">Node.js · Express 5 · JWT auth · Socket.io</text>
+  <text x="370" y="292" text-anchor="middle" font-size="11" fill="#64748B">60+ route modules · role-scoped middleware</text>
+  <text x="370" y="310" text-anchor="middle" font-size="11" fill="#64748B">Dual-mode: live DB or in-memory demo data</text>
+
+  <!-- DB -->
+  <rect x="180" y="380" width="380" height="90" rx="16" fill="#E6FAF2" stroke="#0E9F6E"/>
+  <text x="370" y="412" text-anchor="middle" font-size="14" font-weight="800" fill="#182338">MongoDB Atlas</text>
+  <text x="370" y="432" text-anchor="middle" font-size="11" fill="#64748B">basera-cluster · free M0 tier</text>
+  <text x="370" y="450" text-anchor="middle" font-size="11" fill="#64748B">60+ Mongoose models · indexed, pooled</text>
+
+  <!-- Hosting -->
+  <rect x="40" y="510" width="240" height="70" rx="14" fill="#FFF3C4" stroke="#E0A63A"/>
+  <text x="160" y="538" text-anchor="middle" font-size="13" font-weight="800" fill="#182338">Netlify</text>
+  <text x="160" y="558" text-anchor="middle" font-size="11" fill="#64748B">Frontend hosting + CDN</text>
+
+  <rect x="320" y="510" width="240" height="70" rx="14" fill="#FFF3C4" stroke="#E0A63A"/>
+  <text x="440" y="538" text-anchor="middle" font-size="13" font-weight="800" fill="#182338">Railway</text>
+  <text x="440" y="558" text-anchor="middle" font-size="11" fill="#64748B">Backend hosting</text>
+
+  <!-- External integrations -->
+  <rect x="640" y="70" width="560" height="400" rx="16" fill="#FFFFFF" stroke="#E5E7EB"/>
+  <text x="920" y="98" text-anchor="middle" font-size="14" font-weight="800" fill="#182338">External Integrations (env-gated, optional)</text>
+
+  <g font-size="11">
+    <rect x="664" y="118" width="248" height="70" rx="10" fill="#FDECEC" stroke="#E02424"/>
+    <text x="788" y="140" text-anchor="middle" font-weight="700" fill="#182338">Anthropic Claude AI</text>
+    <text x="788" y="158" text-anchor="middle" fill="#64748B">Concierge, listing copy, finance</text>
+    <text x="788" y="174" text-anchor="middle" fill="#64748B">anomaly, dispute &amp; review AI</text>
+
+    <rect x="928" y="118" width="248" height="70" rx="10" fill="#D7DEEC" stroke="#1B2A4A"/>
+    <text x="1052" y="140" text-anchor="middle" font-weight="700" fill="#182338">Maps: OSRM + Overpass</text>
+    <text x="1052" y="158" text-anchor="middle" fill="#64748B">Routing, POIs, commute, safety</text>
+    <text x="1052" y="174" text-anchor="middle" fill="#64748B">and affordability overlays</text>
+
+    <rect x="664" y="202" width="248" height="70" rx="10" fill="#FFE2D6" stroke="#FF6B4A"/>
+    <text x="788" y="224" text-anchor="middle" font-weight="700" fill="#182338">Cloudinary</text>
+    <text x="788" y="242" text-anchor="middle" fill="#64748B">Listing photo &amp; document</text>
+    <text x="788" y="258" text-anchor="middle" fill="#64748B">upload/storage</text>
+
+    <rect x="928" y="202" width="248" height="70" rx="10" fill="#E6FAF2" stroke="#0E9F6E"/>
+    <text x="1052" y="224" text-anchor="middle" font-weight="700" fill="#182338">Payment Gateways</text>
+    <text x="1052" y="242" text-anchor="middle" fill="#64748B">JazzCash · EasyPaisa · Stripe</text>
+    <text x="1052" y="258" text-anchor="middle" fill="#64748B">(shells ready for live credentials)</text>
+
+    <rect x="664" y="286" width="248" height="70" rx="10" fill="#FFF3C4" stroke="#E0A63A"/>
+    <text x="788" y="308" text-anchor="middle" font-weight="700" fill="#182338">OCR Provider</text>
+    <text x="788" y="326" text-anchor="middle" fill="#64748B">Google Vision (ID/KYC</text>
+    <text x="788" y="342" text-anchor="middle" fill="#64748B">document verification)</text>
+
+    <rect x="928" y="286" width="248" height="70" rx="10" fill="#FDECEC" stroke="#E02424"/>
+    <text x="1052" y="308" text-anchor="middle" font-weight="700" fill="#182338">Web Push (VAPID)</text>
+    <text x="1052" y="326" text-anchor="middle" fill="#64748B">Rent, escrow &amp; dispute</text>
+    <text x="1052" y="342" text-anchor="middle" fill="#64748B">notifications via service worker</text>
+
+    <rect x="796" y="370" width="248" height="70" rx="10" fill="#D7DEEC" stroke="#1B2A4A"/>
+    <text x="920" y="392" text-anchor="middle" font-weight="700" fill="#182338">Email / SMTP</text>
+    <text x="920" y="410" text-anchor="middle" fill="#64748B">Transactional emails, receipts,</text>
+    <text x="920" y="426" text-anchor="middle" fill="#64748B">reminders (SMS reserved, not wired)</text>
+  </g>
+
+  <text x="920" y="460" text-anchor="middle" font-size="10" fill="#94A3B8">Every integration above falls back gracefully to template/demo behaviour when its API key is absent</text>
+
+  <!-- arrows -->
+  <g stroke="#94A3B8" stroke-width="2" fill="none" marker-end="url(#arrowA)">
+    <line x1="160" y1="160" x2="300" y2="218"/>
+    <line x1="440" y1="160" x2="400" y2="218"/>
+    <line x1="370" y1="330" x2="370" y2="378"/>
+    <line x1="160" y1="470" x2="160" y2="508"/>
+    <line x1="440" y1="470" x2="440" y2="508"/>
+    <line x1="560" y1="270" x2="638" y2="270"/>
+  </g>
+  <defs>
+    <marker id="arrowA" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#94A3B8"/>
+    </marker>
+  </defs>
+</svg>

@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 780" width="1280" height="780" font-family="Arial, sans-serif">
+  <rect width="1280" height="780" fill="#FFF8F5"/>
+  <rect width="1280" height="44" fill="#E5E7EB"/>
+  <circle cx="24" cy="22" r="6" fill="#F0512E"/><circle cx="46" cy="22" r="6" fill="#FFC857"/><circle cx="68" cy="22" r="6" fill="#1B2A4A"/>
+  <rect x="110" y="10" width="440" height="24" rx="12" fill="#FFFFFF"/>
+  <text x="130" y="27" font-size="13" fill="#334155">basera.pk/host/dashboard?tab=Smart Finance</text>
+
+  <rect x="0" y="44" width="260" height="736" fill="#FFFFFF"/>
+  <rect x="24" y="70" width="34" height="34" rx="9" fill="#1B2A4A"/>
+  <path d="M41 80 49.5 87.3V97.5a1.7 1.7 0 0 1-1.7 1.7h-5.3V91h-6.7v7.2h-5.3a1.7 1.7 0 0 1-1.7-1.7V87.3L41 80Z" fill="#FF6B4A"/>
+  <text x="70" y="94" font-size="18" font-weight="800" fill="#182338">Basera</text>
+  <g font-size="13" fill="#334155">
+    <text x="32" y="150">Overview</text>
+    <text x="32" y="190">Room Inventory</text>
+    <text x="32" y="230">Booking Requests</text>
+    <rect x="16" y="250" width="228" height="38" rx="10" fill="#F0512E"/>
+    <text x="32" y="274" fill="#FFFFFF" font-weight="700">Growth Center</text>
+    <text x="32" y="320">Finance</text>
+    <text x="32" y="360">Maintenance</text>
+    <text x="32" y="400">Subscription</text>
+  </g>
+
+  <text x="292" y="100" font-size="22" font-weight="800" fill="#182338">Growth Center</text>
+  <text x="292" y="122" font-size="13" fill="#64748B">Smart pricing, occupancy, and reputation tools</text>
+
+  <!-- dynamic pricing card (enhanced feature) -->
+  <rect x="292" y="150" width="900" height="200" rx="16" fill="#FFFFFF" stroke="#E5E7EB"/>
+  <text x="316" y="180" font-size="15" font-weight="700" fill="#182338">Smart Pricing Suggestion (enhanced — real occupancy + comparables)</text>
+  <rect x="316" y="196" width="280" height="70" rx="10" fill="#FFF8F5"/>
+  <text x="330" y="216" font-size="11" fill="#64748B">Current occupancy (90d)</text>
+  <text x="330" y="240" font-size="20" font-weight="800" fill="#182338">92%</text>
+  <rect x="612" y="196" width="280" height="70" rx="10" fill="#FFF8F5"/>
+  <text x="626" y="216" font-size="11" fill="#64748B">Comparable rooms nearby avg.</text>
+  <text x="626" y="240" font-size="20" font-weight="800" fill="#182338">PKR 21,000</text>
+  <rect x="908" y="196" width="260" height="70" rx="10" fill="#FFE2D6"/>
+  <text x="922" y="216" font-size="11" fill="#182338">Suggested range</text>
+  <text x="922" y="240" font-size="20" font-weight="800" fill="#F0512E">20,000–21,500</text>
+  <rect x="316" y="278" width="852" height="50" rx="10" fill="#FFF8F5"/>
+  <text x="330" y="308" font-size="12" fill="#334155">"Occupancy is 92% this month and comparable rooms nearby average PKR 21,000 —</text>
+  <text x="330" y="324" font-size="11" fill="#334155">consider raising to PKR 20,000–21,500. Admissions season starts in 3 weeks."</text>
+
+  <!-- occupancy calendar -->
+  <text x="292" y="392" font-size="15" font-weight="700" fill="#182338">Occupancy Heat Calendar</text>
+  <g transform="translate(292,406)">
+    <rect x="0" y="0" width="40" height="40" fill="#FFE2D6"/><rect x="44" y="0" width="40" height="40" fill="#FF6B4A"/><rect x="88" y="0" width="40" height="40" fill="#F0512E"/><rect x="132" y="0" width="40" height="40" fill="#FFC857"/><rect x="176" y="0" width="40" height="40" fill="#FF6B4A"/><rect x="220" y="0" width="40" height="40" fill="#F0512E"/><rect x="264" y="0" width="40" height="40" fill="#F0512E"/>
+    <rect x="0" y="44" width="40" height="40" fill="#F0512E"/><rect x="44" y="44" width="40" height="40" fill="#F0512E"/><rect x="88" y="44" width="40" height="40" fill="#FFC857"/><rect x="132" y="44" width="40" height="40" fill="#FF6B4A"/><rect x="176" y="44" width="40" height="40" fill="#F0512E"/><rect x="220" y="44" width="40" height="40" fill="#FFE2D6"/><rect x="264" y="44" width="40" height="40" fill="#F0512E"/>
+  </g>
+
+  <!-- reputation score -->
+  <rect x="616" y="392" width="576" height="100" rx="16" fill="#FFFFFF" stroke="#E5E7EB"/>
+  <text x="640" y="418" font-size="13" font-weight="700" fill="#182338">Host Reputation Score</text>
+  <circle cx="670" cy="456" r="26" fill="none" stroke="#F1F5F9" stroke-width="8"/>
+  <circle cx="670" cy="456" r="26" fill="none" stroke="#FF6B4A" stroke-width="8" stroke-dasharray="140 163" stroke-linecap="round" transform="rotate(-90 670 456)"/>
+  <text x="670" y="461" font-size="13" font-weight="800" fill="#182338" text-anchor="middle">86</text>
+  <text x="716" y="450" font-size="11" fill="#64748B">Response time, SLA, review sentiment</text>
+  <text x="716" y="468" font-size="11" fill="#64748B">blended into one score</text>
+
+  <text x="640" y="760" font-size="11" fill="#94A3B8" text-anchor="middle">Design mockup — illustrative UI, not a live screenshot</text>
+</svg>

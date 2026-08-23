@@ -1,0 +1,24 @@
+{
+  "name": "hostel_hub",
+  "version": "1.0.0",
+  "description": "Basera Pakistan MERN stack monorepo",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "build": "npm run build --prefix client",
+    "start": "npm run start --prefix server",
+    "seed": "npm run seed --prefix server",
+    "test": "npm run test --prefix server && npm run build --prefix client",
+    "test:e2e": "node scripts/e2e-smoke.js",
+    "validate:ui": "node scripts/validate-ui.js",
+    "validate:all": "npm run lint --prefix client && npm run test --prefix server && npm run build --prefix client && npm run validate:ui"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "devDependencies": {
+    "concurrently": "^10.0.1",
+    "playwright-core": "^1.60.0"
+  }
+}

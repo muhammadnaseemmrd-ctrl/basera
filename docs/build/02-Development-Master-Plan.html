@@ -1,0 +1,324 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Development Master Plan &amp; Phased Roadmap</title>
+    <style>
+@page { size: A4; margin: 20mm 16mm 20mm 16mm; }
+* { box-sizing: border-box; }
+body { font-family: Arial, "Segoe UI", sans-serif; color: #182338; font-size: 11.5pt; line-height: 1.55; }
+.cover {
+  background: linear-gradient(135deg, #1B2A4A, #243B60);
+  color: #fff; border-radius: 18px; padding: 70px 56px; margin-bottom: 26px;
+  page-break-after: always;
+}
+.cover .kicker { color: #FFC857; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; font-size: 12px; margin-bottom: 14px; }
+.cover h1 { color: #fff; font-size: 40px; margin: 0 0 14px; font-weight: 800; }
+.cover .sub { color: #D7DEEC; font-size: 16px; max-width: 640px; }
+.cover .date { color: #94A3B8; font-size: 12px; margin-top: 40px; }
+h1 { color: #1B2A4A; font-size: 21pt; border-bottom: 3px solid #FF6B4A; padding-bottom: 6px; margin-top: 30px; page-break-after: avoid; }
+h2 { color: #1B2A4A; font-size: 15.5pt; margin-top: 24px; page-break-after: avoid; }
+h3 { color: #F0512E; font-size: 12.5pt; margin-top: 16px; page-break-after: avoid; }
+h4 { color: #182338; font-size: 11.5pt; margin-top: 12px; page-break-after: avoid; }
+p { margin: 8px 0; }
+a { color: #F0512E; }
+ul, ol { margin: 6px 0; padding-left: 22px; }
+li { margin-bottom: 4px; }
+table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 10pt; }
+th { background: #1B2A4A; color: #fff; text-align: left; padding: 7px 10px; }
+td { border-bottom: 1px solid #E5E7EB; padding: 6px 10px; vertical-align: top; }
+tr:nth-child(even) td { background: #FAFAFA; }
+code { background: #F1F5F9; padding: 1px 5px; border-radius: 4px; font-size: 10pt; }
+pre { background: #182338; color: #E2E8F0; padding: 14px 16px; border-radius: 10px; overflow-x: auto; font-size: 9.5pt; }
+pre code { background: none; color: inherit; }
+blockquote { border-left: 4px solid #FFC857; background: #FFF8F5; margin: 12px 0; padding: 8px 16px; color: #64748B; }
+img { max-width: 100%; display: block; margin: 14px auto; border: 1px solid #E5E7EB; border-radius: 10px; }
+hr { border: none; border-top: 1px solid #E5E7EB; margin: 26px 0; }
+.figcap { text-align: center; font-size: 9.5pt; color: #64748B; margin-top: -8px; margin-bottom: 18px; }
+</style></head><body>
+    <div class="cover">
+      <div class="kicker">Basera Platform Documentation</div>
+      <h1>Development Master Plan &amp; Phased Roadmap</h1>
+      <div class="sub">What is built, what ships next, and exactly how to deploy Phase 1 to Railway and Netlify</div>
+      <div><span style="background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:6px 14px;font-size:11px;font-weight:700;margin-right:8px;display:inline-block;margin-top:8px;">Phase 1B: Go Live</span><span style="background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:6px 14px;font-size:11px;font-weight:700;margin-right:8px;display:inline-block;margin-top:8px;">Railway + Netlify</span><span style="background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:6px 14px;font-size:11px;font-weight:700;margin-right:8px;display:inline-block;margin-top:8px;">MongoDB Atlas</span></div>
+      <div class="date">Prepared August 23, 2026</div>
+    </div>
+    <h1 id="basera-development-master-plan-phased-roadmap">Basera — Development Master Plan &amp; Phased Roadmap</h1>
+<p><em>How Basera was built, what's already done, and exactly what's left to do — with Phase 1 scoped specifically to reach a live, deployable state on Railway (backend) and Netlify (frontend).</em></p>
+<hr />
+<h2 id="1-purpose-of-this-document">1. Purpose of This Document</h2>
+<p>This is the single reference for planning and sequencing Basera's ongoing development. It merges the original phased roadmap, the deployment runbook, and every follow-up item surfaced during the rebrand audit and the legacy-document review into one prioritized plan. Pair this with the <strong>Feature &amp; Requirements Specification</strong> (which describes <em>what</em> Basera does) — this document is about <em>when</em> and <em>how</em> it gets built and shipped.</p>
+<hr />
+<h2 id="2-architecture-recap">2. Architecture Recap</h2>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Technology</th>
+<th>Hosting</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Web frontend</td>
+<td>React 19, Vite, Tailwind, Zustand</td>
+<td>Netlify</td>
+</tr>
+<tr>
+<td>Backend API</td>
+<td>Node.js, Express 5, MongoDB/Mongoose, Socket.io</td>
+<td>Railway</td>
+</tr>
+<tr>
+<td>Database</td>
+<td>MongoDB Atlas (free M0 tier)</td>
+<td>MongoDB Atlas</td>
+</tr>
+<tr>
+<td>Mobile app</td>
+<td>Expo / React Native</td>
+<td>Not yet published (Phase 2)</td>
+</tr>
+</tbody>
+</table>
+<p>The platform's defining convention is <strong>dual-mode demo/live behaviour</strong> — every route falls back to realistic in-memory data when no database is connected, so the whole app is explorable before a single environment variable is set. Preserve this pattern for every future feature.</p>
+<hr />
+<h2 id="3-phased-roadmap-overview">3. Phased Roadmap Overview</h2>
+<p><img alt="Phased roadmap timeline" src="file:///E:/Hostel_Hub/docs/diagrams/roadmap-timeline.png" />
+<em>Figure 1: Where Basera stands today and what comes next. Phase 1B — reaching a live public deployment — is the immediate priority.</em></p>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Status</th>
+<th>Scope</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Phase 0 — Rebrand &amp; Foundation</td>
+<td>✅ Complete</td>
+<td>Rebrand to Basera, bug fixes, first round of advanced features, cloud infrastructure provisioning</td>
+</tr>
+<tr>
+<td>Phase 1 — SaaS Expansion</td>
+<td>✅ Complete</td>
+<td>Hostel Groups, Blocks/Wardens, manual seat override, roommate visibility, Hotels &amp; Guest Houses vertical, mobile app source tree</td>
+</tr>
+<tr>
+<td><strong>Phase 1B — Go Live</strong></td>
+<td>▶ <strong>Next — this is the deployment milestone</strong></td>
+<td>Push to GitHub, build, deploy to Railway + Netlify, seed data, verify end-to-end</td>
+</tr>
+<tr>
+<td>Phase 2 — Real Installed Build</td>
+<td>○ Planned</td>
+<td>Mobile app build &amp; store submission prep, host-facing block/warden UI, real screenshots</td>
+</tr>
+<tr>
+<td>Phase 3 — Trust &amp; Intelligence Hardening</td>
+<td>○ Planned</td>
+<td>SEO/SSR, real OCR, perceptual-hash fraud detection, insurance partner, analytics</td>
+</tr>
+<tr>
+<td>Phase 4 — Mobile App Feature Parity</td>
+<td>○ Planned</td>
+<td>Bring the mobile app to parity with the web student experience, then extend to hosts</td>
+</tr>
+<tr>
+<td>Phase 5 — New Verticals</td>
+<td>○ Planned</td>
+<td>Rider booking, food ordering, job/internship board</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-phase-1b-ready-to-deploy-runbook-do-this-next">4. Phase 1B — "Ready to Deploy" Runbook (Do This Next)</h2>
+<p>This phase has one goal: <strong>get the current, fully-built codebase live on the internet</strong>, on the infrastructure already provisioned, so it can be demoed publicly and handed to real users.</p>
+<h3 id="41-whats-already-provisioned-no-action-needed">4.1 What's already provisioned (no action needed)</h3>
+<p><strong>MongoDB Atlas</strong>
+- Organization <code>Own</code>, Project <code>Basera</code>, Cluster <code>basera-cluster</code> — free M0 tier, AWS <code>us-east-1</code>.
+- Database user <code>basera_app</code> (readWrite scoped to the <code>basera</code> database only).
+- Network access is open to <code>0.0.0.0/0</code> (still requires username/password) — tighten later to Railway's specific egress ranges if desired, via Atlas → Network Access.</p>
+<p><strong>Railway (backend)</strong>
+- Project <code>Basera</code>, service <code>basera-api</code>, public domain already generated: <code>https://basera-api-production.up.railway.app</code>.
+- Non-secret environment variables already set (client URL, escrow/commission/fee defaults, rate limits, map cache TTL, etc.) — see Appendix A for the full list.
+- <code>railway.json</code> at the repo root already configures <code>startCommand: npm run start --prefix server</code> for this monorepo layout.</p>
+<p><strong>Netlify (frontend)</strong>
+- Site <code>basera-pk</code>, URL once deployed: <code>https://basera-pk.netlify.app</code>.
+- <code>netlify.toml</code> at the repo root already configures base=<code>client</code>, build=<code>npm install &amp;&amp; npm run build</code>, publish=<code>client/dist</code>, SPA redirect, and security headers.
+- Environment variables already set: <code>VITE_API_URL</code>, <code>VITE_SITE_URL</code>, <code>VITE_ALLOW_DEMO_FALLBACK=false</code>, <code>VITE_SUPPORT_WHATSAPP</code>.</p>
+<h3 id="42-deployment-architecture">4.2 Deployment architecture</h3>
+<p><img alt="Deployment architecture" src="file:///E:/Hostel_Hub/docs/diagrams/workflow-03-deployment-architecture.png" />
+<em>Figure 2: How the three provisioned services connect once deployed.</em></p>
+<h3 id="43-step-by-step-checklist">4.3 Step-by-step checklist</h3>
+<ol>
+<li><strong>Push the code to a GitHub repository you control.</strong> The repo's current Git remote points to a repository that is not yours — do not push there. From your own machine:
+   <code>bash
+   cd path\to\Hostel_Hub
+   git remote set-url origin https://github.com/&lt;your-username&gt;/&lt;your-new-repo&gt;.git
+   git add -A
+   git commit -m "Basera: rebrand, features, and Phase 1 SaaS expansion"
+   git push -u origin main</code></li>
+<li><strong>Install and build locally first</strong>, to catch anything a build step would catch:
+   <code>bash
+   npm install --prefix client &amp;&amp; npm run build --prefix client &amp;&amp; npm run lint --prefix client
+   npm install --prefix server</code></li>
+<li><strong>Connect Railway to the pushed repo.</strong> Railway dashboard → <code>Basera</code> project → <code>basera-api</code> service → Settings → Source → connect your GitHub repo. <code>railway.json</code> already handles the monorepo root/start command — no manual path configuration should be needed.</li>
+<li><strong>Connect Netlify to the pushed repo.</strong> Netlify dashboard → <code>basera-pk</code> → Site configuration → Build &amp; deploy → Link repository → connect the same repo. <code>netlify.toml</code> already handles the build path.</li>
+<li><strong>Add the remaining secrets directly in each dashboard</strong> (never share these in chat with an AI assistant or paste them into a document):
+   - Railway → <code>basera-api</code> → Variables: <code>JWT_SECRET</code> (long random string, never reused from the database password), <code>CLOUDINARY_CLOUD_NAME</code> / <code>CLOUDINARY_API_KEY</code> / <code>CLOUDINARY_API_SECRET</code>, <code>CLAUDE_API_KEY</code> (optional — activates real AI features), <code>OCR_API_KEY</code> + <code>OCR_PROVIDER=google-vision</code> (optional), payment gateway keys (optional for a soft launch — the platform runs fully in demo-payment mode without them), <code>VAPID_PUBLIC_KEY</code> / <code>VAPID_PRIVATE_KEY</code>, <code>CRON_SECRET</code>.
+   - Netlify → <code>basera-pk</code> → Environment variables: confirm <code>VITE_ENABLE_CLIENT_DEMO_LOGIN=false</code> is saved (a prior connector hiccup stopped this from saving automatically).</li>
+<li><strong>Trigger the first deploy</strong> on both services (push-to-deploy takes over automatically once connected).</li>
+<li><strong>Seed demo data</strong> against the live database once the backend is reachable:
+   <code>bash
+   npm run seed --prefix server</code>
+   This populates the demo accounts (<code>student@basera.pk</code>, <code>landlord@basera.pk</code>, <code>owner@basera.pk</code>, <code>admin@basera.pk</code>, <code>warden@basera.pk</code>, all password <code>password123</code>) into the real database.</li>
+<li><strong>Verify:</strong>
+   - Backend health check: <code>https://basera-api-production.up.railway.app/api/v1/health</code>
+   - Frontend loads real listings (not just the offline fallback) at <code>https://basera-pk.netlify.app</code>
+   - A demo login and full booking flow works end to end
+   - The AI concierge responds (once <code>CLAUDE_API_KEY</code> is set)</li>
+<li><strong>Smoke-test all seven role logins</strong> (student, independent host, hostel group owner, warden, hotel/guest-house owner via <code>/host/stays</code>, admin, and the parent share-link flow) using the <strong>Demo Guide for All Roles</strong> document.</li>
+<li><strong>Hand off to marketing</strong> — once verified live, proceed to the Marketing &amp; Social Media Plan for launch content.</li>
+</ol>
+<h3 id="44-rollback-safety-notes">4.4 Rollback / safety notes</h3>
+<ul>
+<li>Rotate the Atlas database password if it is ever pasted into an insecure channel (Atlas → Database Access).</li>
+<li>Do not skip setting a strong, unique <code>JWT_SECRET</code> — the codebase currently warns loudly if it's missing in production but does not refuse to boot, so this is a manual must-do, not an automatic safeguard.</li>
+<li>Payment gateway keys, <code>CLAUDE_API_KEY</code>, and <code>OCR_API_KEY</code> are all optional at launch — every feature they power has a documented, working fallback, so a soft launch without them is a legitimate choice, not a broken deployment.</li>
+</ul>
+<hr />
+<h2 id="5-working-conventions-for-whoever-builds-the-next-phase">5. Working Conventions for Whoever Builds the Next Phase</h2>
+<ul>
+<li><strong>Always support both demo and live mode.</strong> Check <code>mongoose.connection.readyState === 1</code>; fall back to an in-memory array otherwise. This is not optional polish — it's how the entire platform stays explorable without a database.</li>
+<li><strong>Contact gating is a deliberate trust mechanism, not an oversight.</strong> Any new feature that connects two users should default to withholding direct contact details until there's a real commitment, unless there's a specific, documented reason not to (as with short-stay guest bookings).</li>
+<li><strong>New "AI" features must be genuinely gated and genuinely optional.</strong> Follow the <code>aiService.js</code> pattern: env-key-gated, timeout-bounded, silent fallback to deterministic logic on any failure. Never claim AI/ML behaviour that's actually a fixed heuristic.</li>
+<li><strong>Every new page needs a route in <code>client/src/App.jsx</code> and, where relevant, a nav entry.</strong> Several features have historically been "backend-complete, not yet linked from the main dashboard nav" — an easy thing to leave half-done.</li>
+<li><strong>Reconcile, don't silently pick, when historical specs disagree</strong> (SaaS tier names/pricing, commission tiers) — see the Feature Specification's Monetization section for the specific conflicts to resolve.</li>
+</ul>
+<hr />
+<h2 id="6-phase-by-phase-backlog">6. Phase-by-Phase Backlog</h2>
+<h3 id="phase-2-real-installed-build">Phase 2 — Real Installed Build</h3>
+<ol>
+<li><code>npx expo install --fix</code> inside <code>app/</code> to reconcile dependency versions against Expo SDK 51.</li>
+<li>Export real PNG icon/splash assets from <code>client/public/logo.svg</code> for the mobile app.</li>
+<li>Take real screenshots of the running app, replacing the illustrative diagrams in this document set.</li>
+<li>Add a host-facing UI for creating blocks and assigning wardens (<code>POST/PUT /api/v1/blocks</code> already supports this server-side; only the warden-side dashboard was built in Phase 1).</li>
+<li>Add a "My Properties" link to the host dashboard for the Stays manager (<code>/host/stays</code> is currently only reachable by direct URL).</li>
+<li>Prepare Apple App Store / Google Play Store submission materials.</li>
+</ol>
+<h3 id="phase-3-trust-intelligence-hardening">Phase 3 — Trust &amp; Intelligence Hardening</h3>
+<ol>
+<li>Server-side rendering or static prerendering for public marketing/listing pages, so search engines index Basera properly (highest-impact item on this list).</li>
+<li>Move duplicate-photo detection from the coarse fallback hash to true perceptual hashing (<code>npm install sharp</code>), and add address-matching as the second half of duplicate-listing detection.</li>
+<li>Onboard a real OCR provider (<code>OCR_API_KEY</code>, Google Vision) to replace the current metadata-only document check.</li>
+<li>Extend real Claude usage to any newly added AI-adjacent surfaces.</li>
+<li>If pursued, onboard a real deposit-insurance underwriting partner to replace the current pilot/fee-only version.</li>
+<li>Add product analytics (GA4 or PostHog) — currently no event tracking is implemented; Sentry error tracking exists but is optional/unconfigured.</li>
+<li>Build the SEO content hub (city/university guide articles) and register Google Business Profile + Search Console.</li>
+<li>Wire SMS (Twilio) for OTP and rent-reminder escalation, and add the <code>/auth/refresh-token</code> and <code>/auth/reset-password</code> flows specified in the original plans but not yet built.</li>
+<li>Implement the SuperHost reduced-commission tier and the auto-triggered Loyalty/Early-Bird/Last-Minute discount types.</li>
+<li>Give <code>property_manager</code> and <code>finance</code> roles (already present in the <code>User</code> schema) real, scoped dashboards, or remove them from the schema if they're not going to be pursued.</li>
+<li>Consider self-hosting OSRM/Overpass on Railway if map traffic grows beyond what the public instances comfortably serve.</li>
+</ol>
+<h3 id="phase-4-mobile-app-feature-parity">Phase 4 — Mobile App Feature Parity</h3>
+<p>Bring the mobile app to parity with the web app's student experience (saved searches, chat, documents/receipts, push notifications via the existing VAPID setup), then extend it to hosts with a lightweight app for booking requests and messaging on the go.</p>
+<h3 id="phase-5-new-verticals-the-coming-soon-features">Phase 5 — New Verticals (the "Coming Soon" features)</h3>
+<p>Each of these is close to its own product, not a Basera feature extension, and should get its own focused planning pass (data model, moderation approach, monetization) before implementation begins:
+- <strong>Rider booking</strong> — likely a thin integration with an existing ride-hailing API/partner rather than building dispatch logic from scratch; scope as "get a ride to campus."
+- <strong>Food ordering</strong> — start with hostel mess-menu partners (the mess-menu rating system already exists) before expanding to nearby restaurants.
+- <strong>Job seeker</strong> — part-time/internship listings targeted at the same student base, plausibly monetizable via employer-paid listings, reusing the existing verification/trust infrastructure to vet employers.</p>
+<hr />
+<h2 id="7-risk-register-known-follow-ups">7. Risk Register / Known Follow-Ups</h2>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Recommended Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>JWT_SECRET</code> unset in production</td>
+<td>Set before go-live; server warns but does not refuse to boot</td>
+</tr>
+<tr>
+<td>Atlas DB password exposure</td>
+<td>Rotate immediately via Atlas → Database Access if ever shared insecurely</td>
+</tr>
+<tr>
+<td>SPA has no server-side rendering</td>
+<td>Prioritize in Phase 3 — currently limits organic search visibility</td>
+</tr>
+<tr>
+<td>SaaS tier naming/pricing inconsistent across historical docs</td>
+<td>Resolve explicitly (see Feature Spec §7.2) rather than leaving ambiguous</td>
+</tr>
+<tr>
+<td>Deposit Protection is not underwritten</td>
+<td>Keep UI copy explicit that this is a pilot/platform-backed add-on, not licensed insurance, until a partner is onboarded</td>
+</tr>
+<tr>
+<td>Legacy <code>.docx</code> planning documents</td>
+<td>Superseded by this document set; archived out of the active repository (see the top-level README)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="appendix-a-environment-variables-reference-non-secret-defaults">Appendix A — Environment Variables Reference (Non-Secret Defaults)</h2>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ESCROW_HOLD_HOURS</code></td>
+<td>Hours after move-in before payout releases (default 48)</td>
+</tr>
+<tr>
+<td><code>COMMISSION_RATE_DEFAULT</code></td>
+<td>Platform commission on bookings (default 0.07)</td>
+</tr>
+<tr>
+<td><code>STUDENT_SERVICE_FEE_PKR</code></td>
+<td>Flat per-booking service fee</td>
+</tr>
+<tr>
+<td><code>LATE_FEE_PKR</code></td>
+<td>Recurring rent late fee</td>
+</tr>
+<tr>
+<td><code>DEPOSIT_PROTECTION_FEE_RATE</code> / <code>_CAP_PKR</code></td>
+<td>Optional deposit-protection add-on pricing</td>
+</tr>
+<tr>
+<td><code>OFF_PLATFORM_REPORT_CREDIT_PKR</code></td>
+<td>Incentive credit for reporting off-platform payment attempts</td>
+</tr>
+<tr>
+<td><code>BASERA_MANAGEMENT_FEE_PKR</code></td>
+<td>Host subscription management fee</td>
+</tr>
+<tr>
+<td><code>RICKSHAW_FARE_PER_KM</code></td>
+<td>Used in commute/fare estimate cards</td>
+</tr>
+<tr>
+<td><code>MAP_CACHE_TTL_HOURS</code>, <code>OSRM_BASE_URL</code>, <code>OVERPASS_BASE_URL</code></td>
+<td>Map intelligence configuration</td>
+</tr>
+<tr>
+<td><code>AI_PROVIDER</code>, <code>CLAUDE_API_KEY</code></td>
+<td>AI feature gating</td>
+</tr>
+<tr>
+<td><code>OCR_PROVIDER</code>, <code>OCR_API_KEY</code></td>
+<td>Real ID-document OCR gating</td>
+</tr>
+<tr>
+<td><code>ALLOW_DEMO_MODE</code>, <code>VITE_ALLOW_DEMO_FALLBACK</code></td>
+<td>Dual-mode demo/live toggles</td>
+</tr>
+</tbody>
+</table>
+<p>Secrets (never store in a document — set directly in the Railway/Netlify dashboards): <code>JWT_SECRET</code>, <code>CLOUDINARY_*</code>, payment gateway keys (<code>JAZZCASH_*</code>, <code>EASYPAISA_*</code>, <code>STRIPE_*</code>), <code>VAPID_PUBLIC_KEY</code>/<code>VAPID_PRIVATE_KEY</code>, <code>CRON_SECRET</code>.</p></body></html>

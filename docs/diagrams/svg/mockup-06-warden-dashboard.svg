@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640" font-family="Arial, sans-serif">
+  <rect width="1280" height="640" fill="#FFF8F5"/>
+  <rect width="1280" height="44" fill="#E5E7EB"/>
+  <circle cx="24" cy="22" r="6" fill="#F0512E"/><circle cx="46" cy="22" r="6" fill="#FFC857"/><circle cx="68" cy="22" r="6" fill="#1B2A4A"/>
+  <rect x="110" y="10" width="440" height="24" rx="12" fill="#FFFFFF"/>
+  <text x="130" y="27" font-size="13" fill="#334155">basera.pk/warden/dashboard</text>
+
+  <text x="64" y="90" font-size="22" font-weight="800" fill="#182338">Warden Dashboard — Block A</text>
+  <text x="64" y="112" font-size="13" fill="#64748B">Royal Hostel — F-10 · Assigned warden: Imran S.</text>
+
+  <g transform="translate(64,140)">
+    <rect width="1152" height="80" rx="14" fill="#FFFFFF" stroke="#E5E7EB"/>
+    <text x="20" y="30" font-size="13" font-weight="700" fill="#182338">Room 101 — 4 beds</text>
+    <g transform="translate(20,44)">
+      <rect width="120" height="26" rx="6" fill="#E6FAF2"/><text x="10" y="18" font-size="11" fill="#087A55">Bed 1 — Vacant</text>
+      <rect x="130" width="120" height="26" rx="6" fill="#FDECEC"/><text x="140" y="18" font-size="11" fill="#9B1C1C">Bed 2 — Occupied</text>
+      <rect x="260" width="150" height="26" rx="6" fill="#FFF3C4"/><text x="270" y="18" font-size="11" fill="#946200">Bed 3 — Booked Offline</text>
+      <rect x="420" width="120" height="26" rx="6" fill="#E6FAF2"/><text x="430" y="18" font-size="11" fill="#087A55">Bed 4 — Vacant</text>
+    </g>
+    <rect x="920" y="24" width="210" height="34" rx="8" fill="#FF6B4A"/>
+    <text x="945" y="46" font-size="12" font-weight="700" fill="#FFFFFF">Mark Seat Booked (Offline)</text>
+  </g>
+
+  <g transform="translate(64,236)">
+    <rect width="1152" height="80" rx="14" fill="#FFFFFF" stroke="#E5E7EB"/>
+    <text x="20" y="30" font-size="13" font-weight="700" fill="#182338">Room 102 — 2 beds</text>
+    <g transform="translate(20,44)">
+      <rect width="150" height="26" rx="6" fill="#FFF3C4"/><text x="30" y="18" font-size="11" fill="#946200">Bed 1 — Booked Offline</text>
+      <rect x="160" width="120" height="26" rx="6" fill="#E6FAF2"/><text x="170" y="18" font-size="11" fill="#087A55">Bed 2 — Vacant</text>
+    </g>
+    <rect x="920" y="24" width="150" height="34" rx="8" fill="none" stroke="#1B2A4A"/>
+    <text x="955" y="46" font-size="12" font-weight="700" fill="#1B2A4A">Release Bed 1</text>
+  </g>
+
+  <rect x="64" y="340" width="1152" height="90" rx="14" fill="#FFF3C4"/>
+  <text x="88" y="368" font-size="13" font-weight="700" fill="#182338">Why "Booked Offline"?</text>
+  <text x="88" y="390" font-size="12" fill="#334155">Reason logged: "Family paid cash directly, verified by warden on-site." Recorded by Imran S., Aug 22 2026.</text>
+  <text x="88" y="410" font-size="12" fill="#334155">Reversible — release it any time if the arrangement changes.</text>
+
+  <text x="640" y="610" font-size="11" fill="#94A3B8" text-anchor="middle">Design mockup — illustrative UI, not a live screenshot</text>
+</svg>

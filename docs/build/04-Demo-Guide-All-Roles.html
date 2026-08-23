@@ -1,0 +1,207 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Demo Guide for Every Role</title>
+    <style>
+@page { size: A4; margin: 20mm 16mm 20mm 16mm; }
+* { box-sizing: border-box; }
+body { font-family: Arial, "Segoe UI", sans-serif; color: #182338; font-size: 11.5pt; line-height: 1.55; }
+.cover {
+  background: linear-gradient(135deg, #1B2A4A, #243B60);
+  color: #fff; border-radius: 18px; padding: 70px 56px; margin-bottom: 26px;
+  page-break-after: always;
+}
+.cover .kicker { color: #FFC857; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; font-size: 12px; margin-bottom: 14px; }
+.cover h1 { color: #fff; font-size: 40px; margin: 0 0 14px; font-weight: 800; }
+.cover .sub { color: #D7DEEC; font-size: 16px; max-width: 640px; }
+.cover .date { color: #94A3B8; font-size: 12px; margin-top: 40px; }
+h1 { color: #1B2A4A; font-size: 21pt; border-bottom: 3px solid #FF6B4A; padding-bottom: 6px; margin-top: 30px; page-break-after: avoid; }
+h2 { color: #1B2A4A; font-size: 15.5pt; margin-top: 24px; page-break-after: avoid; }
+h3 { color: #F0512E; font-size: 12.5pt; margin-top: 16px; page-break-after: avoid; }
+h4 { color: #182338; font-size: 11.5pt; margin-top: 12px; page-break-after: avoid; }
+p { margin: 8px 0; }
+a { color: #F0512E; }
+ul, ol { margin: 6px 0; padding-left: 22px; }
+li { margin-bottom: 4px; }
+table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 10pt; }
+th { background: #1B2A4A; color: #fff; text-align: left; padding: 7px 10px; }
+td { border-bottom: 1px solid #E5E7EB; padding: 6px 10px; vertical-align: top; }
+tr:nth-child(even) td { background: #FAFAFA; }
+code { background: #F1F5F9; padding: 1px 5px; border-radius: 4px; font-size: 10pt; }
+pre { background: #182338; color: #E2E8F0; padding: 14px 16px; border-radius: 10px; overflow-x: auto; font-size: 9.5pt; }
+pre code { background: none; color: inherit; }
+blockquote { border-left: 4px solid #FFC857; background: #FFF8F5; margin: 12px 0; padding: 8px 16px; color: #64748B; }
+img { max-width: 100%; display: block; margin: 14px auto; border: 1px solid #E5E7EB; border-radius: 10px; }
+hr { border: none; border-top: 1px solid #E5E7EB; margin: 26px 0; }
+.figcap { text-align: center; font-size: 9.5pt; color: #64748B; margin-top: -8px; margin-bottom: 18px; }
+</style></head><body>
+    <div class="cover">
+      <div class="kicker">Basera Platform Documentation</div>
+      <h1>Demo Guide for Every Role</h1>
+      <div class="sub">A plain-language, step-by-step walkthrough for demoing Basera to any audience</div>
+      <div><span style="background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:6px 14px;font-size:11px;font-weight:700;margin-right:8px;display:inline-block;margin-top:8px;">7 Roles Covered</span><span style="background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:6px 14px;font-size:11px;font-weight:700;margin-right:8px;display:inline-block;margin-top:8px;">No Setup Needed</span><span style="background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:6px 14px;font-size:11px;font-weight:700;margin-right:8px;display:inline-block;margin-top:8px;">Laymen-Friendly</span></div>
+      <div class="date">Prepared August 23, 2026</div>
+    </div>
+    <h1 id="basera-demo-guide-for-every-role">Basera — Demo Guide for Every Role</h1>
+<p><em>A plain-language, step-by-step walkthrough of what to show and say when demonstrating Basera to anyone — an investor, a potential host, a university administrator, or a family. No technical background needed. Every feature described below works today in "demo mode," with no database or setup required.</em></p>
+<hr />
+<h2 id="how-to-use-this-guide">How to Use This Guide</h2>
+<p>Basera serves seven different kinds of people, and each one sees a different side of the same platform. Pick the role that matches who you're demoing to — or use the "Full Combined Demo Flow" at the end for a single 15–20 minute walkthrough that touches every role in one narrative.</p>
+<p><strong>All demo accounts use the password <code>password123</code>.</strong></p>
+<p><img alt="Demo map — where to log in as each role" src="file:///E:/Hostel_Hub/docs/diagrams/demo-role-map.png" />
+<em>Figure 1: Every role, its login, and where to find it.</em></p>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Login Email</th>
+<th>Demo Entry Point</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Student</td>
+<td><code>student@basera.pk</code></td>
+<td><code>/dashboard</code></td>
+</tr>
+<tr>
+<td>Independent Host / Landlord</td>
+<td><code>landlord@basera.pk</code></td>
+<td><code>/host/dashboard</code></td>
+</tr>
+<tr>
+<td>Hostel Group Owner</td>
+<td><code>owner@basera.pk</code></td>
+<td><code>/hostel-groups/royal-group</code></td>
+</tr>
+<tr>
+<td>Warden</td>
+<td><code>warden@basera.pk</code></td>
+<td><code>/warden/dashboard</code></td>
+</tr>
+<tr>
+<td>Hotel / Guest House Owner</td>
+<td><code>landlord@basera.pk</code> (same host login)</td>
+<td><code>/host/stays</code></td>
+</tr>
+<tr>
+<td>Admin</td>
+<td><code>admin@basera.pk</code></td>
+<td><code>/admin/dashboard</code></td>
+</tr>
+<tr>
+<td>Parent / Guardian</td>
+<td><em>no login needed</em></td>
+<td>a share link generated by a student</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="role-1-student-i-need-a-safe-place-to-live-near-my-university">Role 1: Student — "I need a safe place to live near my university"</h2>
+<p><strong>Who this is:</strong> An outstation student or young professional moving to a new city for university or work, worried about being scammed, ending up with a bad roommate, or paying a deposit for a room that doesn't match its photos.</p>
+<p><strong>What Basera solves for them:</strong> A search experience where every listing carries real verification, rent is held safely until move-in, and — uniquely — they can see <em>what kind of person</em> they'd be rooming with before ever committing.</p>
+<p><img alt="Homepage" src="file:///E:/Hostel_Hub/docs/diagrams/mockup-01-homepage.png" />
+<em>Figure 2: The homepage — real listings, verification badges, and escrow messaging front and center.</em></p>
+<p><strong>Demo script:</strong>
+1. Open the homepage with no login. Point out the listings are real (pulled live from the platform, not placeholder content), and the "Verified &amp; Safe" / "Escrow-Protected Rent" badges in the hero section.
+2. Search a city or university (try "NUST" or "Royal" — the latter demonstrates Hostel Groups, surfacing every branch of a chain under one badge).
+3. Open a room with existing occupants and scroll to the <strong>Roommates panel</strong>:</p>
+<p><img alt="Room detail with roommate visibility" src="file:///E:/Hostel_Hub/docs/diagrams/mockup-02-room-detail.png" />
+   <em>Figure 3: "Currently living here: 1 Working Professional — Mathematics Teacher — quiet, early sleeper, can help with calculus." No name, no contact info — just what a prospective tenant actually needs to decide.</em></p>
+<ol start="4">
+<li>Log in as <code>student@basera.pk</code> and open the <strong>Dashboard</strong>:</li>
+</ol>
+<p><img alt="Student dashboard" src="file:///E:/Hostel_Hub/docs/diagrams/mockup-03-student-dashboard.png" />
+   <em>Figure 4: Bookings, payments, roommate compatibility tools, and the AI-powered decision lab.</em></p>
+<ol start="5">
+<li>Walk through starting a booking — point out that the host's phone/email stay hidden until payment, and the optional Deposit Protection add-on at checkout.</li>
+<li>Open the AI concierge and ask something like <em>"What documents do I need to book a room?"</em> — if <code>CLAUDE_API_KEY</code> is configured, this is a real AI response, not a scripted chatbot.</li>
+</ol>
+<p><strong>Be upfront if asked:</strong> Deposit Protection is a real fee/claims flow on the platform side, but not yet backed by a licensed insurance underwriter.</p>
+<hr />
+<h2 id="role-2-independent-host-landlord-i-want-to-fill-my-rooms-faster-and-get-paid-reliably">Role 2: Independent Host / Landlord — "I want to fill my rooms faster and get paid reliably"</h2>
+<p><strong>Who this is:</strong> Someone who owns or manages one hostel, PG, or a handful of rooms and currently relies on word of mouth or informal listings.</p>
+<p><strong>What Basera solves for them:</strong> A dashboard that fills vacancies, prices rooms intelligently, and guarantees payment without them having to chase tenants for rent.</p>
+<p><img alt="Host Growth Center" src="file:///E:/Hostel_Hub/docs/diagrams/mockup-04-host-growth-center.png" />
+<em>Figure 5: Smart Pricing reasoning from real occupancy, comparable prices, and academic-calendar seasonality — not a flat guess.</em></p>
+<p><strong>Demo script:</strong>
+1. Log in as <code>landlord@basera.pk</code> and open the <strong>Growth Center</strong>.
+2. Show the <strong>Smart Pricing</strong> card — explain that it reads out a plain-language explanation, not just a number, based on actual occupancy and nearby comparable prices.
+3. Show the room inventory, tenant list, and finance/ledger view.
+4. Point out the SaaS subscription tiers (Starter/Pro/Premium) for hosts who want more visibility and tools.</p>
+<p><strong>Be upfront if asked:</strong> SaaS tier pricing is still being finalized — don't quote specific PKR figures until the pricing page is published.</p>
+<hr />
+<h2 id="role-3-hostel-group-owner-i-run-multiple-hostels-under-one-brand">Role 3: Hostel Group Owner — "I run multiple hostels under one brand"</h2>
+<p><strong>Who this is:</strong> An owner or operator with several hostel branches across one or more cities, who wants to be recognized as a trusted, established brand rather than a series of unrelated listings.</p>
+<p><strong>What Basera solves for them:</strong> A single verified identity for the whole chain, so searching for the brand name surfaces every branch, and each branch benefits from the group's collective reputation.</p>
+<p><img alt="Hostel Group branded page" src="file:///E:/Hostel_Hub/docs/diagrams/mockup-05-hostel-group.png" />
+<em>Figure 6: "Royal Group of Hostels" — one verified badge, three branches, all searchable by the group name.</em></p>
+<p><strong>Demo script:</strong>
+1. From the homepage, search <strong>"Royal"</strong> — every branch of Royal Group of Hostels appears in results.
+2. Click through to <code>/hostel-groups/royal-group</code> to show the branded group page listing all branches with their own pricing and location.
+3. Log in as <code>owner@basera.pk</code> to show the property listing flow a group owner uses to attach a new branch hostel to their existing group.</p>
+<p><strong>The pitch to a real group owner:</strong> "List your whole chain under one verified brand on Basera" — this is as much a B2B acquisition tool as a student-facing feature.</p>
+<hr />
+<h2 id="role-4-warden-i-manage-one-block-of-a-larger-hostel-day-to-day">Role 4: Warden — "I manage one block of a larger hostel day-to-day"</h2>
+<p><strong>Who this is:</strong> Staff responsible for a specific physical section (block) of a larger property — not the owner, and not authorized to see or manage the rest of the property.</p>
+<p><strong>What Basera solves for them:</strong> A focused dashboard scoped only to their block, plus a way to record real-world situations (like a seat filled through an informal, off-platform arrangement) without needing the owner to re-list anything.</p>
+<p><img alt="Warden Dashboard" src="file:///E:/Hostel_Hub/docs/diagrams/mockup-06-warden-dashboard.png" />
+<em>Figure 7: The Warden Dashboard — assigned block only, with the manual seat-booked override.</em></p>
+<p><strong>Demo script:</strong>
+1. Log in as <code>warden@basera.pk</code> and open <code>/warden/dashboard</code> — note that only their assigned block's rooms and seats are visible (this is enforced by the server, not just hidden in the interface).
+2. Demonstrate <strong>Mark Seat Booked (Offline)</strong>: click it on a vacant bed, enter a reason (e.g. <em>"family paid cash directly, verified on-site"</em>), and show it turn into the distinct amber "Booked Offline" state.
+3. Click <strong>Release</strong> to show the action is fully reversible.</p>
+<p><strong>The real-world problem this solves:</strong> seats filled through informal arrangements no longer show as falsely available online, without needing a full re-listing cycle.</p>
+<hr />
+<h2 id="role-5-hotel-guest-house-owner-i-rent-out-a-property-nightly-not-monthly">Role 5: Hotel / Guest House Owner — "I rent out a property nightly, not monthly"</h2>
+<p><strong>Who this is:</strong> An owner of a guest house, hotel, or short-stay property in a tourist destination (Murree, Naran, etc.) — a different business from student housing, but one that benefits from the same trust infrastructure.</p>
+<p><strong>What Basera solves for them:</strong> Access to the same verification and booking system as the student marketplace, tailored for nightly rates and date-range bookings instead of monthly rent.</p>
+<p><img alt="Hotels &amp; Guest Houses search" src="file:///E:/Hostel_Hub/docs/diagrams/mockup-07-stays-hotels.png" />
+<em>Figure 8: The Stays vertical — visually distinct from student listings, built for a different audience and intent.</em></p>
+<p><strong>Demo script:</strong>
+1. Navigate to <code>/stays</code> and search "Murree." Point out the nightly-rate cards, deliberately styled differently from the monthly student listings.
+2. Open a property and show the date-range booking form.
+3. Log in with the host account and open <code>/host/stays</code> to show the owner-facing manager for these listings.</p>
+<p><strong>Be upfront if asked:</strong> unlike the student flow, guest contact is shared at booking time rather than gated — a deliberate choice given the shorter, lower-risk nature of a 1–3 night stay, not an inconsistency.</p>
+<hr />
+<h2 id="role-6-admin-trust-finance-ops-i-keep-the-whole-platform-honest">Role 6: Admin / Trust &amp; Finance Ops — "I keep the whole platform honest"</h2>
+<p><strong>Who this is:</strong> Internal Basera staff responsible for verifying new listings, resolving disputes, and monitoring the platform's finances.</p>
+<p><strong>What Basera solves for them:</strong> A command center for everything that keeps the marketplace trustworthy — without this role, none of the trust promises made to students and hosts would be enforceable.</p>
+<p><strong>Demo script:</strong>
+1. Log in as <code>admin@basera.pk</code> and open <code>/admin/dashboard</code>.
+2. Show the verification queue (new hosts/listings awaiting approval), the finance command room (escrow balances, payout approvals), and the dispute resolution workflow.
+3. Show the trust center — moderation queues, review classification, and the incident timeline.</p>
+<hr />
+<h2 id="role-7-parent-guardian-i-want-reassurance-without-micromanaging">Role 7: Parent / Guardian — "I want reassurance without micromanaging"</h2>
+<p><strong>Who this is:</strong> A parent who wants visibility into their child's living situation without needing an account or having to personally verify anything.</p>
+<p><strong>What Basera solves for them:</strong> A read-only view, shared by the student on their own terms, showing safety-relevant information without requiring the parent to learn a new platform.</p>
+<p><strong>Demo script:</strong>
+1. From the student dashboard, show the <strong>Parent Share Link</strong> feature being generated.
+2. Open that link in a private/incognito window to show the parent's read-only view — safety summary, visit scheduling, no ability to message the host or make changes.
+3. Note the bilingual English/Urdu toggle, which today is most fully built out on this specific portal.</p>
+<hr />
+<h2 id="full-combined-demo-flow-1520-minutes">Full Combined Demo Flow (~15–20 minutes)</h2>
+<p>Use this sequence when presenting to a single audience that wants the whole story, not just one role:</p>
+<ol>
+<li><strong>Open with the problem (2 min).</strong> Land on the homepage with no login. Point out real listings and trust badges — this is the trust-first framing that differentiates Basera from informal Facebook-group room hunting.</li>
+<li><strong>Search and discovery (2 min).</strong> Show city/university filtering, the map view, and search "Royal" to demonstrate Hostel Groups.</li>
+<li><strong>Roommate visibility — the differentiator (3 min).</strong> Open a shared room, show the Roommates panel, then log in as a student to show how visibility is controlled (including the opt-out toggle).</li>
+<li><strong>Booking and escrow (2 min).</strong> Walk through starting a booking, contact gating, the Deposit Protection add-on, and the escrow explanation.</li>
+<li><strong>Warden Dashboard — operational trust (2 min).</strong> Show the manual seat-booked override and its reversibility.</li>
+<li><strong>Host side: Growth Center (2 min).</strong> Show Smart Pricing reasoning from real data.</li>
+<li><strong>Hotels &amp; Guest Houses — the new vertical (2 min).</strong> Search "Murree," show the nightly booking flow.</li>
+<li><strong>AI concierge (1 min).</strong> Ask a real question and call out that it's a genuine AI response, not a script.</li>
+<li><strong>Close on the mobile app and roadmap (2 min).</strong> Mention the "Coming Soon" placeholders (rider booking, food ordering, job seeker) as visible proof the platform is built to grow.</li>
+</ol>
+<hr />
+<h2 id="things-to-be-upfront-about-across-every-demo">Things to Be Upfront About, Across Every Demo</h2>
+<ul>
+<li><strong>Deposit Protection</strong> is a real fee/opt-in/claims flow on the platform side, but not yet backed by a licensed insurance underwriter — say so plainly rather than overclaiming coverage.</li>
+<li><strong>AI-labeled scoring features</strong> (DNA score, trust score, vacancy forecast) are legitimate deterministic calculations, not machine learning — only the concierge, listing-description, finance-anomaly, dispute-summary, and review-classifier features call a real AI model, and only when an API key is configured.</li>
+<li><strong>The mobile app</strong> is a complete, real source tree, not yet installed, built, or published — a good one-liner: "the app is written and ready to run; the app-store submission is the next phase."</li>
+<li><strong>Hotel/guest-house guest contact</strong> is shared at booking time (not gated like the long-term student flow) — a deliberate choice given the shorter, lower-risk nature of a short stay.</li>
+</ul>
+<hr />
+<h2 id="if-presenting-against-a-real-live-deployment">If Presenting Against a Real Live Deployment</h2>
+<p>Confirm beforehand:
+- The Railway backend health check returns OK: <code>https://basera-api-production.up.railway.app/api/v1/health</code>
+- Demo data has been seeded (<code>npm run seed --prefix server</code>) so the accounts above actually exist in the live database rather than only in in-memory demo mode.
+- The frontend at <code>https://basera-pk.netlify.app</code> loads real listings, not just the offline fallback.</p>
+<p>See the <strong>Development Master Plan</strong> for the full deployment checklist if any of the above isn't yet true.</p></body></html>

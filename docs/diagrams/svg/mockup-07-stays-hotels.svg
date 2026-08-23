@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 700" width="1280" height="700" font-family="Arial, sans-serif">
+  <rect width="1280" height="700" fill="#FFFFFF"/>
+  <rect width="1280" height="44" fill="#E5E7EB"/>
+  <circle cx="24" cy="22" r="6" fill="#F0512E"/><circle cx="46" cy="22" r="6" fill="#FFC857"/><circle cx="68" cy="22" r="6" fill="#1B2A4A"/>
+  <rect x="110" y="10" width="440" height="24" rx="12" fill="#FFFFFF"/>
+  <text x="130" y="27" font-size="13" fill="#334155">basera.pk/stays?city=Murree</text>
+
+  <rect x="0" y="44" width="1280" height="150" fill="#FF6B4A"/>
+  <text x="64" y="110" font-size="30" font-weight="800" fill="#FFFFFF">Hotels &amp; Guest Houses</text>
+  <text x="64" y="136" font-size="14" fill="#FFE2D6">Book a verified short stay — Murree, Naran, and beyond</text>
+  <rect x="64" y="150" width="1152" height="50" rx="12" fill="#FFFFFF"/>
+  <text x="84" y="180" font-size="12" fill="#94A3B8">Murree · Check-in: Aug 28 · Check-out: Aug 30 · 4 guests</text>
+  <rect x="1000" y="158" width="196" height="34" rx="8" fill="#1B2A4A"/>
+  <text x="1030" y="180" font-size="12" font-weight="700" fill="#FFFFFF">Search Stays</text>
+
+  <text x="64" y="240" font-size="18" font-weight="800" fill="#182338">12 stays found near Murree</text>
+
+  <g transform="translate(64,258)">
+    <rect width="368" height="240" rx="16" fill="#FFFFFF" stroke="#E5E7EB"/>
+    <rect x="16" y="16" width="336" height="130" rx="10" fill="#D7DEEC"/>
+    <rect x="16" y="158" width="80" height="20" rx="10" fill="#E6FAF2"/><text x="26" y="172" font-size="10" fill="#087A55">Verified</text>
+    <text x="16" y="200" font-size="14" font-weight="700" fill="#182338">Pine View Guest House</text>
+    <text x="16" y="218" font-size="11" fill="#64748B">Murree · Sleeps 6 · Parking, Hot Water</text>
+    <text x="230" y="218" font-size="14" font-weight="800" fill="#F0512E">PKR 12,000/night</text>
+  </g>
+  <g transform="translate(456,258)">
+    <rect width="368" height="240" rx="16" fill="#FFFFFF" stroke="#E5E7EB"/>
+    <rect x="16" y="16" width="336" height="130" rx="10" fill="#FFE2D6"/>
+    <rect x="16" y="158" width="80" height="20" rx="10" fill="#E6FAF2"/><text x="26" y="172" font-size="10" fill="#087A55">Verified</text>
+    <text x="16" y="200" font-size="14" font-weight="700" fill="#182338">Naran Riverside Hotel</text>
+    <text x="16" y="218" font-size="11" fill="#64748B">Naran · Sleeps 4 · Generator Backup</text>
+    <text x="230" y="218" font-size="14" font-weight="800" fill="#F0512E">PKR 18,500/night</text>
+  </g>
+  <g transform="translate(848,258)">
+    <rect width="368" height="240" rx="16" fill="#FFFFFF" stroke="#E5E7EB"/>
+    <rect x="16" y="16" width="336" height="130" rx="10" fill="#FFF3C4"/>
+    <rect x="16" y="158" width="80" height="20" rx="10" fill="#E6FAF2"/><text x="26" y="172" font-size="10" fill="#087A55">Verified</text>
+    <text x="16" y="200" font-size="14" font-weight="700" fill="#182338">Islamabad Boutique Stay</text>
+    <text x="16" y="218" font-size="11" fill="#64748B">Islamabad · Sleeps 2 · Family Rooms</text>
+    <text x="230" y="218" font-size="14" font-weight="800" fill="#F0512E">PKR 9,000/night</text>
+  </g>
+
+  <text x="640" y="660" font-size="11" fill="#94A3B8" text-anchor="middle">Design mockup — illustrative UI, not a live screenshot</text>
+</svg>

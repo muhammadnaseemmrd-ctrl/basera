@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "Basera",
+    "slug": "basera",
+    "scheme": "basera",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFF8F5"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "primaryColor": "#FF6B4A",
+    "backgroundColor": "#FFF8F5",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "pk.basera.app"
+    },
+    "android": {
+      "package": "pk.basera.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#FFF8F5"
+      }
+    },
+    "web": {
+      "favicon": "./assets/icon.png"
+    },
+    "extra": {
+      "eas": {}
+    }
+  }
+}
