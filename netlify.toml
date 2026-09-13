@@ -1,7 +1,12 @@
 [build]
   base = "client"
   command = "npm install && npm run build"
-  publish = "client/dist"
+  # `publish` is resolved relative to `base`, which is already "client" -- the
+  # previous value "client/dist" doubled up to "client/client/dist" (a directory
+  # that doesn't exist), which is exactly the "Deploy directory ... does not
+  # exist" error Netlify reported. Publish is just the build output folder
+  # within the base directory.
+  publish = "dist"
 
 [build.environment]
   NODE_VERSION = "20"
