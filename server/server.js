@@ -92,12 +92,21 @@ const app = express();
 const server = http.createServer(app);
 const port = process.env.PORT || 5000;
 
+// Found during live QA (same discovery as the SEO domain-mismatch fix in
+// index.html/robots.txt/sitemap.xml): basera.pk is a live, unrelated
+// third-party rental-listing business, not a domain this project controls.
+// Hardcoding it here meant the API would accept credentialed cross-origin
+// requests claiming to come from a site nobody on this project can vouch for --
+// removed. The frontend has also since moved from Netlify (free-tier credits
+// exhausted) to Vercel, so both the current and prior known-good frontend
+// origins are listed alongside CLIENT_URL (which should be kept in sync with
+// whichever origin is actually live, via the Railway env var).
 const allowedOrigins = [
   process.env.CLIENT_URL,
   "http://localhost:5173",
   "http://localhost:4173",
-  "https://basera.pk",
-  "https://www.basera.pk"
+  "https://basera-cyan.vercel.app",
+  "https://basera-pk.netlify.app"
 ].filter(Boolean);
 
 const isLocalDevOrigin = (origin = "") => {

@@ -7,4 +7,4 @@ Disallow: /host/dashboard
 Disallow: /host/stays
 Disallow: /landlord/dashboard
 Disallow: /warden/dashboard
-Sitemap: https://basera-pk.netlify.app/sitemap.xml
+Sitemap: https://basera-cyan.vercel.app/sitemap.xml

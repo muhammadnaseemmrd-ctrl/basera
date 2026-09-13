@@ -268,6 +268,24 @@ This means the deployed frontend's `robots.txt` `Sitemap:` directive, every URL 
 
 ---
 
+## 0b. URGENT — frontend migrated to Vercel; site is currently fully broken (CORS)
+
+You confirmed `basera-pk.netlify.app` was correct (Netlify free-tier credits ran out) and the frontend has moved to `https://basera-cyan.vercel.app`. Checking this new deployment immediately surfaced a **site-breaking production issue**:
+
+**The live Vercel site cannot reach the backend API at all right now.** Every request fails in the browser console with:
+`Access to fetch at 'https://basera-api-production.up.railway.app/api/v1/health' from origin 'https://basera-cyan.vercel.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.`
+
+**Root cause:** `server.js`'s `allowedOrigins` CORS allowlist was hardcoded to the old Netlify URL (via `CLIENT_URL`) plus, separately, `https://basera.pk`/`https://www.basera.pk` (the unrelated third-party domain from §5e — meaning the backend was also accepting credentialed cross-origin requests claiming to be from a domain nobody on this project controls, a real exposure in its own right, now removed). The new Vercel origin was never in this list, so **every single API call from the live site — login, registration, browsing, booking, everything — is currently failing** for any real visitor.
+
+**Fix applied:**
+- `server/server.js`: removed the hardcoded `basera.pk`/`www.basera.pk` entries; added `https://basera-cyan.vercel.app` and kept `https://basera-pk.netlify.app` (in case it's still reachable during the migration).
+- Updated the Railway `CLIENT_URL` and `PUBLIC_APP_URL` environment variables to `https://basera-cyan.vercel.app` (applied without triggering a redeploy yet, so it lands together with the code fix).
+- `client/index.html`, `client/public/robots.txt`, `client/public/sitemap.xml`: updated every URL from the old Netlify domain to the new Vercel domain (same fix as §5e, just re-pointed again).
+
+**Status: fixed locally, NOT YET DEPLOYED — this is the most urgent item in this entire report.** The production site is non-functional for real use until this is pushed and I redeploy Railway. Please push immediately; I'll trigger the backend redeploy and do a full smoke-retest the moment it's up.
+
+---
+
 ## 6. Next steps
 
 1. ~~Booking-journey IDOR testing~~ — done, 3 critical bugs found + fixed locally (pending deploy).
