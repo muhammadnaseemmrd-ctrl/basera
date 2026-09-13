@@ -4,7 +4,6 @@ const { protect, authorize } = require("../middleware/auth");
 const ManualPayment = require("../models/ManualPayment");
 const Booking = require("../models/Booking");
 const { createLedgerTransaction } = require("../services/ledgerService");
-const { bookings } = require("../data/mockData");
 
 const router = express.Router();
 const isDbReady = () => mongoose.connection.readyState === 1;
@@ -113,7 +112,19 @@ router.post("/:id/review", protect, authorize("admin", "finance"), async (req, r
     if (!payment) return res.status(404).json({ message: "Manual payment not found." });
     let ledger = null;
     if (status === "approved") {
-      const booking = payment.booking ? await Booking.findById(payment.booking) : bookings.find((item) => item.id === payment.bookingRef);
+      // Found during live QA: when a challan is issued with no real bookingId
+      // (POST /challan defaults bookingRef to the demo placeholder "b1" and only
+      // sets `booking` when the supplied id is a valid ObjectId), this used to fall
+      // back to `bookings.find(...)` -- the DEMO mockData array -- which returns a
+      // fake booking with non-ObjectId fields like student: "u-student". Passing
+      // that into createLedgerTransaction against a REAL database crashed with
+      // "Cast to ObjectId failed". Same bug class as the Room.js normalizeRoom fix
+      // earlier this session: demo-mode fallback data leaking into a live-mode code
+      // path. Fixed by using a lightweight real stand-in (just the payment's own
+      // real student id) instead of reaching for mock data at all in live mode --
+      // this still correctly attributes the ledger entry to the paying student even
+      // when there's no booking on file (e.g. a general account top-up).
+      const booking = payment.booking ? await Booking.findById(payment.booking) : { student: payment.student };
       ledger = await createLedgerTransaction({
         type: "MANUAL_PAYMENT_APPROVED",
         booking,

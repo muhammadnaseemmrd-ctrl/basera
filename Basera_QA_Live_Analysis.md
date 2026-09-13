@@ -227,6 +227,47 @@ Tested the offline/manual-payment ("challan") workflow end-to-end live: `qa.stud
 
 ---
 
+## 0a. Second deploy + regression retest — September 13, 2026 (commit `9511ed1`)
+
+User pushed the LedgerEntry-enum, manual-payment-account, and loyalty-claim-race fixes; frontend build also succeeded. Backend build was clean (`SUCCESS`, no errors). Retested:
+
+| Retest | Before fix | After fix | Result |
+|---|---|---|---|
+| `qa.finance.001` approves the pending manual-payment challan (§5b) | `500` (invalid ledger enum) | `200`, real balanced ledger entries created (`gateway_cash` debit / `student_receivable` credit, both tagged `MANUAL_PAYMENT_APPROVED`) | PASS |
+| Fresh student (`qa.student.002`) earns exactly 5,000 points via 5 referrals, then fires 5 truly concurrent claim requests | all 5 previously returned `201` (25,000 points' worth of claims from 5,000 real points) | `[201, 422, 422, 422, 422]` — exactly one succeeded, final balance `0`/`pointsRedeemed: 5000`, exactly one claim document created | **PASS — race condition fully resolved** |
+| A challan submitted with no real `bookingId` gets approved | not previously tested | **`500 "LedgerEntry validation failed: booking: Cast to ObjectId failed for value 'b1'... student: Cast to ObjectId failed for value 'u-student'"`** | **FAIL — new bug found, see below** |
+
+**BUG — approving a bookingless manual payment crashed by pulling in demo mock data.** `POST /manual-payments/challan` defaults `bookingRef` to the literal string `"b1"` (a demo-mode placeholder) whenever no valid `bookingId` is supplied, and only sets the real `booking` field when the supplied id passes `mongoose.Types.ObjectId.isValid()`. The `/review` (admin/finance approval) handler's fallback — `payment.booking ? await Booking.findById(...) : bookings.find((item) => item.id === payment.bookingRef)` — reached for `data/mockData.js`'s demo `bookings` array in this case, found nothing real, and (when a challan's `bookingRef` happened to coincide with the demo array's `"b1"` id) passed a fake demo booking object with non-ObjectId fields (`student: "u-student"`) straight into a real-database ledger write, which crashed on cast. Same bug class as the Room.js `normalizeRoom` fake-lister fix from earlier this session: demo-mode fallback data leaking into a live-mode code path.
+
+**Fix applied (`server/routes/manualPaymentRoutes.js`):** when a challan has no real `booking`, use a lightweight real stand-in (`{ student: payment.student }`, the payment's own actual student id) instead of reaching for mock data — this still correctly attributes the ledger entry to the paying student even without a booking on file (e.g. a general account top-up), and never touches demo data in a live-mode code path. Removed the now-unused `bookings` mockData import from this file.
+
+**Status:** fixed locally, **not yet deployed.**
+
+---
+
+## 5e. SEO spot checks
+
+| # | Test | Expected | Actual | Result |
+|---|---|---|---|---|
+| 1 | `GET /robots.txt` on the live site | References this project's actual domain | **`Sitemap: https://basera.pk/sitemap.xml`** | **FAIL — critical, see below** |
+| 2 | `GET /sitemap.xml` on the live site | URLs point at this project's actual domain, only real/stable routes | **All 8 URLs pointed at `https://basera.pk/...`**, including 2 hostel-detail URLs (`cozy-boys-hostel-f-10`, `pine-crest-boys-hostel`) that are leftover demo-data slugs with no matching document in the real live database | **FAIL — critical, see below** |
+| 3 | `index.html` canonical/Open Graph/Twitter/structured-data URLs | Point at this project's actual domain | All hardcoded to `https://basera.pk` | **FAIL — critical, see below** |
+| 4 | Private dashboard routes excluded from crawling | `robots.txt` disallows every private route prefix | Only `/admin` and `/dashboard` were disallowed; the app also has private dashboards at `/owner/dashboard`, `/host/dashboard`, `/host/stays`, `/landlord/dashboard`, `/warden/dashboard` — **none of these were covered** | **FAIL, see below** |
+
+**CRITICAL — the site's SEO metadata pointed at a live, unrelated third-party website.** I fetched `https://basera.pk/` directly to check whether it's a domain you own (e.g. a future custom domain not yet pointed here). It is not: it's a live, fully built WordPress/Elementor real-estate rental listing site called "Basera - Pakistan No #1 Free Rental Property Listing Website," with entirely different branding, contact info (`0334-0393999`, `baserarental@gmail.com`), agents, and property listings (houses/flats in Lahore/Sialkot/Jhelum, not student hostels), and its own social accounts (`@baserarental`). This is an unrelated, already-operating business that happens to share a similar name — **not a domain you control.**
+
+This means the deployed frontend's `robots.txt` `Sitemap:` directive, every URL in `sitemap.xml`, the `<link rel="canonical">`, Open Graph `og:url`/`og:image`, Twitter `twitter:image`, and the JSON-LD `Organization` schema's `url`/`logo` were **all telling search engines and social-media link previews that this site's canonical home is someone else's unrelated live website.** Practically, this could: prevent the real site from being properly indexed under its own identity, cause social share previews of the real site to reference the wrong URL/domain, and is a brand-confusion/trust risk given the other site is a genuine, active competitor-adjacent business.
+
+**Fix applied:** replaced every hardcoded `https://basera.pk` reference with the actual live origin `https://basera-pk.netlify.app` in `client/index.html` (canonical, OG, Twitter, JSON-LD), `client/public/robots.txt` (Sitemap directive), and `client/public/sitemap.xml` (all 8 URLs). Also removed the 2 sitemap entries pointing at nonexistent demo-hostel slugs. Also expanded `robots.txt`'s `Disallow` rules to cover every actual private-dashboard route prefix found in `App.jsx` (`/owner/dashboard`, `/host/dashboard`, `/host/stays`, `/landlord/dashboard`, `/warden/dashboard`), not just `/admin` and `/dashboard` — left `/landlord/onboarding` crawlable since that's a public marketing/signup page, not a private dashboard.
+
+**Status:** fixed locally, **not yet deployed.** This is a frontend (Netlify) change, not a backend one — will need a frontend redeploy, separate from the Railway backend pushes above.
+
+**Not fixed (flagged only):** the sitemap remains a static file, not dynamically generated from real hostel/room/property listings — fine while the live database has only synthetic QA data, but worth generating dynamically once there's real inventory to index individually. Also, robots.txt-level disallow is enforced at crawl time only; adding an explicit `<meta name="robots" content="noindex">` per dashboard page (via the `react-helmet-async` pattern already used in `StaticPage.jsx`) would be a stronger defense-in-depth layer, since these routes are also all auth-gated. Recommending both as follow-ups rather than making a sweeping multi-file change unprompted.
+
+**Important — please double check:** if `basera.pk` is a domain your business separately owns and simply hasn't pointed at this deployment yet, let me know and I'll restore the domain references (once DNS is actually pointed there) instead of the Netlify URL. As found, it's serving someone else's live content, so I fixed it on the assumption you don't currently control it.
+
+---
+
 ## 6. Next steps
 
 1. ~~Booking-journey IDOR testing~~ — done, 3 critical bugs found + fixed locally (pending deploy).

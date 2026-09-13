@@ -5,7 +5,14 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/favicon.svg" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="canonical" href="https://basera.pk/" />
+    <!-- Found during live QA: basera.pk is a live, unrelated third-party rental
+         listing website (different business, different contact info/branding) --
+         NOT this project's domain. Every canonical/OG/Twitter/structured-data URL
+         here previously pointed at it, which would have misdirected search-engine
+         canonicalization and social-share previews to someone else's site entirely.
+         Pointing these at the actual deployed origin until/unless a real custom
+         domain this project controls is set up. -->
+    <link rel="canonical" href="https://basera-pk.netlify.app/" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -27,8 +34,8 @@
       property="og:description"
       content="Find your Basera. Verified hostels, PGs, and rooms near major Pakistani universities with safe, escrow-protected booking."
     />
-    <meta property="og:url" content="https://basera.pk/" />
-    <meta property="og:image" content="https://basera.pk/logo.svg" />
+    <meta property="og:url" content="https://basera-pk.netlify.app/" />
+    <meta property="og:image" content="https://basera-pk.netlify.app/logo.svg" />
     <meta property="og:locale" content="en_PK" />
 
     <!-- Twitter -->
@@ -38,7 +45,7 @@
       name="twitter:description"
       content="Find your Basera. Verified hostels, PGs, and rooms near major Pakistani universities with safe, escrow-protected booking."
     />
-    <meta name="twitter:image" content="https://basera.pk/logo.svg" />
+    <meta name="twitter:image" content="https://basera-pk.netlify.app/logo.svg" />
 
     <!-- Structured data -->
     <script type="application/ld+json">
@@ -46,8 +53,8 @@
         "@context": "https://schema.org",
         "@type": "Organization",
         "name": "Basera",
-        "url": "https://basera.pk",
-        "logo": "https://basera.pk/logo.svg",
+        "url": "https://basera-pk.netlify.app",
+        "logo": "https://basera-pk.netlify.app/logo.svg",
         "description": "Basera is a verified student accommodation marketplace for Pakistan, connecting students and young professionals with hostels, PGs, and shared rooms near major universities.",
         "areaServed": "PK",
         "sameAs": []
