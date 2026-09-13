@@ -126,6 +126,9 @@ router.post("/:id/hostels/:hostelId", protect, authorize("host", "admin"), async
       if (!group) return res.status(404).json({ message: "Hostel group not found." });
       const hostel = hostels.find((item) => item.id === req.params.hostelId);
       if (!hostel) return res.status(404).json({ message: "Hostel not found." });
+      if (req.user.role !== "admin" && group.ownerId !== req.user.id) {
+        return res.status(403).json({ message: "You can only manage your own hostel group." });
+      }
       if (hostel.owner !== req.user.id && req.user.role !== "admin") {
         return res.status(403).json({ message: "You can only attach hostels you own." });
       }
@@ -138,6 +141,14 @@ router.post("/:id/hostels/:hostelId", protect, authorize("host", "admin"), async
     const hostel = await Hostel.findById(req.params.hostelId);
     if (!hostel) return res.status(404).json({ message: "Hostel not found." });
     const requesterId = String(req.user._id || req.user.id);
+    // Found during live QA: this only ever checked that the requester owned the
+    // HOSTEL being attached, never that they owned (or were an admin of) the
+    // GROUP it was being attached to. That meant any host could force their own
+    // hostel into an unrelated group owner's group without that group owner's
+    // consent -- a tenant-isolation violation between hostel-group tenants.
+    if (req.user.role !== "admin" && String(group.ownerId) !== requesterId) {
+      return res.status(403).json({ message: "You can only manage your own hostel group." });
+    }
     if (String(hostel.owner) !== requesterId && req.user.role !== "admin") {
       return res.status(403).json({ message: "You can only attach hostels you own." });
     }

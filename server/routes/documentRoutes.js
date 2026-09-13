@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const Booking = require("../models/Booking");
+const Room = require("../models/Room");
 const Dispute = require("../models/Dispute");
 const DepositCase = require("../models/DepositCase");
 const LedgerEntry = require("../models/LedgerEntry");
@@ -212,6 +213,15 @@ router.get("/certificate/:studentId", protect, async (req, res, next) => {
 router.get(["/payout/:payoutId", "/payout/:payoutId/download"], protect, authorize("host", "admin", "finance"), async (req, res, next) => {
   try {
     const booking = await loadBooking(req.params.payoutId);
+    // Found during live QA (same class as the bookingRoutes.js confirm/accept/
+    // decline/deposit IDOR fixes): "host" alone let ANY host download ANY OTHER
+    // host's payout statement by guessing/enumerating a booking/payout id.
+    if (booking && req.user.role !== "admin" && req.user.role !== "finance") {
+      const hostId = booking.room?.listedBy || booking.hostel?.owner;
+      if (String(hostId) !== String(req.user._id || req.user.id)) {
+        return res.status(403).json({ message: "You can only view your own payout statements." });
+      }
+    }
     const rows = booking
       ? [
           ["Payout ID", req.params.payoutId],
@@ -231,11 +241,23 @@ router.get(["/payout/:payoutId", "/payout/:payoutId/download"], protect, authori
 
 router.get("/earnings/:hostId", protect, authorize("host", "admin", "finance"), async (req, res, next) => {
   try {
+    // Found during live QA: this previously (a) never checked that :hostId
+    // belonged to the requester, and (b) queried ALL paid bookings platform-wide
+    // with no host filter at all -- so any host account could pull a PDF
+    // mislabeled with their own hostId that actually contained the ENTIRE
+    // platform's gross rent/commission/payout totals, a real financial data leak.
+    if (req.user.role !== "admin" && req.user.role !== "finance" && String(req.params.hostId) !== String(req.user._id || req.user.id)) {
+      return res.status(403).json({ message: "You can only view your own earnings." });
+    }
     const month = req.query.month || new Date().toLocaleString("en-US", { month: "long" });
     const year = req.query.year || new Date().getFullYear();
-    const hostBookings = mongoose.connection.readyState !== 1
-      ? bookings
-      : await Booking.find({ paymentStatus: "paid" }).populate("room");
+    let hostBookings;
+    if (mongoose.connection.readyState !== 1) {
+      hostBookings = bookings;
+    } else {
+      const hostRoomIds = await Room.find({ listedBy: req.params.hostId }).select("_id");
+      hostBookings = await Booking.find({ paymentStatus: "paid", room: { $in: hostRoomIds.map((room) => room._id) } }).populate("room");
+    }
     const gross = hostBookings.reduce((sum, booking) => sum + Number(booking.totalRent || 0), 0);
     const commission = hostBookings.reduce((sum, booking) => sum + Number(booking.commission || 0), 0);
     const payout = hostBookings.reduce((sum, booking) => sum + Number(booking.ownerReceives || 0), 0);

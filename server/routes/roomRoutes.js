@@ -95,10 +95,29 @@ const mapMarkerRoom = (room) => ({
   panoramaUrl: room.panoramaUrl
 });
 
+// Found during live QA: when `listedBy` isn't a populated document (e.g. the raw
+// document returned by `Room.create()`/`findByIdAndUpdate()` right after a real
+// write, before any `.populate()` call), this used to silently fall back to a
+// RANDOM entry from `data/mockData.js`'s demo `users` array and present it as the
+// room's real host ("Alex H.", a stock photo, etc.) -- fabricated data served as
+// real on a genuine live-database response. That fallback is only ever
+// legitimate in demo mode (`mongoose.connection.readyState !== 1`), where `users`
+// really is the intentional backing dataset. In live mode, if the caller forgot
+// to populate `listedBy`, the correct behavior is to omit `lister` entirely
+// (the frontend already handles a missing lister gracefully) rather than invent
+// one -- so the two call sites that create/update a room now explicitly populate
+// `listedBy` before normalizing (see POST "/" and PUT "/:id" below), and this
+// function no longer reaches for mock data unless actually running in demo mode.
 const normalizeRoom = (room) => {
   const source = room?.toObject ? room.toObject() : room;
   if (!source) return null;
   const coordinates = asCoordinates(source);
+  const isDemoMode = mongoose.connection.readyState !== 1;
+  const lister = source.listedBy?.name
+    ? publicHostProfile(source.listedBy)
+    : isDemoMode
+      ? publicHostProfile(users.find((user) => user.id === source.listedBy) || users.find((user) => ["host", "owner", "landlord"].includes(user.role)))
+      : null;
   return {
     ...source,
     id: source._id || source.id,
@@ -108,9 +127,7 @@ const normalizeRoom = (room) => {
     pricePerRoom: source.pricePerRoom || source.pricePerBed,
     photos: source.photos?.length ? source.photos : source.images || [],
     amenities: source.amenities?.length ? source.amenities : source.facilities || [],
-    lister: source.listedBy?.name
-      ? publicHostProfile(source.listedBy)
-      : publicHostProfile(users.find((user) => user.id === source.listedBy) || users.find((user) => ["host", "owner", "landlord"].includes(user.role)))
+    lister
   };
 };
 
@@ -756,6 +773,7 @@ router.post(
       if (mongoose.connection.readyState !== 1) return res.status(201).json({ room: { id: `room-${Date.now()}`, ...payload }, demo: true });
       const room = await Room.create(payload);
       await hashAndFlagRoomPhotos({ room, req });
+      await room.populate("listedBy", "name role avatar landlordProfile hostProfile");
       return res.status(201).json({ room: normalizeRoom(room) });
     } catch (error) {
       return next(error);
@@ -778,7 +796,10 @@ router.put("/:id", protect, authorize("host", "admin"), async (req, res, next) =
     if (req.user.role !== "admin" && String(existing.listedBy) !== String(req.user._id || req.user.id)) {
       return res.status(403).json({ message: "You can only update rooms you listed." });
     }
-    const room = await Room.findByIdAndUpdate(req.params.id, roomPayload(req), { new: true, runValidators: true });
+    const room = await Room.findByIdAndUpdate(req.params.id, roomPayload(req), { new: true, runValidators: true }).populate(
+      "listedBy",
+      "name role avatar landlordProfile hostProfile"
+    );
     if (!room) return res.status(404).json({ message: "Room not found." });
     await hashAndFlagRoomPhotos({ room, req });
     return res.json({ room: normalizeRoom(room) });

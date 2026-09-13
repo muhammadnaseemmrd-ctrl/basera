@@ -82,6 +82,29 @@ const roomSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Found during live QA: `location` has a 2dsphere index, and its `type` sub-field
+// carries a default of "Point". When a room is created without coordinates,
+// roomRoutes.js sets `location: undefined` on the payload, but Mongoose still
+// initializes the nested subdocument's own defaults regardless (the parent key
+// being absent doesn't stop a child path's `default` from firing), producing a
+// half-populated `{ type: "Point" }` with no `coordinates` array. MongoDB's
+// 2dsphere index then rejects the insert at the driver level with "Can't extract
+// geo keys ... Point must be an array or object, instead got type missing" --
+// this blocked EVERY room creation that didn't supply exact lat/lng, which is a
+// production-blocking bug (most host listing forms will not always have precise
+// coordinates on hand). Fix: whenever `location.coordinates` isn't a valid
+// 2-element numeric array, force `location` fully undefined so the field is
+// omitted from the document entirely (valid for a 2dsphere index) rather than
+// left as invalid partial GeoJSON. See Hostel.js/User.js for why this hook has
+// no `next` parameter under Mongoose 9.
+roomSchema.pre("validate", function ensureValidGeoLocation() {
+  const coords = this.location?.coordinates;
+  const isValidPoint = Array.isArray(coords) && coords.length === 2 && coords.every((value) => typeof value === "number" && !Number.isNaN(value));
+  if (!isValidPoint) {
+    this.location = undefined;
+  }
+});
+
 roomSchema.index({ hostel: 1, type: 1 });
 roomSchema.index({ blockId: 1 });
 roomSchema.index({ city: 1, roomType: 1, genderPolicy: 1, pricePerHead: 1 });

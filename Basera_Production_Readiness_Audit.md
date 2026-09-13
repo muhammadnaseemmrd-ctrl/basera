@@ -139,6 +139,29 @@ Root-caused by direct reproduction (repeatable 500 on every attempt), eliminatio
 
 ---
 
+## ADDENDUM 6 (September 13, 2026) — Railway auto-deploy investigated and corrected; Mongoose-9 fix deployed and retested live
+
+**Railway auto-deploy-on-push — corrected finding.** Earlier in this engagement I told you "Railway already has this — my last two pushes both triggered automatic rebuilds with zero action from me." That statement was wrong, and I want to correct it plainly rather than let it stand. When you reported pushing the Mongoose-hook fixes, I checked Railway's deployment history directly and found the latest deploy was still the *previous* commit — your new push had not built on its own. Every backend deploy in this entire project, without exception, has only happened because I manually called the source-reconnect tool (`connect-service-source`) afterward, which itself immediately triggers a build. There is no Railway MCP tool that exposes or toggles an explicit "auto-deploy/webhook enabled" setting — `get-service-config` returns the resolved build/deploy config (root directory `/server`, builder Railpack, start command `node server.js`, healthcheck `/api/v1/health`) but no webhook-status field.
+
+What I did: re-ran `connect-service-source` against the same repo/branch/service, which re-registers the GitHub connection and immediately queued a fresh build. That build (deployment `ef8d0a61`, commit `0da877f6` — the Mongoose-hook-fix commit) completed with status `SUCCESS`.
+
+**What I can't yet confirm:** whether this re-connection also fixed the underlying passive webhook, or whether every *future* push will still require the same manual step. The only real test is a future push where I do nothing and see whether Railway builds it on its own — I'll watch for that. If it doesn't, the reliable fallback (which has worked 100% of the time so far) is: after any backend push, tell me and I'll re-trigger the deploy via this same tool call, or you can open the Railway dashboard for `basera-api` → Settings → Source and confirm the GitHub App has repo access and "Deploys on push" is checked — that toggle lives only in Railway's own UI and isn't exposed to any tool I have.
+
+**Retest of the previously-broken creation flows — all pass against the live deployed backend and real MongoDB (`Cluster0` / `basera` database), confirmed post-deploy:**
+
+| Flow | Endpoint | QA account | Result |
+|---|---|---|---|
+| Hostel creation | `POST /api/v1/hostels` | qa.hostelowner.001 | `201 Created` — `[QA] Hostel Alpha` (id `6aa6838c…`), verified persisted via direct DB `count` (1 doc in `hostels`) |
+| Hotel property creation | `POST /api/v1/stays/properties` | qa.hotelowner.001 | `201 Created` — `[QA] Hotel Beta` (id `6aa683c5…`) |
+| Guest-house property creation | `POST /api/v1/stays/properties` | qa.guesthouseowner.001 | `201 Created` — `[QA] Guest House Gamma` (id `6aa683c6…`) |
+| Hostel group creation | `POST /api/v1/hostel-groups` | qa.groupowner.001 | `201 Created` — `[QA] Hostel Group Delta` (id `6aa683ea…`) |
+
+Note the first attempt (empty/incomplete payload) correctly returned a clean `422` validation error listing the missing `ownerVerification` fields (identity document, property document, signed agreement, signer CNIC) rather than crashing — confirming express-validator and the model's `required` rules are intact and it was specifically the removed `next` callback that was crashing valid submissions before. Dispute and deposit-case creation (the remaining two fixed models) were not yet retested in this pass — both require an existing real `Booking` document as a foreign key, so they're deferred to task #56 (payment/booking lifecycle testing) rather than tested with throwaway references here.
+
+**Status:** the systemic Mongoose-9 hook bug is now confirmed fixed in production, not just locally. Resuming the broader QA plan (RBAC/IDOR, full property management, group-owner tenant isolation, student booking journey, payments, etc.) from here.
+
+---
+
 ## A. Executive Summary
 
 Basera is considerably more built-out than a typical demo SaaS. It already has: a real double-entry ledger service, tiered commission calculation, escrow modeling, signature-verified payment webhooks (JazzCash/Easypaisa/Stripe) with idempotency, a manual/offline-payment approval workflow, geospatial search with proper indexes, TTL-cached map/commute services, a working referral-loyalty system, and persistent trip/activity planning. This is not vaporware.

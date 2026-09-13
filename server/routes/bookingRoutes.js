@@ -3,6 +3,7 @@ const { body } = require("express-validator");
 const mongoose = require("mongoose");
 const Booking = require("../models/Booking");
 const Room = require("../models/Room");
+const Hostel = require("../models/Hostel");
 const Dispute = require("../models/Dispute");
 const EscrowTransaction = require("../models/EscrowTransaction");
 const DepositCase = require("../models/DepositCase");
@@ -383,7 +384,21 @@ router.get("/admin/all", protect, authorize("admin"), async (req, res, next) => 
 
 router.get("/hostel/:hostelId", protect, authorize("host", "admin"), async (req, res, next) => {
   try {
-    if (mongoose.connection.readyState !== 1) return res.json({ results: bookings.filter((booking) => booking.hostel === req.params.hostelId), demo: true });
+    if (mongoose.connection.readyState !== 1) {
+      const demoHostel = hostels.find((item) => item.id === req.params.hostelId);
+      if (req.user.role !== "admin" && String(demoHostel?.owner) !== String(req.user._id || req.user.id)) {
+        return res.status(403).json({ message: "You can only view bookings for hostels you own." });
+      }
+      return res.json({ results: bookings.filter((booking) => booking.hostel === req.params.hostelId), demo: true });
+    }
+    // Same IDOR class as confirm/accept/decline above: without this check, any
+    // host account could pull every student's personal details + booking/payment
+    // data for ANY hostel by ID, not just their own. Found during live QA.
+    const hostel = await Hostel.findById(req.params.hostelId).select("owner");
+    if (!hostel) return res.status(404).json({ message: "Hostel not found." });
+    if (req.user.role !== "admin" && String(hostel.owner) !== String(req.user._id || req.user.id)) {
+      return res.status(403).json({ message: "You can only view bookings for hostels you own." });
+    }
     const results = await Booking.find({ hostel: req.params.hostelId }).populate("student room").sort({ createdAt: -1 });
     return res.json({ results });
   } catch (error) {
@@ -649,9 +664,37 @@ router.put("/:id/cancel", protect, async (req, res, next) => {
   }
 });
 
+// CRITICAL bug found during live QA: confirm/accept/decline previously only checked
+// `authorize("host", "admin")` -- i.e. ANY host account on the platform, not
+// specifically the host who actually listed the room/hostel involved. That let an
+// unrelated host confirm (silently setting paymentStatus: "paid" with zero real
+// payment-gateway confirmation -- a payment-integrity hole on top of the IDOR),
+// accept, or decline any OTHER host's bookings. This is the same class of bug as
+// isAuthorizedForBooking's existing checks elsewhere in this file (see line ~153);
+// these three routes were simply missing that same guard. Verified via direct API
+// testing: qa.hostelowner.002 was able to confirm a booking on qa.hostelowner.001's
+// room before this fix. All three routes now require the requester to be an admin
+// or the actual host who listed the booking's room.
+const requireBookingHostOrAdmin = async (req, res) => {
+  const booking = await Booking.findById(req.params.id).populate("room", "listedBy availableBeds status");
+  if (!booking) {
+    res.status(404).json({ message: "Booking not found." });
+    return null;
+  }
+  const requesterId = String(req.user._id || req.user.id);
+  const isOwnerHost = booking.room?.listedBy && String(booking.room.listedBy) === requesterId;
+  if (req.user.role !== "admin" && !isOwnerHost) {
+    res.status(403).json({ message: "Not authorized for this booking." });
+    return null;
+  }
+  return booking;
+};
+
 router.put("/:id/confirm", protect, authorize("host", "admin"), async (req, res, next) => {
   try {
     if (mongoose.connection.readyState !== 1) return res.json({ id: req.params.id, status: "confirmed", demo: true });
+    const existing = await requireBookingHostOrAdmin(req, res);
+    if (!existing) return undefined;
     const booking = await Booking.findByIdAndUpdate(req.params.id, { status: "confirmed", paymentStatus: "paid" }, { new: true });
     return res.json({ booking });
   } catch (error) {
@@ -662,6 +705,8 @@ router.put("/:id/confirm", protect, authorize("host", "admin"), async (req, res,
 router.put("/:id/accept", protect, authorize("host", "admin"), async (req, res, next) => {
   try {
     if (mongoose.connection.readyState !== 1) return res.json({ id: req.params.id, status: "confirmed", demo: true });
+    const existing = await requireBookingHostOrAdmin(req, res);
+    if (!existing) return undefined;
     const booking = await Booking.findByIdAndUpdate(req.params.id, { status: "confirmed" }, { new: true });
     if (!booking) return res.status(404).json({ message: "Booking not found." });
     return res.json({ booking });
@@ -673,6 +718,8 @@ router.put("/:id/accept", protect, authorize("host", "admin"), async (req, res, 
 router.put("/:id/decline", protect, authorize("host", "admin"), async (req, res, next) => {
   try {
     if (mongoose.connection.readyState !== 1) return res.json({ id: req.params.id, status: "declined", declineReason: req.body.reason, demo: true });
+    const existing = await requireBookingHostOrAdmin(req, res);
+    if (!existing) return undefined;
     const booking = await Booking.findByIdAndUpdate(req.params.id, { status: "declined", declineReason: req.body.reason }, { new: true });
     if (!booking) return res.status(404).json({ message: "Booking not found." });
     await Room.findByIdAndUpdate(booking.room, { $inc: { availableBeds: 1 }, status: "ACTIVE" });
@@ -1373,6 +1420,11 @@ router.post("/:id/deposit/deduction", protect, authorize("host", "admin"), async
     }
     const booking = await Booking.findById(req.params.id).populate("room");
     if (!booking) return res.status(404).json({ message: "Booking not found." });
+    // Same IDOR class found and fixed on confirm/accept/decline above: "host or
+    // admin" alone isn't enough -- must be THIS booking's actual host.
+    if (req.user.role !== "admin" && String(booking.room?.listedBy) !== String(req.user._id || req.user.id)) {
+      return res.status(403).json({ message: "Not authorized for this booking." });
+    }
     const deposit = await DepositCase.findOneAndUpdate(
       { booking: booking._id },
       {
@@ -1399,6 +1451,9 @@ router.post("/:id/deposit/refund", protect, authorize("host", "admin"), async (r
     if (mongoose.connection.readyState !== 1) return res.json({ deposit: { booking: req.params.id, status: "REFUNDED", refundAmount: 15000 }, demo: true });
     const booking = await Booking.findById(req.params.id).populate("room");
     if (!booking) return res.status(404).json({ message: "Booking not found." });
+    if (req.user.role !== "admin" && String(booking.room?.listedBy) !== String(req.user._id || req.user.id)) {
+      return res.status(403).json({ message: "Not authorized for this booking." });
+    }
     const refundAmount = Number(req.body.amount ?? booking.securityDeposit ?? 0);
     const deposit = await DepositCase.findOneAndUpdate(
       { booking: booking._id },
