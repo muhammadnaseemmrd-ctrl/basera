@@ -15,11 +15,11 @@ const hostelGroupSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-hostelGroupSchema.pre("validate", function setSlug(next) {
+// See Hostel.js / User.js for why the `next` parameter and call were removed.
+hostelGroupSchema.pre("validate", function setSlug() {
   if (!this.slug && this.name) {
     this.slug = slugifyText(this.name);
   }
-  next();
 });
 
 hostelGroupSchema.index({ name: "text" });

@@ -32,7 +32,7 @@ export const en = {
   trustVerified: "Verified Properties",
   trustSecure: "Secure Payments",
   trustSupport: "24/7 Support",
-  trustPlaced: "10,000+ Students Placed",
+  trustPlaced: "Student-Focused Platform",
 
   // Common actions used across cards/buttons
   bookNow: "Book Now",
@@ -106,7 +106,7 @@ export const ur = {
   trustVerified: "تصدیق شدہ پراپرٹیز",
   trustSecure: "محفوظ ادائیگیاں",
   trustSupport: "24/7 معاونت",
-  trustPlaced: "10,000+ طلبہ آباد",
+  trustPlaced: "طلبہ پر مرکوز پلیٹ فارم",
 
   bookNow: "ابھی بک کریں",
   save: "محفوظ کریں",

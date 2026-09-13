@@ -119,6 +119,26 @@ This returned **HTTP 200 with the full booking record belonging to a different d
 
 ---
 
+## ADDENDUM 5 (September 13, 2026) — CRITICAL: the Mongoose 9 hook bug was systemic, not isolated to User — it blocked ALL property/group/dispute creation
+
+While running the full 34-section live QA pass with real QA accounts against the deployed production site, the very first real-world write test — a host creating a hostel listing — failed with the same `next is not a function` TypeError fixed earlier for `User.js`. Investigation found this was **not an isolated incident**: Mongoose 9 (pinned in `package.json`) no longer supports the legacy callback-style pre-hook signature (`function name(next) { ...; next(); }`) **at all** — not just for `async` hooks (the User.js case) but for perfectly ordinary synchronous ones too. Since `next` is simply never supplied by Mongoose anymore, calling it throws immediately.
+
+Swept every model in `server/models/` for this pattern (`schema.pre(...)` with a `next` parameter) and fixed all five remaining instances — every one of them was completely broken for any real (non-demo-mode) write, meaning **hostels, hotel/guest-house properties, hostel groups, disputes, and deposit-protection cases could never actually be created against a real database, ever, at any point in this project's history**, despite passing every previous round of code review (the bug is invisible to static reading -- it's a Mongoose *version-behavior* incompatibility, not a syntax error) and every previous round of testing (which all ran in demo mode, never touching real Mongoose hooks):
+
+- `Hostel.js` — `setSlugAndPoint` (blocked ALL hostel creation)
+- `Property.js` — `setSlugAndPoint` (blocked ALL hotel/guest-house property creation)
+- `HostelGroup.js` — `setSlug` (blocked ALL hostel group creation)
+- `Dispute.js` — `setCaseId` (blocked ALL dispute filing)
+- `DepositCase.js` — `assignCaseId` (blocked ALL deposit-protection claims)
+
+Root-caused by direct reproduction (repeatable 500 on every attempt), elimination (confirmed via direct database inspection that zero documents were being written, narrowing the fault to inside `Model.create()`/`.save()` rather than the route handler's own logic), and a full-codebase sweep for the same signature pattern. Fixed all five the same way as `User.js`: dropped the `next` parameter and call entirely, since a hook with no `next` parameter completes simply by returning (Mongoose treats zero-arg hook functions as synchronous automatically).
+
+**Also fixed**: `server/middleware/error.js`'s global error handler never logged errors server-side under any circumstances — it only ever returned `error.stack` in the HTTP response, and only outside production. This meant a genuine 500 in production left literally zero trace in Railway's own logs beyond a generic access-log line with no error detail, which is exactly why this bug went undetected through every prior round of "live" testing until it was manually reproduced with a real write request. Now logs every 5xx with its full stack server-side unconditionally.
+
+**Status**: fixed locally in `E:\basera`, not yet pushed/deployed. This is now the top-priority push, since it blocks essentially the entire property-management, hostel-group, dispute, and deposit-protection test plan from proceeding at all.
+
+---
+
 ## A. Executive Summary
 
 Basera is considerably more built-out than a typical demo SaaS. It already has: a real double-entry ledger service, tiered commission calculation, escrow modeling, signature-verified payment webhooks (JazzCash/Easypaisa/Stripe) with idempotency, a manual/offline-payment approval workflow, geospatial search with proper indexes, TTL-cached map/commute services, a working referral-loyalty system, and persistent trip/activity planning. This is not vaporware.

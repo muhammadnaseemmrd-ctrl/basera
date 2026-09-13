@@ -36,14 +36,14 @@ const disputeSchema = new mongoose.Schema(
 );
 
 disputeSchema.index({ status: 1, priority: 1 });
-disputeSchema.pre("validate", function setCaseId(next) {
+// See Hostel.js / User.js for why the `next` parameter and call were removed.
+disputeSchema.pre("validate", function setCaseId() {
   if (!this.caseId) {
     const year = new Date().getFullYear();
     this.caseId = `HH-DSP-${year}-${Math.floor(100000 + Math.random() * 900000)}`;
   }
   if (!this.bookingId && this.booking) this.bookingId = this.booking;
   if (!this.raisedBy && this.openedBy) this.raisedBy = this.openedBy;
-  next();
 });
 
 module.exports = mongoose.model("Dispute", disputeSchema);

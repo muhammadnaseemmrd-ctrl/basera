@@ -48,14 +48,15 @@ const propertySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-propertySchema.pre("validate", function setSlugAndPoint(next) {
+// See Hostel.js / User.js for why the `next` parameter and call were removed --
+// Mongoose 9 doesn't supply a real `next` to hooks anymore, callback-style or not.
+propertySchema.pre("validate", function setSlugAndPoint() {
   if (!this.slug && this.name) {
     this.slug = slugifyText(`${this.name}-${this.area}-${this.city}`);
   }
   if (this.location?.lat && this.location?.lng) {
     this.location.coordinates = [this.location.lng, this.location.lat];
   }
-  next();
 });
 
 propertySchema.index({ city: 1, propertyType: 1, status: 1 });

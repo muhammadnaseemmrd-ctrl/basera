@@ -113,14 +113,20 @@ const hostelSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-hostelSchema.pre("validate", function setSlugAndPoint(next) {
+// Mongoose 9 stopped supporting the legacy callback-style hook signature
+// (`function name(next) { ...; next(); }`) for pre-hooks -- even for plain
+// synchronous ones like this. It no longer supplies a real `next` callback, so
+// calling next() threw "next is not a function" on every single Hostel.create()/
+// save(), identical in cause to the User.js password-hashing bug fixed earlier
+// this session. A hook with no `next` parameter just needs to return normally
+// (or return a Promise for async work) -- no explicit completion signal needed.
+hostelSchema.pre("validate", function setSlugAndPoint() {
   if (!this.slug && this.name) {
     this.slug = slugifyText(`${this.name}-${this.area}-${this.city}`);
   }
   if (this.location?.lat && this.location?.lng) {
     this.location.coordinates = [this.location.lng, this.location.lat];
   }
-  next();
 });
 
 hostelSchema.index({ groupId: 1 });

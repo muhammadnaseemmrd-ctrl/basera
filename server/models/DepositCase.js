@@ -36,9 +36,9 @@ const depositCaseSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-depositCaseSchema.pre("validate", function assignCaseId(next) {
+// See Hostel.js / User.js for why the `next` parameter and call were removed.
+depositCaseSchema.pre("validate", function assignCaseId() {
   if (!this.caseId) this.caseId = `HH-DEP-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
-  next();
 });
 
 depositCaseSchema.index({ booking: 1 });
