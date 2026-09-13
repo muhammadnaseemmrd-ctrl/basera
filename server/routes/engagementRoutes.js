@@ -639,9 +639,25 @@ router.post("/loyalty/claims", protect, async (req, res, next) => {
     const existingPending = await LoyaltyClaim.findOne({ student: req.user._id || req.user.id, status: "pending" });
     if (existingPending) return res.status(409).json({ message: "You already have a pending loyalty discount claim.", claim: existingPending });
 
-    account.pointsBalance -= threshold;
-    account.pointsRedeemed += threshold;
-    await account.save();
+    // Found during live QA: firing 5 identical concurrent claim requests all
+    // returned 201 and created 5 separate pending 5,000-point claims from a
+    // single 5,000-point balance -- the previous `account.pointsBalance -=
+    // threshold; await account.save()` was a read-modify-write, not atomic, so
+    // concurrent requests could all read the same starting balance before any of
+    // them saved. Fixed the same way the loyalty/referrals route above already
+    // correctly guards against duplicate referral awards: a single atomic
+    // findOneAndUpdate with the balance check baked into the filter, so only as
+    // many concurrent requests as the account can actually afford will succeed --
+    // any request that loses the race gets a clean 422 instead of over-crediting.
+    const updatedAccount = await LoyaltyAccount.findOneAndUpdate(
+      { _id: account._id, pointsBalance: { $gte: threshold } },
+      { $inc: { pointsBalance: -threshold, pointsRedeemed: threshold } },
+      { new: true }
+    );
+    if (!updatedAccount) {
+      return res.status(422).json({ message: `You need ${threshold.toLocaleString("en-PK")} loyalty points to claim a discount.` });
+    }
+
     const claim = await LoyaltyClaim.create({
       student: req.user._id || req.user.id,
       requestedPoints: threshold,
@@ -649,7 +665,7 @@ router.post("/loyalty/claims", protect, async (req, res, next) => {
       status: "pending"
     });
     const claims = await LoyaltyClaim.find({ student: req.user._id || req.user.id }).sort({ createdAt: -1 }).limit(10);
-    return res.status(201).json({ claim, ...loyaltyShape(account, claims) });
+    return res.status(201).json({ claim, ...loyaltyShape(updatedAccount, claims) });
   } catch (error) {
     return next(error);
   }

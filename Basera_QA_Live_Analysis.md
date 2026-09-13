@@ -9,6 +9,25 @@ qa.student.001, qa.student.002, qa.hostelowner.001, qa.hostelowner.002, qa.hotel
 
 ---
 
+## 0. Deploy + regression retest — September 13, 2026 (commit `82f5093`)
+
+User pushed the fixes from §5 items 3, 4, 5, 6, 7, 10 (Room geo-index, Room fake-lister, booking confirm/accept/decline IDOR, deposit IDOR, hostel-bookings-view IDOR, document payout/earnings IDOR, group-attach IDOR). Railway auto-deploy still did not fire on its own, so I re-triggered via `connect-service-source` as before; build completed clean (`SUCCESS`, no errors in build log) and I re-ran every exploit that previously succeeded:
+
+| Retest | Before fix | After fix | Result |
+|---|---|---|---|
+| Room creation with no coordinates | `500` | `201`, `location`/`coordinates` correctly omitted | PASS |
+| Room create response `lister` field | fabricated ("Alex H.", stock photo) | real host, correctly masked via `publicHostProfile` ("QA H.") | PASS |
+| `qa.hostelowner.002` confirms `qa.hostelowner.001`'s booking | `200` (hijacked) | `403 "Not authorized for this booking."` | PASS |
+| `qa.hostelowner.002` requests deposit deduction on that booking | would have succeeded | `403` | PASS |
+| `qa.hostelowner.002` views `GET /bookings/hostel/:id` for a hostel they don't own | `200` (full student PII leak) | `403 "You can only view bookings for hostels you own."` | PASS |
+| `qa.hostelowner.001` (real owner) views the same endpoint | — | `200`, full correct data | PASS (no regression for legitimate use) |
+| `qa.hostelowner.002` downloads payout PDF for another host's booking | `200` | `403 "You can only view your own payout statements."` | PASS |
+| `qa.hostelowner.001` attaches their own hostel into `qa.groupowner.001`'s group without being that group's owner | would have succeeded | `403 "You can only manage your own hostel group."` | PASS |
+
+**All 8 fixes confirmed working in production with zero regressions on the legitimate-use path.** Still outstanding: the `COMMISSION_RATE_DEFAULT` env-var misconfiguration (§5 item 8) — code-side nothing to deploy there, needs the env var value corrected directly.
+
+---
+
 ## 1. Status snapshot
 
 | Area | Status |
@@ -20,10 +39,10 @@ qa.student.001, qa.student.002, qa.hostelowner.001, qa.hostelowner.002, qa.hotel
 | Room creation | Tested — 1 new bug found + fixed (geo-index), 1 new bug found + fixed (fake lister fallback). **Both fixed locally, NOT yet deployed.** See §3.1/§3.2. |
 | Booking journey | Tested — 3 critical IDOR bugs found + fixed locally (confirm/accept/decline, deposit deduction/refund, hostel-bookings view). **Not yet deployed.** See §4/§5. |
 | Group owner tenant isolation | Partially tested — 1 bug found + fixed (group-attach didn't check group ownership). Full isolation retest pending deploy. See §5 item 10. |
-| Payments / offline ledger | Blocked pending your action — critical commission-rate misconfiguration found (§5 item 8), classifier blocked me from fixing it directly. |
-| Chat platform-mediation | Pending. |
-| Loyalty idempotency | Pending. |
-| Search/ranking/maps/trip planning | Pending. |
+| Payments / offline ledger | Manual-payment approval was completely broken (invalid ledger enum) — fixed locally, pending deploy. Commission-rate misconfiguration (§5 item 8) still blocked pending your action. Gateway sandbox NOT TESTED (no credentials). |
+| Chat platform-mediation | Tested — contact-leak filter works server-side; direct student→host chat not blocked server-side (architecture decision needed from you, §5a). |
+| Loyalty idempotency | Tested — referrals race-safe; claims redemption had a critical race condition, fixed locally, pending deploy. See §5c. |
+| Search/ranking/maps/trip planning | In progress. |
 | SEO/performance/accessibility spot checks | Pending. |
 
 ---
@@ -145,6 +164,66 @@ Business rule under test (from your original spec): "Customer → Platform Chat 
 - **(b)** Keep direct chat allowed (many marketplaces do allow host↔guest chat, especially post-booking) but add server-side audit logging/flagging of the *first* message in any new student↔host thread so Admin has visibility, rather than blocking it outright.
 
 Not yet fixed — awaiting your decision on (a) vs (b) vs another approach.
+
+---
+
+## 5b. Payment lifecycle + offline payment/ledger testing
+
+Tested the offline/manual-payment ("challan") workflow end-to-end live: `qa.student.001` issues a partial-amount challan (PKR 3,000) against the existing QA booking → submits proof → `qa.finance.001` reviews.
+
+| # | Test | Expected | Actual | Result |
+|---|---|---|---|---|
+| 1 | Student creates a challan (offline payment claim) | `201`, status `challan_issued` | `201` | PASS |
+| 2 | Student submits proof (slip image + reference) | `200`, status → `proof_submitted` | `200` | PASS |
+| 3 | `qa.student.002` (unrelated) lists `/manual-payments/my` | Should not see student.001's challan | `200`, `results: []` | PASS |
+| 4 | The student themself tries to self-approve their own challan | 403 | `403 "admin or finance access only."` | PASS |
+| 5 | `qa.finance.001` approves the challan | `200`, ledger entry created | **`500 "LedgerEntry validation failed: type: MANUAL_PAYMENT_APPROVED is not a valid enum value for path type."`** | **FAIL — critical bug, see below** |
+| 6 | Admin lists all manual payments | `200`, full list with populated student+booking | `200` | PASS |
+
+**BUG — manual/offline payment approval has never worked against a real database.** `manualPaymentRoutes.js`'s admin/finance approval step posts `createLedgerTransaction({ type: "MANUAL_PAYMENT_APPROVED", ... })`, but `"MANUAL_PAYMENT_APPROVED"` was never added to `LedgerEntry.js`'s `type` enum — so the call always throws a Mongoose validation error, meaning **every single manual/offline payment approval in this project's history has 500'd before ever updating the booking, crediting the ledger, or notifying anyone**, for the same underlying reason as the Mongoose-9 hook bug and the earlier Hostel/Property bugs: demo mode never touches real Mongoose schema validation, so this was invisible through every prior "live" test pass until an admin/finance account actually tried to approve a real challan just now. A second, cascading bug was hiding behind the first: the ledger lines also referenced an `account` value (`"manual_payment_clearing"`) that was never in the `account` enum either — it would have failed immediately after the `type` fix if not caught in the same pass.
+
+**Fix applied:**
+- `server/models/LedgerEntry.js`: added `"MANUAL_PAYMENT_APPROVED"` to the `type` enum.
+- `server/routes/manualPaymentRoutes.js`: changed the credit line's account from the invalid `"manual_payment_clearing"` to the existing, semantically-correct `"student_receivable"` (cash debited in, the student's outstanding balance credited down — mirroring how the real gateway-payment ledger lines already model this).
+
+**Status:** fixed locally, **not yet deployed.** This directly blocks the exact partial-payment math scenario from your spec (pay 3,000 of 10,000 → 7,000 remaining, Partially Paid; then +7,000 → Paid, 0 remaining) — I could not complete that test because the very first approval crashes. Will retest fully once this is deployed.
+
+**Also noted (not a bug, a scope gap):** there is no dedicated running-balance "Fee" record that tracks *cumulative* partial payments against a fixed total (e.g. "10,000 due, 3,000 paid, 7,000 remaining, status Partially Paid"). The closest analogs are `Booking.instalments[]` (fixed-schedule instalments, each fully PAID or not — no partial-amount-within-an-instalment tracking) and the manual-payment challan system tested above (each challan is a discrete claimed amount, approved or rejected as a whole; nothing sums multiple challans against one fixed due amount to compute a running "remaining balance" or a "Partially Paid" status label). If you need the exact "partial payment reduces a running balance until it hits zero" UX described in your spec, that's a small-to-medium feature gap, not a bug — flagging it for your prioritization rather than building it unprompted.
+
+**NOT TESTED (per your own safe-test-data rules):** real payment gateway sandbox testing (JazzCash/EasyPaisa/Stripe) — no sandbox credentials are configured in this environment. REASON: no test API keys available. WHAT IS REQUIRED: sandbox/test merchant credentials for each gateway. HOW IT SHOULD BE TESTED: once configured, replay this same success/failure/cancelled/duplicate/retry/partial-refund matrix against each gateway's sandbox using their documented test card/wallet numbers, never real payment instruments.
+
+---
+
+## 5c. Loyalty idempotency testing
+
+| # | Test | Expected | Actual | Result |
+|---|---|---|---|---|
+| 1 | Submit a referral, then immediately resubmit the identical referral (sequential duplicate) | Second attempt rejected, no double credit | `409 "This student has already been referred."`, balance unchanged | PASS |
+| 2 | Fire 5 truly concurrent (`Promise.all`) identical referral requests for the same referredEmail | Exactly 1 succeeds | `[409,409,201,409,409]` — exactly one `201`, final balance correct (not 5x credited) | **PASS — genuinely race-safe**, uses an atomic `findOneAndUpdate` with a `$ne` filter |
+| 3 | Fire 5 truly concurrent identical loyalty-claim (points redemption) requests when the account has exactly enough points for one claim | Exactly 1 succeeds | **All 5 returned `201`** — 5 separate pending claims for 5,000 points each were created against a single 5,000-point balance | **FAIL — critical race condition, see below** |
+
+**BUG — loyalty point-claim redemption was not race-safe.** `POST /engagement/loyalty/claims` checked `account.pointsBalance < threshold` and then did a plain read-modify-write (`account.pointsBalance -= threshold; await account.save()`), unlike the sibling `loyalty/referrals` endpoint a few lines above it, which already uses a correct atomic `findOneAndUpdate`. Firing 5 identical concurrent claim requests against a 5,000-point balance (threshold 5,000) produced 5 separate `201`s and 5 pending `LoyaltyClaim` documents each nominally worth 5,000 points — 25,000 points' worth of claims from a 5,000-point balance. If an admin later approved all 5 (nothing in the admin-review step cross-checks against the account's actual balance at approval time), this would be a real, exploitable point-duplication/discount-fraud path, exactly the failure mode your spec called out explicitly ("never duplicate points from... race condition").
+
+**Fix applied (`server/routes/engagementRoutes.js`):** replaced the non-atomic balance check-then-save with the same atomic `findOneAndUpdate({ _id: account._id, pointsBalance: { $gte: threshold } }, { $inc: { pointsBalance: -threshold, pointsRedeemed: threshold } })` pattern already used correctly by the referral endpoint. A request that loses the race now gets a clean `422` instead of over-crediting.
+
+**Status:** fixed locally, **not yet deployed.**
+
+---
+
+## 5d. Search/ranking, maps, trip planning testing
+
+**Maps:** tested `/map/commute` (caching), `/map/route` (save + tenant isolation).
+
+| # | Test | Expected | Actual | Result |
+|---|---|---|---|---|
+| 1 | Repeat an identical `/map/commute` query | Second call served from `CommuteCache`, not a fresh external routing call | Both calls returned `cached: true` (cache already warm from an earlier identical lookup) | PASS |
+| 2 | `qa.student.001` saves a route (`POST /map/route`, `save: true`) | `201`, persisted | `201` | PASS |
+| 3 | `qa.student.002` (unrelated) lists `/map/routes` | Should not see student.001's saved route | `200`, `results: []` | PASS — correct tenant isolation |
+| 4 | `qa.student.001` lists their own routes | Sees their saved route | `200`, 1 result | PASS |
+
+**Trip planning:** searched the entire codebase (server routes/models and client pages) for any "trip planning" feature (create/edit/delete trip, destinations, budget) as named in your original spec. **NOT IMPLEMENTED** — no matching backend routes, models, or frontend pages exist anywhere in this repository. REASON: the feature doesn't exist in this codebase, not a bug I can reproduce or fix. WHAT IS REQUIRED: a product decision on whether to build it (out of scope for this QA pass, which tests existing functionality) or drop it from the feature list. HOW IT SHOULD BE TESTED once built: create/edit/delete a trip, verify destinations and budget fields persist, verify persistence across refresh/logout and an offline→online transition.
+
+**Search/ranking — performance finding (not a functional bug):** `GET /hostels` correctly paginates (`page`/`limit`/`skip` + a separate `countDocuments`). `GET /rooms` (the main room search endpoint used by the marketplace search page) has **no pagination at all** — `Room.find(query).populate(...).sort(...)` with no `.limit()`/`.skip()`, returning every matching document in one response. With the current ~2 QA rooms this is invisible, but it will not scale: as room inventory grows this becomes an unbounded single query and an unbounded JSON payload. Not fixed in this pass — changing this endpoint's response shape (adding pagination) is a contract change the frontend's room-search page would need to be updated to consume, so I flagged it rather than silently changing API behavior without confirming the frontend handles it (per your rule against unprompted architecture changes). **Recommendation:** add the same `page`/`limit`/`countDocuments` pattern already used correctly in `hostelRoutes.js`.
 
 ---
 

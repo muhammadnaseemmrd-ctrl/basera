@@ -22,7 +22,16 @@ const ledgerEntrySchema = new mongoose.Schema(
         "ACTIVITY_REFUND",
         "HOST_MANAGEMENT_FEE",
         "GATEWAY_FEE",
-        "MANUAL_ADJUSTMENT"
+        "MANUAL_ADJUSTMENT",
+        // Found during live QA: manualPaymentRoutes.js's admin/finance approval step
+        // has always posted this type, but it was never added to this enum -- so
+        // EVERY manual/offline payment approval against a real database crashed with
+        // "LedgerEntry validation failed: type: ... is not a valid enum value" before
+        // ever reaching the client. This is the same "invisible until the first real
+        // write against a live DB" bug class as the Mongoose 9 hook bug: demo mode
+        // never touches LedgerEntry validation at all, so it went undetected through
+        // every prior test pass.
+        "MANUAL_PAYMENT_APPROVED"
       ],
       required: true
     },

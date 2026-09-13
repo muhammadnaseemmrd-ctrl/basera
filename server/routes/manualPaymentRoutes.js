@@ -119,7 +119,12 @@ router.post("/:id/review", protect, authorize("admin", "finance"), async (req, r
         booking,
         lines: [
           { account: "gateway_cash", direction: "debit", amount: payment.amount, memo: "Manual payment verified" },
-          { account: "manual_payment_clearing", direction: "credit", amount: payment.amount, memo: "Manual payment cleared by admin" }
+          // "manual_payment_clearing" was never a valid `account` enum value either
+          // (see LedgerEntry.js) -- same crash, found in the same request. Crediting
+          // student_receivable correctly reflects that the student's outstanding
+          // balance goes down by the verified amount, consistent with how the
+          // gateway-payment ledger lines (bookingPaymentLines) already model cash in.
+          { account: "student_receivable", direction: "credit", amount: payment.amount, memo: "Manual payment cleared by admin" }
         ],
         paymentRef: payment.reference,
         idempotencyKey: `manual-payment-${payment.reference}`
