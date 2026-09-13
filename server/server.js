@@ -1,5 +1,16 @@
 require("dotenv").config();
 
+// The mongodb driver (via mongoose) expects a global WebCrypto `crypto` object
+// (crypto.getRandomValues) for SCRAM auth. Node 20+ exposes this automatically;
+// Node 18 does not unless run with --experimental-global-webcrypto. Some deploy
+// platforms' auto-detected Node version can still resolve to 18 even when
+// package.json declares "engines": { "node": ">=20" }, so this polyfill makes
+// the server resilient either way instead of crash-looping with
+// "ReferenceError: crypto is not defined" on MongoDB connect.
+if (typeof globalThis.crypto === "undefined") {
+  globalThis.crypto = require("node:crypto").webcrypto;
+}
+
 const express = require("express");
 const http = require("http");
 const cors = require("cors");
