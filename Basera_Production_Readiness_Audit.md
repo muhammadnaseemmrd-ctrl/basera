@@ -99,6 +99,26 @@ This returned **HTTP 200 with the full booking record belonging to a different d
 
 ---
 
+## ADDENDUM 4 (September 13, 2026) — Frontend live; found and fixed a whole class of "fake data on empty results" bugs
+
+**Both environments now fully live and verified end to end.** Backend redeployed after the Mongoose 9 fix; confirmed via logs that MongoDB connects cleanly and the healthcheck passes. Created the super admin through the new `bootstrap-admin` endpoint and verified live: login works, a second bootstrap attempt correctly 403s, and public self-registration with `role: admin` correctly 422s. Frontend deployed to Netlify by the user; verified the deployed JS bundle has the Railway API URL correctly baked in (`VITE_API_URL` was set before the build ran) and that a direct fetch from the live frontend's origin to the live backend succeeds with real (empty) data — the frontend/backend/database wiring is all correct.
+
+**User-reported bug: mock hostel listings appearing on the live homepage despite an empty database.** Confirmed this was NOT a backend, database, or environment-variable problem — the real `/api/v1/rooms` endpoint correctly returns zero results. The cause was entirely client-side: `HomePage.jsx`'s data-loading effect used `rooms.length ? rooms : roomListings.slice(0, 3)` — meaning a real, successful, correctly-empty API response was treated the same as a failed one and silently replaced with three hardcoded mock rooms (e.g. "Premium Single Seater near NUST," a fake Islamabad address). This is a different bug from the demo-mode server-side fallback discussed earlier in this document; this one lived entirely in the frontend and fired regardless of `ALLOW_DEMO_MODE` or database state.
+
+**Broader sweep found the same "empty real result silently replaced with fake content" pattern in five more places**, all fixed:
+- `HomePage.jsx` — featured rooms/hostels grids now show a genuine "nothing listed yet" empty state instead of fabricated listings. Also removed a "Student Stories" section that displayed fabricated named testimonials (fake students, stock photos) as if they were real reviews, and a hardcoded stats bar claiming "500+ Rooms & Hostels," "10k+ Students Placed," etc. — vanity numbers with zero backing data.
+- `HostelDetailPage.jsx` — a hostel's rooms/reviews/nearby-hostels no longer backfill with mock content when genuinely empty; additionally, a request failure or invalid slug previously left the page silently displaying a random mock hostel's full detail page forever (with no way to tell it wasn't real) — now shows a proper "Hostel not found" page.
+- `RoomDetailPage.jsx` — same "silently show a random fake room forever on failure" bug, same fix (proper not-found state).
+- `BookingPage.jsx` — the highest-severity instance: this is the actual checkout flow, so a failed room/hostel fetch previously left a customer looking at a booking form pre-filled with a fabricated hostel name and price with no indication anything was wrong. Now blocks checkout with a clear "this listing isn't available" message instead.
+- `RoomsMarketPage.jsx` — removed a brief flash of full mock inventory before the real (possibly empty) result loads.
+- `student/StudentOverview.jsx` — every brand-new real student with no bookings yet was shown a fabricated "Current Stay" card (mock hostel, "Premium Double," a hardcoded expiry date) and a fake "Rent Due Reminder" banner, because `result.activeBooking || fallbackStudentData.activeBooking` treated a legitimate `null` (no active booking) the same as a failed request. This would have been immediately visible to every single fresh test account created in the upcoming testing pass. Now shows an honest "You don't have an active booking yet" empty state.
+
+**Database confirmed clean**: exactly 1 user (the super admin), 0 hostels, 0 rooms, 0 bookings — verified by direct count against the live database. Dropped one leftover empty placeholder collection.
+
+**Not yet done**: none of the six frontend fixes above are deployed yet — they need the same push-and-redeploy cycle as the backend fixes. The `LandlordDashboard.jsx` host dashboard has a lower-severity variant of the same pattern (only triggers on genuine request failure, not on empty results, since it uses `||` against possibly-`undefined` rather than `.length ?`) — flagged but not fixed this pass; low real-world impact since Railway/Mongo are now stable and failures should be rare.
+
+---
+
 ## A. Executive Summary
 
 Basera is considerably more built-out than a typical demo SaaS. It already has: a real double-entry ledger service, tiered commission calculation, escrow modeling, signature-verified payment webhooks (JazzCash/Easypaisa/Stripe) with idempotency, a manual/offline-payment approval workflow, geospatial search with proper indexes, TTL-cached map/commute services, a working referral-loyalty system, and persistent trip/activity planning. This is not vaporware.

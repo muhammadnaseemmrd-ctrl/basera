@@ -13,26 +13,23 @@ import {
   MapPin,
   Search,
   ShieldCheck,
-  Star,
   Users
 } from "lucide-react";
 import { HostelCard } from "../components/HostelCard";
 import { RoomCard } from "../components/RoomCard";
 import { MotionSection } from "../components/MotionSection";
-import { hostels, roomListings, stories } from "../data/mockData";
+// Note: mockData is intentionally NOT imported here anymore. This page previously
+// imported curated demo hostels/rooms/testimonials and silently substituted them
+// whenever the real API returned an empty (but valid) result -- meaning a genuinely
+// empty production launch showed fabricated listings and fake named student
+// testimonials as if they were real. Real API data now renders as-is, including a
+// genuine empty state when there is nothing to show yet.
 import { motion } from "framer-motion";
 import { fadeUp, stagger, transitions, useMotionSafe } from "../utils/motion";
 import { api, safeRequest } from "../services/api";
 import { normalizeHostels, normalizeRooms } from "../utils/normalize";
 import { useToast } from "../components/ui";
 import { useLocaleStore } from "../store/useLocaleStore";
-
-const stats = [
-  ["500+", "Rooms & Hostels"],
-  ["4", "Major Cities"],
-  ["10k+", "Students Placed"],
-  ["100%", "Vetted Listings"]
-];
 
 // Unified "Type" field for the Gold Standard search bar. Hostel Room / PG / Shared /
 // Private map onto the student room-marketplace search at /rooms (with a listingCategory
@@ -77,11 +74,13 @@ export function HomePage() {
   const toast = useToast();
 
   // Featured rooms and verified hostels are fetched live from the API so the homepage
-  // reflects real listings once the backend/MongoDB has data. mockData's arrays are only
-  // used as the fallback (offline/API-down/demo mode), via the same safeRequest pattern
-  // used on ListingsPage and RoomsMarketPage.
-  const [featuredRooms, setFeaturedRooms] = useState(roomListings.slice(0, 3));
-  const [featuredHostels, setFeaturedHostels] = useState(hostels.filter((hostel) => hostel.featured).slice(0, 3));
+  // reflects real listings once the backend/MongoDB has data. Unlike the previous
+  // version of this effect, an empty real result is now rendered as a genuine empty
+  // state (see EmptyListingsNote below) instead of being silently backfilled with
+  // mockData -- a live production site with zero listings yet must say so, not show
+  // fabricated rooms/hostels as if they were real inventory.
+  const [featuredRooms, setFeaturedRooms] = useState([]);
+  const [featuredHostels, setFeaturedHostels] = useState([]);
   const [listingsLoading, setListingsLoading] = useState(true);
 
   const [newsletterEmail, setNewsletterEmail] = useState("");
@@ -92,18 +91,20 @@ export function HomePage() {
     let ignore = false;
 
     Promise.all([
-      safeRequest(() => api.get("/rooms"), { results: roomListings }),
-      safeRequest(() => api.get("/hostels", { params: { sort: "rating", limit: 12 } }), { results: hostels })
+      safeRequest(() => api.get("/rooms"), { results: [] }),
+      safeRequest(() => api.get("/hostels", { params: { sort: "rating", limit: 12 } }), { results: [] })
     ]).then(([roomData, hostelData]) => {
       if (ignore) return;
-      const rooms = normalizeRooms(roomData.results || roomListings).slice(0, 3);
-      setFeaturedRooms(rooms.length ? rooms : roomListings.slice(0, 3));
+      const rooms = normalizeRooms(roomData.results || []).slice(0, 3);
+      setFeaturedRooms(rooms);
 
-      const normalizedHostels = normalizeHostels(hostelData.results || hostels);
+      const normalizedHostels = normalizeHostels(hostelData.results || []);
       const featured = normalizedHostels.filter((hostel) => hostel.featured).slice(0, 3);
       setFeaturedHostels(featured.length ? featured : normalizedHostels.slice(0, 3));
 
       setListingsLoading(false);
+    }).catch(() => {
+      if (!ignore) setListingsLoading(false);
     });
 
     return () => {
@@ -263,17 +264,6 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="bg-primary-600 text-white">
-        <div className="container-page grid grid-cols-2 gap-6 py-8 text-center md:grid-cols-4">
-          {stats.map(([value, label]) => (
-            <div key={label}>
-              <p className="font-display text-3xl font-bold">{value}</p>
-              <p className="text-xs text-white/80">{label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
       <MotionSection className="container-page py-16">
         <div className="mb-8 flex items-end justify-between gap-5">
           <div>
@@ -288,7 +278,13 @@ export function HomePage() {
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {listingsLoading
             ? Array.from({ length: 3 }).map((_, index) => <SkeletonListingCard key={index} />)
-            : featuredRooms.map((room) => <RoomCard key={room.id} room={room} />)}
+            : featuredRooms.length
+              ? featuredRooms.map((room) => <RoomCard key={room.id} room={room} />)
+              : (
+                <p className="col-span-full rounded-lg border border-dashed border-line bg-surface-container-low p-8 text-center text-on-surface-variant">
+                  No rooms listed yet. Check back soon, or <Link to="/landlord/onboarding" className="font-semibold text-primary-700">list yours first</Link>.
+                </p>
+              )}
         </div>
       </MotionSection>
 
@@ -305,7 +301,13 @@ export function HomePage() {
         <div className="mt-7 grid gap-6 md:grid-cols-3">
           {listingsLoading
             ? Array.from({ length: 3 }).map((_, index) => <SkeletonListingCard key={index} />)
-            : featuredHostels.map((hostel) => <HostelCard key={hostel.id} hostel={hostel} compact />)}
+            : featuredHostels.length
+              ? featuredHostels.map((hostel) => <HostelCard key={hostel.id} hostel={hostel} compact />)
+              : (
+                <p className="col-span-full rounded-lg border border-dashed border-line bg-surface-container-low p-8 text-center text-on-surface-variant">
+                  No verified hostels listed yet. Check back soon.
+                </p>
+              )}
         </div>
       </MotionSection>
 
@@ -331,32 +333,11 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* Student Stories still use the curated mockData.stories array -- there's no real
-          testimonials/reviews endpoint suited to a homepage highlight reel yet, so this
-          section intentionally stays static rather than wiring up a fake endpoint. */}
-      <MotionSection className="container-page py-16">
-        <div className="text-center">
-          <h2 className="font-display text-3xl font-bold text-on-surface">Student Stories</h2>
-          <p className="mt-3 text-on-surface-variant">Join thousands of students who found their home through us.</p>
-        </div>
-        <div className="mt-12 grid gap-6 md:grid-cols-3">
-          {stories.map((story) => (
-            <article key={story.name} className="rounded-lg border border-line bg-surface p-7 shadow-card">
-              <div className="mb-5 flex text-accent-600">
-                {Array.from({ length: 5 }).map((_, index) => <Star key={index} size={16} fill="currentColor" />)}
-              </div>
-              <p className="text-sm italic leading-7 text-on-surface">"{story.text}"</p>
-              <div className="mt-6 flex items-center gap-3">
-                <img src={story.image} alt={story.name} className="h-11 w-11 rounded-full object-cover" />
-                <div>
-                  <p className="font-semibold text-on-surface">{story.name}</p>
-                  <p className="text-xs text-on-surface-variant">{story.meta}</p>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
-      </MotionSection>
+      {/* The "Student Stories" section previously rendered fabricated named
+          testimonials (fake students, stock photos) from mockData.stories,
+          unconditionally, as if they were real reviews. Removed for production --
+          it will come back once there's a real reviews/testimonials endpoint with
+          actual verified-stay feedback to show instead of invented ones. */}
 
       <section className="bg-primary-50 py-12">
         <div className="container-page flex flex-col gap-5 md:flex-row md:items-center md:justify-between">

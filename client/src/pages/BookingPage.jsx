@@ -71,6 +71,11 @@ export function BookingPage() {
   const fallbackHostel = hostels.find((item) => item.slug === hostelSlug) || hostels[0];
   const fallbackRoom = roomListings.find((item) => item.id === roomId) || null;
   const [bookingData, setBookingData] = useState({ hostel: fallbackHostel, rooms: fallbackRoom ? [fallbackRoom] : [], room: fallbackRoom });
+  // This is the checkout flow -- if the real room/hostel fetch fails (removed
+  // listing, bad link, transient error), the page must never silently fall back to
+  // mockData's fake hostel/pricing and let someone proceed to payment against a
+  // listing that doesn't actually exist. notFound blocks checkout instead.
+  const [notFound, setNotFound] = useState(false);
   const hostel = bookingData.hostel;
   const selectedRoom = useMemo(
     () => bookingData.room || bookingData.rooms.find((room) => room.type === "double" || room.roomType === "DOUBLE") || bookingData.rooms[0] || null,
@@ -100,21 +105,30 @@ export function BookingPage() {
     let ignore = false;
 
     const request = roomId ? () => api.get(`/rooms/${roomId}`) : () => api.get(`/hostels/${fallbackHostel.slug}`);
-    const fallback = roomId ? { room: fallbackRoom, availability: null } : { hostel: fallbackHostel, rooms: [] };
 
-    safeRequest(request, fallback).then((data) => {
-      if (!ignore) {
-        if (roomId) {
-          const room = normalizeRoom(data.room || fallbackRoom);
-          setBookingData({ hostel: fallbackHostel, rooms: [room], room });
-          setAvailability(data.availability || { isAvailable: room.availableBeds > 0, availableBeds: room.availableBeds });
-        } else {
-          setBookingData({
-            hostel: normalizeHostel(data.hostel || fallbackHostel),
-            rooms: data.rooms || []
-          });
+    request().then((response) => {
+      if (ignore) return;
+      const data = response.data;
+      if (roomId) {
+        if (!data?.room) {
+          setNotFound(true);
+          return;
         }
+        const room = normalizeRoom(data.room);
+        setBookingData({ hostel: fallbackHostel, rooms: [room], room });
+        setAvailability(data.availability || { isAvailable: room.availableBeds > 0, availableBeds: room.availableBeds });
+      } else {
+        if (!data?.hostel) {
+          setNotFound(true);
+          return;
+        }
+        setBookingData({
+          hostel: normalizeHostel(data.hostel),
+          rooms: data.rooms || []
+        });
       }
+    }).catch(() => {
+      if (!ignore) setNotFound(true);
     });
 
     return () => {
@@ -259,6 +273,19 @@ export function BookingPage() {
     }
     if (step === 3) createBooking();
   };
+
+  if (notFound) {
+    return (
+      <main className="container-page py-24 text-center">
+        <Helmet>
+          <title>Listing not found | Basera</title>
+        </Helmet>
+        <h1 className="font-display text-3xl font-bold text-on-surface">This listing isn't available</h1>
+        <p className="mt-3 text-on-surface-variant">It may have been removed, or the link is incorrect. You haven't been charged anything.</p>
+        <Link to="/hostels" className="btn-primary mt-6 inline-flex">Browse hostels</Link>
+      </main>
+    );
+  }
 
   return (
     <>

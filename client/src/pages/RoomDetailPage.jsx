@@ -41,6 +41,10 @@ export function RoomDetailPage() {
   const [roomData, setRoomData] = useState(null);
   const [availabilityData, setAvailabilityData] = useState(null);
   const [occupants, setOccupants] = useState(fallback.occupants || []);
+  // See HostelDetailPage for the same fix: a real 404 (or any fetch failure) used
+  // to leave this page silently showing a random mockData room forever, as if it
+  // were the real listing at this URL. Now it shows an honest "not found" state.
+  const [notFound, setNotFound] = useState(false);
   const room = roomData?.id === id || roomData?._id === id ? roomData : fallback;
   const availability = availabilityData?.roomId === id ? availabilityData.value : fallbackAvailability;
   const [message, setMessage] = useState("");
@@ -54,12 +58,18 @@ export function RoomDetailPage() {
 
   useEffect(() => {
     let ignore = false;
-    safeRequest(() => api.get(`/rooms/${id}`), { room: fallback, availability: fallbackAvailability, occupants: fallback.occupants || [] }).then((result) => {
-      if (!ignore) {
-        setRoomData(normalizeRoom(result.room || fallback));
-        setAvailabilityData({ roomId: id, value: result.availability || fallbackAvailability });
-        setOccupants(result.occupants || fallback.occupants || []);
+    api.get(`/rooms/${id}`).then((response) => {
+      if (ignore) return;
+      const result = response.data;
+      if (!result?.room) {
+        setNotFound(true);
+        return;
       }
+      setRoomData(normalizeRoom(result.room));
+      setAvailabilityData({ roomId: id, value: result.availability || fallbackAvailability });
+      setOccupants(result.occupants || []);
+    }).catch(() => {
+      if (!ignore) setNotFound(true);
     });
     if (user) {
       safeRequest(() => api.get(`/rooms/${id}/match-score`), { match: null }).then((result) => {
@@ -113,6 +123,19 @@ export function RoomDetailPage() {
       requestDirections(null);
     }
   };
+
+  if (notFound) {
+    return (
+      <main className="container-page py-24 text-center">
+        <Helmet>
+          <title>Room not found | Basera</title>
+        </Helmet>
+        <h1 className="font-display text-3xl font-bold text-on-surface">Room not found</h1>
+        <p className="mt-3 text-on-surface-variant">This listing may have been removed, or the link is incorrect.</p>
+        <Link to="/rooms" className="btn-primary mt-6 inline-flex">Browse rooms</Link>
+      </main>
+    );
+  }
 
   return (
     <>

@@ -5,7 +5,6 @@ import { Building2, Filter, Grid2X2, Map as MapIcon, MapPin, ShieldCheck, Slider
 import { AdvancedMapLayersPanel } from "../components/AdvancedMapLayersPanel";
 import { RoomCard } from "../components/RoomCard";
 import { SmartDiscoveryMap } from "../components/SmartDiscoveryMap";
-import { roomListings } from "../data/mockData";
 import { api, safeRequest } from "../services/api";
 import { normalizeRooms } from "../utils/normalize";
 import { useDocumentTitle } from "../utils/useDocumentTitle";
@@ -34,7 +33,9 @@ export function RoomsMarketPage() {
   const [heatmap, setHeatmap] = useState([]);
   const [safety, setSafety] = useState([]);
   const [campus, setCampus] = useState(null);
-  const [rooms, setRooms] = useState(roomListings);
+  // Starts empty (not mockData.roomListings) so there's never even a brief flash of
+  // fabricated rooms before the real API response lands.
+  const [rooms, setRooms] = useState([]);
   useDocumentTitle("Rooms Marketplace | Basera");
 
   const updateFilters = (next) => {
@@ -71,8 +72,8 @@ export function RoomsMarketPage() {
             polygon: polygon || undefined
           }
         }),
-      { results: roomListings }
-    ).then((result) => setRooms(normalizeRooms(result.results || roomListings)));
+      { results: [] }
+    ).then((result) => setRooms(normalizeRooms(result.results || [])));
   }, [bbox, city, gender, listingCategory, maxPrice, polygon, roomType, university]);
 
   useEffect(() => {

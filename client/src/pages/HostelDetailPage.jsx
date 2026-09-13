@@ -48,6 +48,12 @@ export function HostelDetailPage() {
     reviews,
     nearby: hostels.filter((item) => item.id !== fallbackHostel.id).slice(0, 3)
   });
+  // Tracks a genuinely missing/removed listing so the page can say so honestly,
+  // instead of the previous behaviour of silently displaying a random mockData
+  // hostel's full detail page forever whenever the real API call failed or the
+  // slug didn't match a real record -- which could let someone try to "book" a
+  // listing that doesn't actually exist.
+  const [notFound, setNotFound] = useState(false);
   const [dnaScore, setDnaScore] = useState(null);
   const [pulse, setPulse] = useState(null);
   const [messMenu, setMessMenu] = useState(null);
@@ -61,11 +67,20 @@ export function HostelDetailPage() {
 
   useEffect(() => {
     let ignore = false;
-    safeRequest(() => api.get(`/hostels/${slug}`), null).then((data) => {
-      if (ignore || !data?.hostel) return;
+    api.get(`/hostels/${slug}`).then((response) => {
+      if (ignore) return;
+      const data = response.data;
+      if (!data?.hostel) {
+        setNotFound(true);
+        return;
+      }
       const normalizedHostel = normalizeHostel(data.hostel);
+      // Real, possibly-empty results now render as-is (an honest "no reviews yet" /
+      // "no nearby hostels yet" state) instead of being backfilled with mockData's
+      // curated rooms/reviews/nearby hostels, which previously made a brand-new
+      // real listing look like it already had reviews and neighbours it doesn't.
       const normalizedNearby = normalizeHostels(data.nearby || []);
-      const normalizedReviews = (data.reviews || reviews).map((review) => ({
+      const normalizedReviews = (data.reviews || []).map((review) => ({
         name: review.student?.name || review.student || review.name || "Verified Student",
         meta: review.student?.university || review.university || review.meta || "Verified stay",
         text: review.comment || review.text,
@@ -83,10 +98,16 @@ export function HostelDetailPage() {
 
       setDetail({
         hostel: normalizedHostel,
-        rooms: normalizedRooms.length ? normalizedRooms : roomOptions,
-        reviews: normalizedReviews.length ? normalizedReviews : reviews,
-        nearby: normalizedNearby.length ? normalizedNearby : hostels.filter((item) => item.id !== normalizedHostel.id).slice(0, 3)
+        rooms: normalizedRooms,
+        reviews: normalizedReviews,
+        nearby: normalizedNearby
       });
+    }).catch((error) => {
+      if (ignore) return;
+      // A real 404 (listing removed/never existed) or any other failure both mean
+      // this page should say "not found" rather than silently keep rendering the
+      // initial mockData fallback as if it were a real hostel.
+      setNotFound(true);
     });
 
     safeRequest(() => api.get(`/hostels/${slug}/dna-score`), { score: null }).then((data) => {
@@ -118,6 +139,19 @@ export function HostelDetailPage() {
     );
     setVisitMessage(result.demo ? "Visit request saved in demo mode." : "Visit request submitted. The Host will confirm the slot.");
   };
+
+  if (notFound) {
+    return (
+      <main className="container-page py-24 text-center">
+        <Helmet>
+          <title>Hostel not found | Basera</title>
+        </Helmet>
+        <h1 className="font-display text-3xl font-bold text-on-surface">Hostel not found</h1>
+        <p className="mt-3 text-on-surface-variant">This listing may have been removed, or the link is incorrect.</p>
+        <Link to="/hostels" className="btn-primary mt-6 inline-flex">Browse hostels</Link>
+      </main>
+    );
+  }
 
   return (
     <>

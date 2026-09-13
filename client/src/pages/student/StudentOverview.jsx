@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { AlertTriangle, BookOpenCheck, CreditCard, Download, MessageSquare, Bookmark, Star, Navigation, Search, ShieldCheck, Pencil } from "lucide-react";
 import { motion } from "framer-motion";
 import { fadeUp, stagger, transitions, useMotionSafe } from "../../utils/motion";
-import { hostels } from "../../data/mockData";
 import { useNavigate } from "react-router-dom";
 import { api, safeRequest } from "../../services/api";
 import { normalizeHostel } from "../../utils/normalize";
@@ -11,18 +10,26 @@ import { useToastBridge } from "../../components/ui";
 import { useAuthStore } from "../../store/useAuthStore";
 import { downloadApiPdf } from "../../utils/downloadFile";
 
-const fallbackStudentData = {
-  stats: { activeBookings: 1, savedHostels: 12, totalReviews: 4 },
-  activeBooking: { hostel: hostels[0], roomType: "Premium Double", expiryDate: "2026-06-15", status: "Current Stay" },
+// Was previously seeded with a fake "Current Stay" (mock hostel, "Premium Double",
+// a hardcoded expiry date) and non-zero stats. Because the fetch below used
+// `result.activeBooking || fallbackStudentData.activeBooking`, a real student who
+// genuinely has no active booking yet (i.e. `activeBooking: null` from the real
+// API) would still see that fabricated stay -- `null` is falsy, so it silently
+// fell back to the fake one instead of showing an honest empty state. Every
+// brand-new real student would have hit this. Fixed by using real zero/null
+// defaults and rendering an explicit empty state when there's no active booking.
+const emptyStudentData = {
+  stats: { activeBookings: 0, savedHostels: 0, totalReviews: 0 },
+  activeBooking: null,
   recentBookings: []
 };
 
 export function StudentOverview() {
   const authUser = useAuthStore((state) => state.user);
-  const [data, setData] = useState(fallbackStudentData);
+  const [data, setData] = useState(emptyStudentData);
   const [downloadMessage, setDownloadMessage] = useState("");
   const [nearbyMessage, setNearbyMessage] = useState("");
-  const hostel = normalizeHostel(data.activeBooking?.hostel || hostels[0]);
+  const hostel = data.activeBooking?.hostel ? normalizeHostel(data.activeBooking.hostel) : null;
   const motionSafe = useMotionSafe();
   const navigate = useNavigate();
   useToastBridge(downloadMessage);
@@ -32,16 +39,21 @@ export function StudentOverview() {
   const recentRows = data.recentBookings;
 
   useEffect(() => {
-    safeRequest(() => api.get("/dashboard/student"), fallbackStudentData).then((result) => {
+    api.get("/dashboard/student").then((response) => {
+      const result = response.data;
       setData({
-        stats: result.stats || fallbackStudentData.stats,
-        activeBooking: result.activeBooking || fallbackStudentData.activeBooking,
+        stats: result.stats || emptyStudentData.stats,
+        activeBooking: result.activeBooking || null,
         recentBookings: result.recentBookings || []
       });
+    }).catch(() => {
+      // Leave data at the honest empty default rather than showing fabricated
+      // content on a failed request.
     });
   }, []);
 
   const openNearby = (category) => {
+    if (!hostel) return;
     const requestDirections = (coords) =>
       safeRequest(
         () => api.get("/map/directions", { params: { hostelId: hostel.id, category, originLat: coords?.lat, originLng: coords?.lng } }),
@@ -82,22 +94,28 @@ export function StudentOverview() {
     <>
       <motion.div variants={motionSafe ? fadeUp : undefined} transition={motionSafe ? transitions.base : undefined} className="grid min-w-0 gap-7 xl:grid-cols-[minmax(0,1fr)_380px]">
         <section className="min-w-0 space-y-7">
-          <motion.article variants={motionSafe ? fadeUp : undefined} className="flex flex-col gap-4 rounded-lg border border-error/20 bg-error-container p-5 text-on-error-container sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-start gap-3">
-              <AlertTriangle size={22} className="mt-0.5 shrink-0 text-error" />
-              <div>
-                <p className="font-display text-sm font-bold uppercase tracking-widest">Rent Due Reminder</p>
-                <p className="mt-2">Next monthly rent is due on 01 July 2026. Pay in-app to keep escrow and dispute protection active.</p>
+          {data.activeBooking && (
+            <motion.article variants={motionSafe ? fadeUp : undefined} className="flex flex-col gap-4 rounded-lg border border-error/20 bg-error-container p-5 text-on-error-container sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-3">
+                <AlertTriangle size={22} className="mt-0.5 shrink-0 text-error" />
+                <div>
+                  <p className="font-display text-sm font-bold uppercase tracking-widest">Rent Due Reminder</p>
+                  <p className="mt-2">
+                    {data.activeBooking.expiryDate
+                      ? `Next payment is due on ${formatDate(data.activeBooking.expiryDate)}. Pay in-app to keep escrow and dispute protection active.`
+                      : "Pay in-app to keep escrow and dispute protection active."}
+                  </p>
+                </div>
               </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => navigate("/dashboard/student/payments")}
-              className="inline-flex shrink-0 items-center justify-center gap-2 rounded bg-error px-5 py-3 text-sm font-semibold text-on-error transition hover:opacity-90"
-            >
-              <CreditCard size={18} /> Pay Rent Now
-            </button>
-          </motion.article>
+              <button
+                type="button"
+                onClick={() => navigate("/dashboard/student/payments")}
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded bg-error px-5 py-3 text-sm font-semibold text-on-error transition hover:opacity-90"
+              >
+                <CreditCard size={18} /> Pay Rent Now
+              </button>
+            </motion.article>
+          )}
 
           <motion.div variants={motionSafe ? stagger() : undefined} className="grid min-w-0 gap-7 md:grid-cols-3">
             {[
@@ -128,35 +146,49 @@ export function StudentOverview() {
           </motion.div>
 
           <motion.article variants={motionSafe ? fadeUp : undefined} transition={motionSafe ? transitions.base : undefined} className="relative min-w-0 overflow-hidden rounded-lg border border-accent-200 bg-accent-50 p-6 sm:p-8">
-            <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
-              <div>
-                <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-accent-700">
-                  <ShieldCheck size={16} /> {data.activeBooking?.status || "Current Stay"}
+            {hostel ? (
+              <>
+                <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
+                  <div>
+                    <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-accent-700">
+                      <ShieldCheck size={16} /> {data.activeBooking?.status || "Current Stay"}
+                    </span>
+                    <h2 className="mt-4 break-words font-display text-3xl font-extrabold text-on-surface sm:text-4xl">{hostel.name}</h2>
+                    <p className="mt-3 flex flex-wrap items-center gap-2 text-lg text-on-surface-variant">{hostel.area ? `${hostel.area}, ${hostel.city}` : hostel.city}</p>
+                  </div>
+                  <img src={hostel.image} alt={hostel.name} className="h-36 w-44 rounded-lg border-4 border-white object-cover shadow-sm" />
+                </div>
+                <div className="mt-10 grid gap-6 border-t border-accent-200 pt-8 md:grid-cols-[1fr_1fr_240px] md:items-center">
+                  <div>
+                    <p className="text-sm text-on-surface-variant">Room Type</p>
+                    <p className="text-2xl font-semibold text-on-surface">{data.activeBooking?.roomType || "Room"}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-on-surface-variant">Expiry Date</p>
+                    <p className="text-2xl font-semibold text-on-surface">{formatDate(data.activeBooking?.expiryDate) || "—"}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => navigate("/dashboard/student/chat")}
+                    className="inline-flex items-center justify-center gap-2 rounded bg-accent-600 px-6 py-4 text-lg font-semibold text-white shadow-sm transition duration-250 ease-smooth hover:-translate-y-0.5 hover:bg-accent-700 hover:shadow-md"
+                  >
+                    {/* Routes to Basera Support, not a direct host conversation -- customers are
+                        platform-mediated by design (see StudentChat.jsx's lockToSupport mode). */}
+                    <MessageSquare size={20} /> Message Support
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="flex flex-col items-center gap-4 py-10 text-center">
+                <span className="grid h-14 w-14 place-items-center rounded-full bg-accent-100 text-accent-700">
+                  <Search size={24} />
                 </span>
-                <h2 className="mt-4 break-words font-display text-3xl font-extrabold text-on-surface sm:text-4xl">{hostel.name}</h2>
-                <p className="mt-3 flex flex-wrap items-center gap-2 text-lg text-on-surface-variant">Block A, North Campus, Islamabad</p>
+                <p className="text-lg font-semibold text-on-surface">You don't have an active booking yet.</p>
+                <button type="button" onClick={() => navigate("/rooms")} className="btn-primary">
+                  Find a Hostel
+                </button>
               </div>
-              <img src={hostel.image} alt={hostel.name} className="h-36 w-44 rounded-lg border-4 border-white object-cover shadow-sm" />
-            </div>
-            <div className="mt-10 grid gap-6 border-t border-accent-200 pt-8 md:grid-cols-[1fr_1fr_240px] md:items-center">
-              <div>
-                <p className="text-sm text-on-surface-variant">Room Type</p>
-                <p className="text-2xl font-semibold text-on-surface">{data.activeBooking?.roomType || "Premium Double"}</p>
-              </div>
-              <div>
-                <p className="text-sm text-on-surface-variant">Expiry Date</p>
-                <p className="text-2xl font-semibold text-on-surface">{formatDate(data.activeBooking?.expiryDate) || "15 Jun 2026"}</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => navigate("/dashboard/student/chat")}
-                className="inline-flex items-center justify-center gap-2 rounded bg-accent-600 px-6 py-4 text-lg font-semibold text-white shadow-sm transition duration-250 ease-smooth hover:-translate-y-0.5 hover:bg-accent-700 hover:shadow-md"
-              >
-                {/* Routes to Basera Support, not a direct host conversation -- customers are
-                    platform-mediated by design (see StudentChat.jsx's lockToSupport mode). */}
-                <MessageSquare size={20} /> Message Support
-              </button>
-            </div>
+            )}
           </motion.article>
 
           <section className="overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest">
