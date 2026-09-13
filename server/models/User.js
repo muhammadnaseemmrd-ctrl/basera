@@ -100,10 +100,18 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-userSchema.pre("save", async function hashPassword(next) {
-  if (!this.isModified("password")) return next();
+// Mongoose 9 no longer passes a `next` callback into async pre-hooks (an async
+// function signals completion via its returned promise instead). The previous
+// version of this hook declared `async function hashPassword(next)` and called
+// next() explicitly -- since Mongoose never supplies next() to an async hook,
+// `next` was undefined and every single User.create()/save() against a real
+// database threw "next is not a function", meaning no user could ever actually
+// be created once demo mode was off. This was invisible all session because
+// every prior test ran against the in-memory demo-mode arrays, which never
+// invoke Mongoose middleware at all. Fixed by dropping the next() calls.
+userSchema.pre("save", async function hashPassword() {
+  if (!this.isModified("password")) return;
   this.password = await bcrypt.hash(this.password, 12);
-  next();
 });
 
 userSchema.methods.comparePassword = function comparePassword(candidate) {

@@ -87,6 +87,18 @@ This returned **HTTP 200 with the full booking record belonging to a different d
 
 ---
 
+## ADDENDUM 3 (September 13, 2026) — Deployed live; found a showstopper bug that made ALL real user creation fail
+
+**Backend deployed to Railway, frontend pending on Netlify.** With the user's GitHub repo (`muhammadnaseemmrd-ctrl/basera`) pushed and connected, deployed the backend to Railway (`https://basera-api-production.up.railway.app`). Two additional real bugs surfaced only through this live deploy, neither of which was catchable by any static review or by local demo-mode testing:
+
+1. **Node version mismatch crashed the container on every boot.** Railway's build system defaulted to Node 18 for the `server/` service. `mongoose`/`mongodb`'s SCRAM auth path calls the global WebCrypto `crypto.getRandomValues`, which is only automatically available on Node 20+. Every deploy attempt crash-looped with `ReferenceError: crypto is not defined` before ever reaching the app code. Fixed by adding `"engines": {"node": ">=20.0.0"}` to `server/package.json` and a defensive `globalThis.crypto` polyfill at the top of `server.js` for platforms that don't honor `engines`.
+
+2. **CRITICAL — every real (non-demo) user creation was broken.** `User.js`'s password-hashing hook was declared `userSchema.pre("save", async function hashPassword(next) { ...; next(); })`. Mongoose 9 (the version pinned in this project) no longer passes a `next` callback into `async` pre-hooks — an async function is expected to signal completion via its returned promise, not by calling `next()`. Because `next` was `undefined`, calling `next()` threw `TypeError: next is not a function` on **every single `User.create()` or `.save()` call against a real database** — registration, the admin bootstrap route, staff creation, all of it. This was invisible for the entire duration of this project because every prior round of testing (including the "live dynamic testing" pass earlier this session) ran against the in-memory demo-mode data path, which never touches Mongoose middleware at all. The very first real `User.create()` call ever made against an actual MongoDB connection in this project's history (creating the bootstrap super admin) is what surfaced it. Swept all six models with `pre()`/`post()` hooks (`User`, `Property`, `Hostel`, `HostelGroup`, `Dispute`, `DepositCase`) — only `User.js` combined `async` with a `next` parameter; the other five use plain synchronous functions with `next`, which remains valid in Mongoose 9. Fixed by removing the `next` parameter and calls from the hash hook.
+
+**Status at time of writing:** both fixes are committed to `E:\basera` locally but require another `git push` + Railway redeploy before the bootstrap-admin call can succeed. Netlify frontend deploy was still pending (site returned "Site not found" — no successful build yet) as of this addendum.
+
+---
+
 ## A. Executive Summary
 
 Basera is considerably more built-out than a typical demo SaaS. It already has: a real double-entry ledger service, tiered commission calculation, escrow modeling, signature-verified payment webhooks (JazzCash/Easypaisa/Stripe) with idempotency, a manual/offline-payment approval workflow, geospatial search with proper indexes, TTL-cached map/commute services, a working referral-loyalty system, and persistent trip/activity planning. This is not vaporware.
