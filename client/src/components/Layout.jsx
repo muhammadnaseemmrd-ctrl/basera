@@ -6,6 +6,7 @@ import { transitions, useMotionSafe } from "../utils/motion";
 import { dashboardPathForRole, useAuthStore } from "../store/useAuthStore";
 import { useAppStore } from "../store/useAppStore";
 import { useLocaleStore } from "../store/useLocaleStore";
+import { Logo, LogoMark } from "./Logo";
 
 const navItems = [
   { key: "navFindHousing", to: "/" },
@@ -36,23 +37,18 @@ export function Navbar({ simple = false }) {
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/75">
-      <div className="container-page flex h-[76px] items-center justify-between gap-4">
-        <Link to="/" className="group inline-flex shrink-0 items-center gap-3 text-xl font-extrabold tracking-tight text-ink sm:text-2xl">
-          <span className="grid h-10 w-10 place-items-center rounded-xl bg-primary-700 text-white shadow-card transition duration-250 ease-smooth group-hover:shadow-float">
-            H
-          </span>
-          <span>
-            Hostel<span className="text-primary-800">Hub</span>
-          </span>
+      <div className="container-page flex min-h-[76px] items-center justify-between gap-4">
+        <Link to="/" className="group inline-flex shrink-0 items-center gap-3 sm:text-2xl">
+          <Logo wordmarkClassName="text-xl sm:text-2xl transition duration-250 ease-smooth group-hover:text-primary-700" />
         </Link>
         {!simple && (
-          <nav className="hidden items-center gap-8 text-base text-neutral-700 md:flex">
+          <nav className="hidden items-center gap-5 whitespace-nowrap text-[0.9rem] text-neutral-700 lg:flex lg:gap-7 lg:text-base">
             {resolvedNavItems.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
-                  `group relative py-2 font-semibold transition duration-250 ease-smooth ${
+                  `group relative whitespace-nowrap py-2 font-semibold transition duration-250 ease-smooth ${
                     isActive ? "text-ink" : "text-neutral-700 hover:text-ink"
                   }`
                 }
@@ -108,7 +104,7 @@ export function Navbar({ simple = false }) {
             <button
               type="button"
               onClick={() => setOpen(true)}
-              className="btn-ghost inline-flex md:hidden"
+              className="btn-ghost inline-flex lg:hidden"
               aria-label="Open menu"
             >
               <Menu size={20} />
@@ -125,7 +121,7 @@ export function Navbar({ simple = false }) {
             animate={motionSafe ? { opacity: 1 } : undefined}
             exit={motionSafe ? { opacity: 0 } : undefined}
             transition={motionSafe ? transitions.fast : undefined}
-            className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm md:hidden"
+            className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm lg:hidden"
             onClick={() => setOpen(false)}
           >
             <motion.div
@@ -137,9 +133,8 @@ export function Navbar({ simple = false }) {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between border-b border-line px-5 py-4">
-                <Link to="/" className="inline-flex items-center gap-2 text-lg font-extrabold tracking-tight text-ink" onClick={() => setOpen(false)}>
-                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary-700 text-white shadow-card">H</span>
-                  Hostel<span className="text-primary-800">Hub</span>
+                <Link to="/" className="inline-flex items-center" onClick={() => setOpen(false)}>
+                  <Logo size={36} wordmarkClassName="text-lg" />
                 </Link>
                 <button type="button" className="btn-ghost" onClick={() => setOpen(false)} aria-label="Close menu">
                   <X size={20} />
@@ -208,8 +203,8 @@ export function Footer({ compact = false }) {
     return (
       <footer className="border-t border-line bg-surface">
         <div className="container-page flex flex-col gap-5 py-10 md:flex-row md:items-center md:justify-between">
-          <Link to="/" className="text-xl font-extrabold text-ink">
-            Hostel<span className="text-primary-800">Hub</span>
+          <Link to="/">
+            <Logo size={36} wordmarkClassName="text-xl" />
           </Link>
           <div className="flex flex-wrap gap-7 text-sm text-neutral-700">
             <Link to="/privacy" className="hover:text-ink">Privacy Policy</Link>
@@ -217,7 +212,7 @@ export function Footer({ compact = false }) {
             <Link to="/help" className="hover:text-ink">Help Center</Link>
             <Link to="/contact" className="hover:text-ink">Contact Us</Link>
           </div>
-          <p className="text-sm text-neutral-600">(c) 2024 Basera. All rights reserved.</p>
+          <p className="text-sm text-neutral-600">(c) 2026 Basera. All rights reserved.</p>
         </div>
       </footer>
     );
@@ -227,8 +222,8 @@ export function Footer({ compact = false }) {
     <footer className="border-t border-line bg-neutral-50">
       <div className="container-page grid gap-10 py-16 md:grid-cols-[1.5fr_1fr_1fr_1.35fr]">
         <div>
-          <Link to="/" className="text-xl font-extrabold text-ink">
-            Basera
+          <Link to="/">
+            <Logo size={36} wordmarkClassName="text-xl" />
           </Link>
           <p className="mt-5 max-w-sm text-sm leading-7 text-neutral-700">
             Pakistan's trusted platform for student accommodations. Find your home away from home with confidence.
@@ -249,11 +244,11 @@ export function Footer({ compact = false }) {
         <div>
           <h3 className="font-bold text-ink">Subscribe</h3>
           <p className="mt-5 text-sm leading-7 text-neutral-700">Get the latest hostel updates and student deals.</p>
-          <input className="input mt-7" placeholder="Email address" />
-          <button className="btn-primary mt-3 w-full">Subscribe</button>
+          <input type="email" className="input mt-7" placeholder="Email address" aria-label="Email address" />
+          <button type="button" className="btn-primary mt-3 w-full">Subscribe</button>
         </div>
       </div>
-      <div className="border-t border-line py-8 text-center text-sm text-neutral-600">(c) 2024 Basera. All rights reserved.</div>
+      <div className="border-t border-line py-8 text-center text-sm text-neutral-600">(c) 2026 Basera. All rights reserved.</div>
     </footer>
   );
 }

@@ -219,16 +219,16 @@ export function StudentBookings() {
         <title>My Bookings | Basera</title>
       </Helmet>
       <div className="mb-7">
-        <h2 className="text-3xl font-extrabold tracking-tight">My Bookings</h2>
-        <p className="mt-2 text-neutral-700">Manage your current and past stays.</p>
+        <h2 className="font-display text-3xl font-extrabold tracking-tight text-on-surface">My Bookings</h2>
+        <p className="mt-2 text-on-surface-variant">Manage your hostel reservations, payments, and stay details.</p>
       </div>
 
-      <section className="panel overflow-hidden">
-        <div className="flex items-center justify-between p-7">
-          <h3 className="text-xl font-bold">All bookings</h3>
-          <span className="chip">{data.bookings.length} total</span>
+      <section className="overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest">
+        <div className="flex items-center justify-between border-b border-outline-variant bg-surface-container-low p-6">
+          <h3 className="font-display text-xl font-bold text-on-surface">All bookings</h3>
+          <span className="inline-flex items-center rounded-full border border-outline-variant bg-surface-container-lowest px-3 py-1 text-xs font-semibold text-on-surface-variant">{data.bookings.length} total</span>
         </div>
-        <div className="px-7 pb-7">
+        <div className="px-6 pb-6 pt-5">
           <DataTable
             rows={data.bookings}
             rowKey={(row) => row.id}
@@ -255,7 +255,7 @@ export function StudentBookings() {
               { key: "dispute", header: "Dispute", render: (row) => (
                 <div>
                   <button className="btn-secondary py-2" type="button" onClick={() => setDisputeBooking(row)}>Raise issue</button>
-                  {row.instalments?.length ? <p className="mt-2 text-xs text-neutral-500">{row.instalments.length} instalments</p> : null}
+                  {row.instalments?.length ? <p className="mt-2 text-xs text-on-surface-variant">{row.instalments.length} instalments</p> : null}
                 </div>
               ) },
               { key: "safety", header: "Safety", render: (row) => <ConfirmButton className="btn-secondary py-2 text-danger-700" confirmLabel="Report payment" onConfirm={() => reportOffPlatform(row)}><AlertTriangle size={16} /> Report direct pay</ConfirmButton> },
@@ -277,11 +277,11 @@ export function StudentBookings() {
       </section>
       {reviewBooking && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4">
-          <section className="panel w-full max-w-xl p-7">
+          <section className="w-full max-w-xl rounded-lg border border-outline-variant bg-surface-container-lowest p-7">
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
                 <h3 className="text-2xl font-bold">Leave a Verified Review</h3>
-                <p className="mt-1 text-sm text-neutral-700">{reviewBooking.hostelName}</p>
+                <p className="mt-1 text-sm text-on-surface-variant">{reviewBooking.hostelName}</p>
               </div>
               <button type="button" className="btn-ghost" onClick={() => setReviewBooking(null)} aria-label="Close review modal">
                 <X size={18} />
@@ -327,7 +327,7 @@ export function StudentBookings() {
                   />
                 </label>
               </div>
-              {reviewMessage && <p className="rounded-md bg-primary-50 px-4 py-3 text-sm font-semibold text-primary-800">{reviewMessage}</p>}
+              {reviewMessage && <p className="rounded-md bg-primary-50 px-4 py-3 text-sm font-semibold text-primary-600">{reviewMessage}</p>}
               <button className="btn-primary justify-self-end px-8" type="submit">Submit Review</button>
             </form>
           </section>
@@ -335,11 +335,11 @@ export function StudentBookings() {
       )}
       {directionInfo && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4">
-          <section className="panel w-full max-w-lg p-7">
+          <section className="w-full max-w-lg rounded-lg border border-outline-variant bg-surface-container-lowest p-7">
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
                 <h3 className="text-2xl font-bold">Navigate to nearby facility</h3>
-                <p className="mt-1 text-sm text-neutral-700">Open directions to the nearest pharmacy or support point.</p>
+                <p className="mt-1 text-sm text-on-surface-variant">Open directions to the nearest pharmacy or support point.</p>
               </div>
               <button type="button" className="btn-ghost" onClick={() => setDirectionInfo(null)} aria-label="Close directions">
                 <X size={18} />
@@ -350,10 +350,10 @@ export function StudentBookings() {
                 <button key={category} type="button" className="btn-secondary py-1.5 text-sm" onClick={() => openDirections(directionInfo.booking, category)}>{label}</button>
               ))}
             </div>
-            {directionInfo.loading ? <p className="text-sm text-neutral-700">Preparing directions…</p> : (
-              <div className="grid gap-3 rounded-lg border border-line bg-canvas p-4">
+            {directionInfo.loading ? <p className="text-sm text-on-surface-variant">Preparing directions…</p> : (
+              <div className="grid gap-3 rounded-lg border border-outline-variant bg-surface-container-low p-4">
                 <p className="font-semibold">Destination: {directionInfo.destinationName}</p>
-                {directionInfo.usedFallbackOrigin && <p className="text-xs text-neutral-500">Using your hostel's location (location access unavailable).</p>}
+                {directionInfo.usedFallbackOrigin && <p className="text-xs text-on-surface-variant">Using your hostel's location (location access unavailable).</p>}
                 <a href={directionInfo.directionsUrl} target="_blank" rel="noreferrer" className="btn-primary justify-self-start">Open Google Maps</a>
               </div>
             )}
@@ -362,11 +362,11 @@ export function StudentBookings() {
       )}
       {lifecycleModal && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4">
-          <section className="panel w-full max-w-lg p-7">
+          <section className="w-full max-w-lg rounded-lg border border-outline-variant bg-surface-container-lowest p-7">
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
                 <h3 className="text-2xl font-bold">{lifecycleModal.type === "switch" ? "Request a Room Switch" : "Request to Leave"}</h3>
-                <p className="mt-1 text-sm text-neutral-700">{lifecycleModal.booking.hostelName}</p>
+                <p className="mt-1 text-sm text-on-surface-variant">{lifecycleModal.booking.hostelName}</p>
               </div>
               <button type="button" className="btn-ghost" onClick={() => setLifecycleModal(null)} aria-label="Close request modal">
                 <X size={18} />
@@ -406,12 +406,12 @@ export function StudentBookings() {
                 />
               </label>
               {lifecycleModal.type === "leave" && lifecycleModal.preview && (
-                <div className="grid gap-2 rounded-lg border border-line bg-canvas p-4 text-sm">
+                <div className="grid gap-2 rounded-lg border border-outline-variant bg-surface-container-low p-4 text-sm">
                   <p className="font-semibold">Estimated settlement</p>
                   <div className="flex justify-between"><span>Prorated rent refund</span><strong>PKR {Number(lifecycleModal.preview.proratedRentRefund || 0).toLocaleString("en-PK")}</strong></div>
                   <div className="flex justify-between"><span>Security deposit</span><strong>PKR {Number(lifecycleModal.preview.securityDeposit || 0).toLocaleString("en-PK")}</strong></div>
-                  <div className="flex justify-between"><span>Estimated total</span><strong className="text-primary-800">PKR {Number(lifecycleModal.preview.estimatedTotalRefund || 0).toLocaleString("en-PK")}</strong></div>
-                  <p className="text-xs text-neutral-500">{lifecycleModal.preview.policyLabel}</p>
+                  <div className="flex justify-between"><span>Estimated total</span><strong className="text-primary-600">PKR {Number(lifecycleModal.preview.estimatedTotalRefund || 0).toLocaleString("en-PK")}</strong></div>
+                  <p className="text-xs text-on-surface-variant">{lifecycleModal.preview.policyLabel}</p>
                 </div>
               )}
               <div className="flex justify-end gap-3">
@@ -427,20 +427,20 @@ export function StudentBookings() {
       {disputeBooking && <DisputeModal booking={disputeBooking} onClose={() => setDisputeBooking(null)} />}
       {cancelPreview && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4">
-          <section className="panel w-full max-w-lg p-7">
+          <section className="w-full max-w-lg rounded-lg border border-outline-variant bg-surface-container-lowest p-7">
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
                 <h3 className="text-2xl font-bold">Cancellation Preview</h3>
-                <p className="mt-1 text-sm text-neutral-700">{cancelPreview.booking.hostelName}</p>
+                <p className="mt-1 text-sm text-on-surface-variant">{cancelPreview.booking.hostelName}</p>
               </div>
               <button type="button" className="btn-ghost" onClick={() => setCancelPreview(null)} aria-label="Close cancellation preview">
                 <X size={18} />
               </button>
             </div>
-            <div className="grid gap-3 rounded-lg border border-line bg-canvas p-4">
-              <div className="flex justify-between gap-3"><span>Refund amount</span><strong className="text-primary-800">PKR {Number(cancelPreview.preview?.refundAmount || 0).toLocaleString("en-PK")}</strong></div>
+            <div className="grid gap-3 rounded-lg border border-outline-variant bg-surface-container-low p-4">
+              <div className="flex justify-between gap-3"><span>Refund amount</span><strong className="text-primary-600">PKR {Number(cancelPreview.preview?.refundAmount || 0).toLocaleString("en-PK")}</strong></div>
               <div className="flex justify-between gap-3"><span>Non-refundable</span><strong>PKR {Number(cancelPreview.preview?.nonRefundableAmount || 0).toLocaleString("en-PK")}</strong></div>
-              <p className="text-sm leading-6 text-slate-700">{cancelPreview.preview?.policyLabel}</p>
+              <p className="text-sm leading-6 text-on-surface-variant">{cancelPreview.preview?.policyLabel}</p>
             </div>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
               <button type="button" className="btn-secondary" onClick={() => setCancelPreview(null)}>Keep Booking</button>

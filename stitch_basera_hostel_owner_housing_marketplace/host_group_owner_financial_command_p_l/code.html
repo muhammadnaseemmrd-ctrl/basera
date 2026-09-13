@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&amp;family=Roboto+Flex:wght@400;500;600&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "surface-tint": "#006972",
+          "surface-container-lowest": "#ffffff",
+          "primary": "#00535b",
+          "surface-bright": "#fcf9f8",
+          "on-error": "#ffffff",
+          "on-tertiary-container": "#a9ece4",
+          "error-container": "#ffdad6",
+          "primary-fixed": "#9ff0fb",
+          "inverse-primary": "#82d3de",
+          "primary-fixed-dim": "#82d3de",
+          "on-tertiary-fixed-variant": "#00504b",
+          "tertiary": "#01544f",
+          "on-primary-fixed-variant": "#004f56",
+          "inverse-on-surface": "#f3f0ef",
+          "on-error-container": "#93000a",
+          "on-secondary-fixed-variant": "#414560",
+          "surface-container-high": "#eae7e7",
+          "on-secondary-fixed": "#161a32",
+          "surface-container-highest": "#e5e2e1",
+          "tertiary-fixed-dim": "#90d3cb",
+          "on-secondary-container": "#5d617d",
+          "surface-container": "#f0eded",
+          "tertiary-fixed": "#acefe7",
+          "on-surface": "#1b1c1c",
+          "outline-variant": "#bec8ca",
+          "inverse-surface": "#303030",
+          "on-background": "#1b1c1c",
+          "primary-container": "#006d77",
+          "on-tertiary-fixed": "#00201e",
+          "on-primary": "#ffffff",
+          "on-primary-fixed": "#001f23",
+          "on-surface-variant": "#3e494a",
+          "surface-variant": "#e5e2e1",
+          "secondary-fixed-dim": "#c1c4e5",
+          "on-secondary": "#ffffff",
+          "secondary-fixed": "#dee0ff",
+          "secondary-container": "#dbdeff",
+          "secondary": "#595d78",
+          "surface": "#fcf9f8",
+          "on-tertiary": "#ffffff",
+          "surface-container-low": "#f6f3f2",
+          "tertiary-container": "#286d67",
+          "background": "#fcf9f8",
+          "surface-dim": "#dcd9d9",
+          "on-primary-container": "#9becf7",
+          "error": "#ba1a1a",
+          "outline": "#6f797a"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.125rem",
+          "lg": "0.25rem",
+          "xl": "0.5rem",
+          "full": "0.75rem"
+        },
+        "spacing": {
+          "stack-lg": "32px",
+          "margin-mobile": "16px",
+          "stack-sm": "8px",
+          "stack-md": "16px",
+          "unit": "4px",
+          "margin-desktop": "32px",
+          "gutter": "24px",
+          "container-max": "1280px"
+        },
+        "fontFamily": {
+          "label-sm": [
+            "Roboto Flex"
+          ],
+          "body-lg": [
+            "Roboto Flex"
+          ],
+          "body-md": [
+            "Roboto Flex"
+          ],
+          "display-lg-mobile": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-md": [
+            "Plus Jakarta Sans"
+          ],
+          "label-md": [
+            "Roboto Flex"
+          ],
+          "display-lg": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-lg": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-lg-mobile": [
+            "Plus Jakarta Sans"
+          ],
+          "body-sm": [
+            "Roboto Flex"
+          ]
+        },
+        "fontSize": {
+          "label-sm": [
+            "12px",
+            {
+              "lineHeight": "1",
+              "letterSpacing": "0.03em",
+              "fontWeight": "600"
+            }
+          ],
+          "body-lg": [
+            "18px",
+            {
+              "lineHeight": "1.6",
+              "fontWeight": "400"
+            }
+          ],
+          "body-md": [
+            "16px",
+            {
+              "lineHeight": "1.5",
+              "fontWeight": "400"
+            }
+          ],
+          "display-lg-mobile": [
+            "32px",
+            {
+              "lineHeight": "1.2",
+              "letterSpacing": "-0.02em",
+              "fontWeight": "700"
+            }
+          ],
+          "headline-md": [
+            "20px",
+            {
+              "lineHeight": "1.4",
+              "fontWeight": "600"
+            }
+          ],
+          "label-md": [
+            "14px",
+            {
+              "lineHeight": "1",
+              "letterSpacing": "0.01em",
+              "fontWeight": "500"
+            }
+          ],
+          "display-lg": [
+            "48px",
+            {
+              "lineHeight": "1.2",
+              "letterSpacing": "-0.02em",
+              "fontWeight": "700"
+            }
+          ],
+          "headline-lg": [
+            "30px",
+            {
+              "lineHeight": "1.3",
+              "fontWeight": "600"
+            }
+          ],
+          "headline-lg-mobile": [
+            "24px",
+            {
+              "lineHeight": "1.3",
+              "fontWeight": "600"
+            }
+          ],
+          "body-sm": [
+            "14px",
+            {
+              "lineHeight": "1.5",
+              "fontWeight": "400"
+            }
+          ]
+        }
+      }
+    }
+  }</script></head><body class="bg-background font-body-md text-on-surface"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-container-lowest z-50 flex flex-col shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="p-6 pb-4 flex items-center justify-between"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center text-on-primary font-headline-lg text-headline-lg font-bold">B</div><div><div class="font-headline-md text-headline-md font-bold tracking-tight text-primary leading-none">Basera</div><span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Enterprise PMS</span></div></div><span class="material-symbols-outlined text-primary text-[20px]">verified</span></div><div class="px-6 py-3"><div class="p-2 rounded-xl bg-surface-container-low flex flex-col gap-1"><div class="flex items-center justify-between px-2 pt-1"><span class="font-label-sm text-label-sm text-on-surface-variant uppercase font-semibold">Active Role</span><span class="font-label-sm text-label-sm text-primary font-medium cursor-pointer">Switch</span></div><div class="flex items-center justify-between px-2 py-1.5 rounded-lg bg-surface-container-lowest shadow-[0_1px_4px_rgba(0,0,0,0.03)]"><div class="flex items-center gap-2 overflow-hidden"><span class="material-symbols-outlined text-[18px] text-primary">corporate_fare</span><span class="font-label-md text-label-md text-on-surface truncate font-semibold">Hostel Group Owner</span></div><span class="material-symbols-outlined text-[18px] text-on-surface-variant">unfold_more</span></div></div></div><nav class="flex-1 px-4 py-2 space-y-1 overflow-y-auto" data-active-classes="bg-primary-container text-on-primary font-semibold rounded-lg shadow-[0_1px_4px_rgba(0,0,0,0.04)]"><div class="px-3 pb-2 pt-1 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-semibold">Core Operations</div><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-all" data-path="overview" href="#"><span class="material-symbols-outlined text-[20px]">dashboard</span><span>Overview</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-all" data-path="properties-and-branches" href="#"><span class="material-symbols-outlined text-[20px]">domain</span><span>Properties &amp; Branches</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-all" data-path="bookings" href="#"><span class="material-symbols-outlined text-[20px]">hotel</span><span>Bookings</span></a><div class="px-3 pb-2 pt-4 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-semibold">Financial Architecture</div><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-all" data-path="finance-and-pnl" href="#"><span class="material-symbols-outlined text-[20px]">account_balance</span><span>Finance &amp; P&amp;L</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-all" data-path="ledger-and-escrow" href="#"><span class="material-symbols-outlined text-[20px]">receipt_long</span><span>Ledger &amp; Escrow</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-all" data-path="operating-expenses" href="#"><span class="material-symbols-outlined text-[20px]">payments</span><span>Operating Expenses</span></a><a class="flex items-center justify-between px-3 py-2.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-all" data-path="disputes" href="#"><div class="flex items-center gap-3"><span class="material-symbols-outlined text-[20px]">gavel</span><span>Disputes</span></div><span class="px-1.5 py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-semibold">2</span></a><div class="px-3 pb-2 pt-4 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-semibold">Intelligence &amp; Admin</div><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-all" data-path="analytics" href="#"><span class="material-symbols-outlined text-[20px]">insights</span><span>Analytics</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-all" data-path="system-settings" href="#"><span class="material-symbols-outlined text-[20px]">settings</span><span>System Settings</span></a></nav><div class="p-4 mt-auto bg-surface-container-low"><div class="flex items-center gap-3 p-2"><div class="w-9 h-9 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[20px]">shield_person</span></div><div class="flex-1 min-w-0"><div class="font-label-md text-label-md font-semibold text-on-surface truncate">Zubair Tariq</div><div class="font-label-sm text-label-sm text-on-surface-variant truncate">Royal Living Group</div></div><span class="material-symbols-outlined text-on-surface-variant text-[18px] cursor-pointer hover:text-on-surface">logout</span></div></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-16 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-8"><div class="flex items-center gap-4"><div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-lowest shadow-[0_1px_4px_rgba(0,0,0,0.03)] cursor-pointer"><span class="material-symbols-outlined text-primary text-[18px]">store</span><span class="font-label-md text-label-md text-on-surface font-semibold">All Branches - Royal Group of Hostels</span><span class="material-symbols-outlined text-on-surface-variant text-[18px]">expand_more</span></div><div class="flex items-center bg-surface-container-low rounded-lg p-0.5"><button class="px-2.5 py-1 rounded bg-surface-container-lowest shadow-[0_1px_2px_rgba(0,0,0,0.04)] font-label-sm text-label-sm font-semibold text-primary">PKR</button><button class="px-2.5 py-1 rounded font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface">USD</button></div></div><div class="flex items-center gap-3"><div class="flex items-center bg-surface-container-lowest px-3 py-1.5 rounded-lg shadow-[0_1px_4px_rgba(0,0,0,0.03)] gap-2"><span class="material-symbols-outlined text-on-surface-variant text-[18px]">search</span><span class="font-body-sm text-body-sm text-on-surface-variant">Search transactions, beds, residents...</span><span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant">⌘K</span></div><div class="relative p-2 rounded-lg bg-surface-container-lowest shadow-[0_1px_4px_rgba(0,0,0,0.03)] cursor-pointer text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-error"></span></div><div class="p-2 rounded-lg bg-surface-container-lowest shadow-[0_1px_4px_rgba(0,0,0,0.03)] cursor-pointer text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"><span class="material-symbols-outlined text-[20px]">help</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0 cursor-pointer shadow-[0_1px_4px_rgba(0,0,0,0.04)]"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><main class="w-full pt-16 bg-surface min-h-screen px-8 py-6"><div class="flex flex-col w-full">
+<!-- Command Header & Action Bar -->
+<header class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 pb-8">
+<div class="space-y-1">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-primary font-semibold">Executive Portfolio Control</span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">NTN: 8294104-7</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface font-bold tracking-tight">Financial Management &amp; P&amp;L</h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">
+        Consolidated earnings, operating expenses, tax calculations, and escrow reconciliation across all 5 Islamabad branches.
+      </p>
+</div>
+<div class="flex flex-wrap items-center gap-3">
+<!-- Date Picker Trigger -->
+<div class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-surface-container-lowest shadow-sm text-on-surface">
+<span class="material-symbols-outlined text-primary text-[20px]">calendar_month</span>
+<span class="font-label-md text-label-md font-semibold">Current Month: Oct 2026</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">expand_more</span>
+</div>
+<!-- PDF Download Button -->
+<button class="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-container text-on-surface font-label-md text-label-md font-semibold hover:bg-surface-container-high transition-all shadow-sm">
+<span class="material-symbols-outlined text-[18px] text-primary">download</span>
+<span>Export P&amp;L Statement</span>
+</button>
+<!-- Log Expense Primary Action -->
+<button class="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-on-primary font-label-md text-label-md font-semibold hover:bg-primary-container transition-all shadow-md">
+<span class="material-symbols-outlined text-[18px]">add_card</span>
+<span>Log New Expense</span>
+</button>
+</div>
+</header>
+<!-- Metric KPI Cards Row -->
+<section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 pb-8">
+<!-- Card 1: Gross Invoiced -->
+<div class="p-5 rounded-2xl bg-surface-container-lowest shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-shadow">
+<div class="flex items-start justify-between">
+<div class="space-y-1">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-semibold">Gross Rent Invoiced</span>
+<div class="font-headline-lg text-headline-lg font-bold text-on-surface">PKR 4,850,000</div>
+</div>
+<div class="w-10 h-10 rounded-xl bg-primary-fixed flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[22px]">payments</span>
+</div>
+</div>
+<div class="mt-4 pt-3 bg-surface-container-low/50 -mx-5 -mb-5 px-5 py-3.5 space-y-2">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-on-surface-variant font-medium">94% Realized (PKR 4.56M)</span>
+<span class="text-tertiary font-bold flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[16px]">trending_up</span> +12% MoM
+          </span>
+</div>
+<div class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 94%"></div>
+</div>
+</div>
+</div>
+<!-- Card 2: Escrow In-Transit -->
+<div class="p-5 rounded-2xl bg-surface-container-lowest shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-shadow">
+<div class="flex items-start justify-between">
+<div class="space-y-1">
+<div class="flex items-center gap-1.5">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-semibold">Escrow In-Transit</span>
+<span class="material-symbols-outlined text-secondary text-[16px]" title="Protected in trustee holding until 48-hour post-checkin window elapses.">verified_user</span>
+</div>
+<div class="font-headline-lg text-headline-lg font-bold text-secondary">PKR 620,000</div>
+</div>
+<div class="w-10 h-10 rounded-xl bg-secondary-container flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[22px]">lock_clock</span>
+</div>
+</div>
+<div class="mt-4 pt-3 bg-surface-container-low/50 -mx-5 -mb-5 px-5 py-3.5 flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">16 move-ins in 48h release lock</span>
+<span class="font-label-sm text-label-sm text-secondary font-semibold">T+2 Release</span>
+</div>
+</div>
+<!-- Card 3: Operating Expenses -->
+<div class="p-5 rounded-2xl bg-surface-container-lowest shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-shadow">
+<div class="flex items-start justify-between">
+<div class="space-y-1">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-semibold">Total OPEX (MTD)</span>
+<div class="font-headline-lg text-headline-lg font-bold text-on-surface">PKR 1,680,000</div>
+</div>
+<div class="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center text-on-surface">
+<span class="material-symbols-outlined text-[22px]">receipt_long</span>
+</div>
+</div>
+<div class="mt-4 pt-3 bg-surface-container-low/50 -mx-5 -mb-5 px-5 py-3.5 flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Utilities, Fuel, Salaries &amp; Mess</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-semibold">34.6% of Rev</span>
+</div>
+</div>
+<!-- Card 4: Net Profit & FBR Projection -->
+<div class="p-5 rounded-2xl bg-primary text-on-primary shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-shadow">
+<div class="flex items-start justify-between">
+<div class="space-y-1">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-primary-fixed font-semibold">Net Profit / EBITDA</span>
+<div class="font-headline-lg text-headline-lg font-bold text-on-primary">PKR 2,830,500</div>
+</div>
+<div class="px-2.5 py-1 rounded-full bg-primary-container text-on-primary-container font-label-sm text-label-sm font-bold">
+          58.3% Margin
+        </div>
+</div>
+<div class="mt-4 pt-3 bg-primary-container/40 -mx-5 -mb-5 px-5 py-3.5 flex items-center justify-between text-primary-fixed">
+<div class="flex items-center gap-1.5 font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px]">account_balance</span>
+<span>FBR WHT Provision</span>
+</div>
+<span class="font-label-sm text-label-sm font-semibold text-on-primary">PKR 339,500</span>
+</div>
+</div>
+</section>
+<!-- Middle Section: 2-Column Split -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-8 pb-8">
+<!-- Left Column: Operating Expenses Distribution & Utility Splitter (7 Cols) -->
+<div class="lg:col-span-7 flex flex-col gap-6">
+<div class="p-6 rounded-2xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between pb-5">
+<div>
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface">Operating Expenses Allocation</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Breakdown of October monthly overheads across all properties</p>
+</div>
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container text-primary font-label-sm text-label-sm font-semibold hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[16px]">tune</span>
+<span>Filter Branch</span>
+</button>
+</div>
+<!-- Stacked Visual Bar -->
+<div class="space-y-2 pb-6">
+<div class="w-full h-3 rounded-full bg-surface-container flex overflow-hidden">
+<div class="h-full bg-primary" style="width: 38.1%" title="Mess &amp; Food: PKR 640k"></div>
+<div class="h-full bg-secondary" style="width: 28.5%" title="Electricity &amp; Generator: PKR 480k"></div>
+<div class="h-full bg-surface-tint" style="width: 22.6%" title="Staff Salaries: PKR 380k"></div>
+<div class="h-full bg-surface-variant" style="width: 7.1%" title="Maintenance: PKR 120k"></div>
+<div class="h-full bg-outline" style="width: 3.7%" title="Platform Fee: PKR 59.5k"></div>
+</div>
+<div class="flex flex-wrap items-center gap-4 text-on-surface-variant font-label-sm text-label-sm pt-1">
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+<span>Mess &amp; Food (38%)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+<span>Electricity &amp; Fuel (28%)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-surface-tint"></span>
+<span>Salaries (23%)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-surface-variant"></span>
+<span>Maintenance (7%)</span>
+</div>
+</div>
+</div>
+<!-- Expense Items List -->
+<div class="space-y-3">
+<!-- Item 1 -->
+<div class="p-3.5 rounded-xl bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-3.5">
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm">
+<span class="material-symbols-outlined text-[20px]">restaurant</span>
+</div>
+<div>
+<div class="font-label-md text-label-md font-bold text-on-surface">Mess &amp; Kitchen Food Supply</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Daily breakfast/dinner procurement, dairy contract &amp; poultry</div>
+</div>
+</div>
+<div class="text-right">
+<div class="font-label-md text-label-md font-bold text-on-surface">PKR 640,000</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">38.1% of OPEX</div>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="p-3.5 rounded-xl bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-3.5">
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest flex items-center justify-center text-secondary shadow-sm">
+<span class="material-symbols-outlined text-[20px]">oil_barrel</span>
+</div>
+<div>
+<div class="font-label-md text-label-md font-bold text-on-surface">Electricity &amp; Generator Backup</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">IESCO Commercial meters + 1,450L Euro-II diesel for loadshedding</div>
+</div>
+</div>
+<div class="text-right">
+<div class="font-label-md text-label-md font-bold text-on-surface">PKR 480,000</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">28.5% of OPEX</div>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="p-3.5 rounded-xl bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-3.5">
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest flex items-center justify-center text-surface-tint shadow-sm">
+<span class="material-symbols-outlined text-[20px]">badge</span>
+</div>
+<div>
+<div class="font-label-md text-label-md font-bold text-on-surface">Hostel Staff &amp; Security Guards</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">3 On-site Wardens, 4 Armed Guards, 2 Sweepers &amp; 1 Cook</div>
+</div>
+</div>
+<div class="text-right">
+<div class="font-label-md text-label-md font-bold text-on-surface">PKR 380,000</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">22.6% of OPEX</div>
+</div>
+</div>
+<!-- Item 4 -->
+<div class="p-3.5 rounded-xl bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-3.5">
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest flex items-center justify-center text-on-surface shadow-sm">
+<span class="material-symbols-outlined text-[20px]">home_repair_service</span>
+</div>
+<div>
+<div class="font-label-md text-label-md font-bold text-on-surface">Maintenance, AC &amp; Fiber Internet</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Geyser maintenance, 100Mbps Nayatel leases &amp; plumbing overhaul</div>
+</div>
+</div>
+<div class="text-right">
+<div class="font-label-md text-label-md font-bold text-on-surface">PKR 120,000</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">7.1% of OPEX</div>
+</div>
+</div>
+<!-- Item 5 -->
+<div class="p-3.5 rounded-xl bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-3.5">
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest flex items-center justify-center text-outline shadow-sm">
+<span class="material-symbols-outlined text-[20px]">hub</span>
+</div>
+<div>
+<div class="font-label-md text-label-md font-bold text-on-surface">Platform Escrow Fee (7%)</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Basera PMS core booking processing, verification &amp; guarantee</div>
+</div>
+</div>
+<div class="text-right">
+<div class="font-label-md text-label-md font-bold text-on-surface">PKR 339,500</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Pre-deducted</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Callout Banner: Utility Splitter -->
+<div class="mt-6 p-4 rounded-xl bg-surface-container-low flex flex-col sm:flex-row items-center justify-between gap-4">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-primary-fixed flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-[20px]">calculate</span>
+</div>
+<div>
+<div class="font-label-md text-label-md font-bold text-on-surface">Sub-metered Tenant Utility Splitter</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">142 tenants on custom AC kilowatt hours billings</div>
+</div>
+</div>
+<button class="px-4 py-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md font-semibold hover:bg-primary-container transition-colors whitespace-nowrap">
+            Open Utility Splitter
+          </button>
+</div>
+</div>
+</div>
+<!-- Right Column: Escrow Payout Waterfall & Move-in Releases (5 Cols) -->
+<div class="lg:col-span-5 flex flex-col gap-6">
+<div class="p-6 rounded-2xl bg-surface-container-lowest shadow-sm h-full flex flex-col">
+<div class="flex items-center justify-between pb-5">
+<div>
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface">Escrow Payout Waterfall</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Move-in safety holds &amp; scheduled branch payouts</p>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-bold">
+            Live Stream
+          </span>
+</div>
+<!-- Release Cards Feed -->
+<div class="space-y-3.5 flex-1">
+<!-- Release 1 -->
+<div class="p-4 rounded-xl bg-surface-container-low flex flex-col gap-3">
+<div class="flex items-start justify-between">
+<div>
+<div class="font-label-md text-label-md font-bold text-on-surface">Ahmed Khan (Room 204)</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Royal Executive F-8 • 3-Bed Attached</div>
+</div>
+<span class="font-label-md text-label-md font-bold text-primary">PKR 35,000</span>
+</div>
+<div class="flex items-center justify-between pt-1">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[15px]">timer</span> Releasing in 14h
+              </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Verified by Warden</span>
+</div>
+</div>
+<!-- Release 2 -->
+<div class="p-4 rounded-xl bg-surface-container-low flex flex-col gap-3">
+<div class="flex items-start justify-between">
+<div>
+<div class="font-label-md text-label-md font-bold text-on-surface">Ayesha Bibi (Room 102)</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Royal Girls F-10 • 2-Bed En-suite</div>
+</div>
+<span class="font-label-md text-label-md font-bold text-secondary">PKR 45,000</span>
+</div>
+<div class="flex items-center justify-between pt-1">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[15px]">lock_reset</span> 48h Hold Window Active
+              </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Checked-in 10h ago</span>
+</div>
+</div>
+<!-- Release 3 -->
+<div class="p-4 rounded-xl bg-surface-container-low flex flex-col gap-3">
+<div class="flex items-start justify-between">
+<div>
+<div class="font-label-md text-label-md font-bold text-on-surface">Bilal Shah (Room 305)</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Royal Campus View H-11 • Single Deluxe</div>
+</div>
+<span class="font-label-md text-label-md font-bold text-on-surface">PKR 28,000</span>
+</div>
+<div class="flex items-center justify-between pt-1">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-highest text-on-surface-variant font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[15px] text-tertiary">check_circle</span> Disbursed to HBL ****8812
+              </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Today 09:15 AM</span>
+</div>
+</div>
+<!-- Release 4: Dispute -->
+<div class="p-4 rounded-xl bg-error-container/40 flex flex-col gap-3">
+<div class="flex items-start justify-between">
+<div>
+<div class="font-label-md text-label-md font-bold text-on-error-container">Room 108 Inspection Hold</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Royal Executive F-8 • Security Deposit Hold</div>
+</div>
+<span class="font-label-md text-label-md font-bold text-on-error-container">PKR 30,000</span>
+</div>
+<div class="flex items-center justify-between pt-1">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-error text-on-error font-label-sm text-label-sm font-semibold">
+                Dispute Under Review
+              </span>
+<button class="px-2.5 py-1 rounded bg-surface-container-lowest text-error font-label-sm text-label-sm font-bold shadow-sm hover:bg-error-container transition-colors">
+                Resolve Case
+              </button>
+</div>
+</div>
+</div>
+<div class="mt-4 pt-4 bg-surface-container-low/50 -mx-6 -mb-6 px-6 py-4 flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span>Auto-batch run daily at 02:00 PKT</span>
+<a class="text-primary font-semibold hover:underline" href="#">View Trustee Ledger</a>
+</div>
+</div>
+</div>
+</section>
+<!-- Bottom Section: Monthly Trend & FBR Tax Helper -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-8 pb-8">
+<!-- Monthly Cash Flow Trend (7 Cols) -->
+<div class="lg:col-span-7 p-6 rounded-2xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between pb-6">
+<div>
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface">Revenue vs Operating Cost Trajectory</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Six-month cash collections vs branch operating run-rates</p>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-1.5 font-label-sm text-label-sm">
+<span class="w-3 h-3 rounded bg-primary"></span>
+<span class="text-on-surface-variant">Revenue</span>
+</div>
+<div class="flex items-center gap-1.5 font-label-sm text-label-sm">
+<span class="w-3 h-3 rounded bg-secondary-container"></span>
+<span class="text-on-surface-variant">OPEX</span>
+</div>
+</div>
+</div>
+<!-- High-fidelity Inline Bar & Spark Chart -->
+<div class="w-full h-56 flex items-end justify-between gap-3 pt-6 pb-2 px-2">
+<!-- May -->
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+<div class="font-label-sm text-label-sm text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">3.8M</div>
+<div class="w-full flex items-end justify-center gap-1 h-44">
+<div class="w-1/2 bg-primary rounded-t" style="height: 65%" title="Gross: PKR 3,800,000"></div>
+<div class="w-1/2 bg-secondary-container rounded-t" style="height: 38%" title="Opex: PKR 1,420,000"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">May</span>
+</div>
+<!-- Jun -->
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+<div class="font-label-sm text-label-sm text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">4.1M</div>
+<div class="w-full flex items-end justify-center gap-1 h-44">
+<div class="w-1/2 bg-primary rounded-t" style="height: 72%" title="Gross: PKR 4,100,000"></div>
+<div class="w-1/2 bg-secondary-container rounded-t" style="height: 42%" title="Opex: PKR 1,510,000"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Jun</span>
+</div>
+<!-- Jul -->
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+<div class="font-label-sm text-label-sm text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">4.25M</div>
+<div class="w-full flex items-end justify-center gap-1 h-44">
+<div class="w-1/2 bg-primary rounded-t" style="height: 75%" title="Gross: PKR 4,250,000"></div>
+<div class="w-1/2 bg-secondary-container rounded-t" style="height: 44%" title="Opex: PKR 1,590,000"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Jul</span>
+</div>
+<!-- Aug -->
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+<div class="font-label-sm text-label-sm text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">4.4M</div>
+<div class="w-full flex items-end justify-center gap-1 h-44">
+<div class="w-1/2 bg-primary rounded-t" style="height: 80%" title="Gross: PKR 4,400,000"></div>
+<div class="w-1/2 bg-secondary-container rounded-t" style="height: 45%" title="Opex: PKR 1,620,000"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Aug</span>
+</div>
+<!-- Sep -->
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+<div class="font-label-sm text-label-sm text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">4.6M</div>
+<div class="w-full flex items-end justify-center gap-1 h-44">
+<div class="w-1/2 bg-primary rounded-t" style="height: 88%" title="Gross: PKR 4,600,000"></div>
+<div class="w-1/2 bg-secondary-container rounded-t" style="height: 46%" title="Opex: PKR 1,650,000"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Sep</span>
+</div>
+<!-- Oct (Current) -->
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group relative">
+<span class="absolute -top-3 font-label-sm text-label-sm bg-primary text-on-primary px-1.5 py-0.5 rounded font-bold">Oct</span>
+<div class="w-full flex items-end justify-center gap-1 h-44">
+<div class="w-1/2 bg-primary rounded-t" style="height: 98%" title="Gross: PKR 4,850,000"></div>
+<div class="w-1/2 bg-secondary rounded-t" style="height: 48%" title="Opex: PKR 1,680,000"></div>
+</div>
+<span class="font-label-sm text-label-sm text-primary font-bold">Oct '26</span>
+</div>
+</div>
+<div class="mt-4 pt-3 bg-surface-container-low/50 -mx-6 -mb-6 px-6 py-3 flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-tertiary">check_circle</span> Average Net Operating Margin: 57.8%
+        </span>
+<span class="font-semibold text-primary">Target: 60.0%</span>
+</div>
+</div>
+<!-- FBR Tax & Withholding Engine (5 Cols) -->
+<div class="lg:col-span-5 p-6 rounded-2xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between pb-4">
+<div class="flex items-center gap-2">
+<div class="w-9 h-9 rounded-xl bg-primary-fixed flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">assured_workload</span>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface">FBR Tax Compliance</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">IRIS Ready • Direct NTN Filing Export</p>
+</div>
+</div>
+<span class="px-2.5 py-1 rounded bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm font-bold">Active Filer</span>
+</div>
+<!-- Tax Breakdown Breakdown -->
+<div class="space-y-3 pt-2">
+<div class="p-3 rounded-xl bg-surface-container-low flex items-center justify-between">
+<div>
+<div class="font-label-md text-label-md font-semibold text-on-surface">Withholding Tax (Sec 155 Rent)</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Calculated at statutory slab for gross rentals</div>
+</div>
+<span class="font-label-md text-label-md font-bold text-on-surface">PKR 242,500</span>
+</div>
+<div class="p-3 rounded-xl bg-surface-container-low flex items-center justify-between">
+<div>
+<div class="font-label-md text-label-md font-semibold text-on-surface">PRA / ICT Sales Tax on Services</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Hostel accommodation &amp; mess services (5%)</div>
+</div>
+<span class="font-label-md text-label-md font-bold text-on-surface">PKR 97,000</span>
+</div>
+<div class="p-3 rounded-xl bg-surface-container-low flex items-center justify-between">
+<div>
+<div class="font-label-md text-label-md font-semibold text-on-surface">Adjustable Vendor Withholdings</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Pre-deducted from generator fuel &amp; supplies</div>
+</div>
+<span class="font-label-md text-label-md font-bold text-tertiary">- PKR 42,800</span>
+</div>
+</div>
+</div>
+<div class="mt-6 pt-4 bg-surface-container-low -mx-6 -mb-6 px-6 py-4 flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Consolidated Tax Certificate Package</span>
+<span class="font-label-sm text-label-sm text-primary font-bold">Oct 2026 Archive</span>
+</div>
+<button class="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-primary text-on-primary font-label-md text-label-md font-semibold hover:bg-primary-container transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[18px]">file_save</span>
+<span>Download 1-Click Accountant Pack (ZIP + Excel)</span>
+</button>
+</div>
+</div>
+</section>
+</div></main></div></body></html>

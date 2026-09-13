@@ -28,8 +28,8 @@ export function StudentSaved() {
       </Helmet>
 
       <div className="mb-7">
-        <h2 className="text-3xl font-extrabold tracking-tight">Saved Hostels</h2>
-        <p className="mt-2 text-neutral-700">Shortlist places you might want to book later.</p>
+        <h2 className="font-display text-3xl font-extrabold tracking-tight text-on-surface">Saved Hostels</h2>
+        <p className="mt-2 text-on-surface-variant">Review and manage your shortlisted accommodations.</p>
       </div>
 
       {savedHostels.length ? (
@@ -39,10 +39,10 @@ export function StudentSaved() {
           ))}
         </div>
       ) : (
-        <div className="panel grid place-items-center p-12 text-center">
+        <div className="grid place-items-center rounded-lg border border-outline-variant bg-surface-container-lowest p-12 text-center shadow-sm">
           <div>
-            <h3 className="text-xl font-bold">No saved hostels yet</h3>
-            <p className="mt-2 text-neutral-700">Browse listings and tap the heart icon to save hostels.</p>
+            <h3 className="font-display text-xl font-bold text-on-surface">No Saved Hostels Yet</h3>
+            <p className="mt-2 max-w-md text-on-surface-variant">You haven't shortlisted any accommodations. Explore available options and save your favorites here.</p>
           </div>
         </div>
       )}

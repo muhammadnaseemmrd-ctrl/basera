@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Basera - My Bookings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;family=Roboto+Flex:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#e5e2e1",
+                        "on-secondary-fixed-variant": "#414560",
+                        "tertiary-fixed-dim": "#90d3cb",
+                        "on-background": "#1b1c1c",
+                        "secondary-fixed": "#dee0ff",
+                        "on-tertiary-container": "#a9ece4",
+                        "on-primary-fixed-variant": "#004f56",
+                        "on-surface": "#1b1c1c",
+                        "on-tertiary-fixed-variant": "#00504b",
+                        "on-surface-variant": "#3e494a",
+                        "secondary": "#595d78",
+                        "surface-dim": "#dcd9d9",
+                        "inverse-surface": "#303030",
+                        "surface-container-high": "#eae7e7",
+                        "primary-container": "#006d77",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#c1c4e5",
+                        "error": "#ba1a1a",
+                        "on-secondary-container": "#5d617d",
+                        "outline": "#6f797a",
+                        "on-tertiary-fixed": "#00201e",
+                        "inverse-primary": "#82d3de",
+                        "surface-tint": "#006972",
+                        "on-primary-fixed": "#001f23",
+                        "primary": "#00535b",
+                        "surface-container-highest": "#e5e2e1",
+                        "on-secondary": "#ffffff",
+                        "surface": "#fcf9f8",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed": "#9ff0fb",
+                        "outline-variant": "#bec8ca",
+                        "tertiary-container": "#286d67",
+                        "tertiary": "#01544f",
+                        "on-primary": "#ffffff",
+                        "secondary-container": "#dbdeff",
+                        "primary-fixed-dim": "#82d3de",
+                        "surface-container": "#f0eded",
+                        "surface-bright": "#fcf9f8",
+                        "on-error": "#ffffff",
+                        "on-primary-container": "#9becf7",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed": "#acefe7",
+                        "inverse-on-surface": "#f3f0ef",
+                        "background": "#fcf9f8",
+                        "surface-container-low": "#f6f3f2",
+                        "on-secondary-fixed": "#161a32"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "stack-lg": "32px",
+                        "stack-sm": "8px",
+                        "margin-desktop": "32px",
+                        "container-max": "1280px",
+                        "unit": "4px",
+                        "gutter": "24px",
+                        "stack-md": "16px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Roboto Flex"],
+                        "body-sm": ["Roboto Flex"],
+                        "label-md": ["Roboto Flex"],
+                        "body-md": ["Roboto Flex"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "display-lg-mobile": ["Plus Jakarta Sans"],
+                        "label-sm": ["Roboto Flex"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "body-sm": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "1", "letterSpacing": "0.01em", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "headline-lg": ["30px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "headline-md": ["20px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "display-lg-mobile": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-sm": ["12px", { "lineHeight": "1", "letterSpacing": "0.03em", "fontWeight": "600" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col md:flex-row font-body-md bg-background">
+<!-- Mobile Top App Bar (Hidden on md+) -->
+<header class="md:hidden w-full top-0 sticky bg-surface border-b border-outline-variant z-40">
+<div class="flex items-center justify-between px-margin-mobile py-4 max-w-container-max mx-auto">
+<button class="text-on-surface-variant cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined text-[24px]">menu</span>
+</button>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary font-bold">HostelConnect</h1>
+<button class="text-primary font-label-md cursor-pointer active:opacity-80">اردو / EN</button>
+</div>
+</header>
+<!-- Desktop Side Navigation (Hidden on mobile) -->
+<nav class="hidden md:flex flex-col py-6 gap-stack-sm h-screen sticky top-0 w-80 rounded-r-xl border-r border-outline-variant shadow-md bg-surface-container-lowest z-30">
+<div class="px-gutter mb-stack-lg">
+<h1 class="font-headline-md text-primary font-bold">HostelConnect</h1>
+</div>
+<!-- Profile Header -->
+<div class="px-gutter flex items-center gap-stack-md mb-stack-lg">
+<img class="w-12 h-12 rounded-full object-cover border border-outline-variant" data-alt="A professional headshot of a student named Ahmed Khan. He is young, well-groomed, and smiling slightly, wearing casual but neat attire suitable for a university ID photo. The background is a plain, light neutral color to ensure the face stands out clearly. The lighting is soft and even, highlighting his features without harsh shadows, projecting a reliable and verified identity within a secure student housing platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWlllvf7i7llHEr9Sj_RjpsqYfmo91MyWOFsgRNvCJfXv71YJKnat5VLMQLuxbOIQk-NI3ZZy9tvzNlC8YQvGfhnvffaxRazy13uutcq6iI6FHgJXW6wtIgIJ73K3FBd5yCHWRPF-Zb3nsZh9QgIwynyO44XyexFInOb0nLwzi6UWwaxRQFOCU9ONnlMguN546iekJ0ztH6Lso_JI7DqzRAp7-a0pyfsrqU1jSwRIFQgkfsGGg0cYIbQ"/>
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md text-on-surface">Ahmed Khan</span>
+<div class="flex items-center gap-unit text-primary">
+<span class="material-symbols-outlined text-[16px] filled">verified</span>
+<span class="font-label-sm text-label-sm">Verified Student</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">NUST University</span>
+</div>
+</div>
+<ul class="flex-1 flex flex-col gap-unit">
+<li>
+<a class="flex items-center gap-stack-md px-gutter py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors cursor-pointer" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-stack-md px-gutter py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors cursor-pointer" href="#">
+<span class="material-symbols-outlined">favorite</span>
+<span class="font-label-md text-label-md">Saved Hostels</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-stack-md px-gutter py-3 bg-secondary-container text-on-secondary-container font-bold rounded-full mx-2 cursor-pointer" href="#">
+<span class="material-symbols-outlined filled">history</span>
+<span class="font-label-md text-label-md">Booking History</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-stack-md px-gutter py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors cursor-pointer" href="#">
+<span class="material-symbols-outlined">verified_user</span>
+<span class="font-label-md text-label-md">Identity Verification</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-stack-md px-gutter py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors cursor-pointer" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-label-md text-label-md">Payments</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-stack-md px-gutter py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors cursor-pointer" href="#">
+<span class="material-symbols-outlined">contact_support</span>
+<span class="font-label-md text-label-md">Support</span>
+</a>
+</li>
+</ul>
+<div class="px-gutter mt-auto pt-stack-md border-t border-outline-variant">
+<a class="flex items-center gap-stack-md py-3 text-on-surface-variant hover:text-error transition-colors cursor-pointer" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-md text-label-md">Sign Out</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 w-full max-w-container-max mx-auto pb-24 md:pb-stack-lg p-margin-mobile md:p-margin-desktop">
+<header class="mb-stack-lg">
+<h2 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-background mb-stack-sm">My Bookings</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Manage your hostel reservations, payments, and stay details.</p>
+</header>
+<!-- Filter Tabs -->
+<div class="flex overflow-x-auto no-scrollbar gap-stack-sm mb-stack-lg pb-unit border-b border-outline-variant">
+<button class="font-label-md text-label-md px-4 py-2 border-b-2 border-primary text-primary whitespace-nowrap">All</button>
+<button class="font-label-md text-label-md px-4 py-2 border-b-2 border-transparent text-on-surface-variant hover:text-primary transition-colors whitespace-nowrap">Active</button>
+<button class="font-label-md text-label-md px-4 py-2 border-b-2 border-transparent text-on-surface-variant hover:text-primary transition-colors whitespace-nowrap">Upcoming</button>
+<button class="font-label-md text-label-md px-4 py-2 border-b-2 border-transparent text-on-surface-variant hover:text-primary transition-colors whitespace-nowrap">Completed</button>
+<button class="font-label-md text-label-md px-4 py-2 border-b-2 border-transparent text-on-surface-variant hover:text-primary transition-colors whitespace-nowrap">Cancelled</button>
+</div>
+<!-- Bookings List -->
+<div class="flex flex-col gap-stack-md">
+<!-- Active Booking Card -->
+<article class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden flex flex-col md:flex-row hover:shadow-md transition-shadow">
+<div class="md:w-64 h-48 md:h-auto relative">
+<img class="w-full h-full object-cover" data-alt="A crisp, high-resolution interior shot of a modern student hostel room. The room features a clean, white desk setup, a neatly made bed with minimalist grey linens, and ample natural light streaming through a large window. The aesthetic is highly organized, professional, and secure, conveying the premium standards of a high-end student accommodation managed by a reputable SaaS platform. Deep teal accents subtly integrate with the brand palette." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXO8c7-D7ZykXhr-hwcd3HIFUYxUAwIyYkVNvkWs4foM4_Y1UyJvBu2yulJnkLTs8USQjHRQt4OKj0sIRLw4AvIFiuamjwsbXgM9P81u9Y1Yk0Sc8kAaMKo55wk5IWwZ7Pgh7zCjQcy7g8Xc_mc6huwJ63KwNUSH4jPI6EuMlKSVrBb89SXpISilqkIyveUSnB-PIK4V12l6U8nNDrQH-hZsiyN1ArKUBFRObpg--qkT_8kbG4shLvaw"/>
+<div class="absolute top-4 left-4 bg-primary-container text-on-primary-container px-3 py-1 rounded-full flex items-center gap-unit shadow-sm">
+<span class="material-symbols-outlined text-[16px] filled">check_circle</span>
+<span class="font-label-sm text-label-sm uppercase">Active Stay</span>
+</div>
+</div>
+<div class="p-stack-md flex-1 flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start mb-unit">
+<h3 class="font-headline-md text-headline-md text-on-background">Greenview Executive Boys Hostel</h3>
+<span class="font-headline-md text-headline-md text-primary">Rs. 25,000<span class="font-body-sm text-body-sm text-on-surface-variant font-normal">/mo</span></span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-sm flex items-center gap-unit">
+<span class="material-symbols-outlined text-[16px]">room_preferences</span>
+                            Shared Double Room (Attached Bath)
+                        </p>
+<div class="bg-surface-container-low p-3 rounded-lg border border-outline-variant/50 inline-flex items-center gap-stack-md mb-stack-md">
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block uppercase tracking-wider mb-1">Check-in</span>
+<span class="font-body-md text-body-md text-on-surface">01 Sep 2023</span>
+</div>
+<div class="h-8 w-px bg-outline-variant"></div>
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block uppercase tracking-wider mb-1">Duration</span>
+<span class="font-body-md text-body-md text-on-surface">12 Months</span>
+</div>
+</div>
+</div>
+<div class="flex flex-wrap gap-stack-sm pt-stack-sm border-t border-outline-variant">
+<button class="bg-primary text-on-primary px-4 py-2 rounded font-label-md text-label-md hover:bg-tertiary transition-colors">Pay Rent</button>
+<button class="bg-transparent border border-outline text-on-surface px-4 py-2 rounded font-label-md text-label-md hover:bg-surface-container-low transition-colors">View Receipt</button>
+<button class="bg-transparent text-secondary px-4 py-2 rounded font-label-md text-label-md hover:bg-surface-container-low transition-colors ml-auto">Dispute Issue</button>
+</div>
+</div>
+</article>
+<!-- Upcoming Booking Card -->
+<article class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden flex flex-col md:flex-row hover:shadow-md transition-shadow">
+<div class="md:w-64 h-48 md:h-auto relative">
+<img class="w-full h-full object-cover" data-alt="A bright, welcoming exterior shot of a modern, well-maintained student hostel building under a clear blue sky. The architecture is clean and contemporary, utilizing neutral tones with subtle teal brand accents. The entrance is secure and clearly marked. The overall mood is optimistic and safe, representing an upcoming, highly anticipated student housing arrangement organized through a professional platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRiUtI-_7a3M9a4hPbglRM5m5iqWjR3aUtFCYsda0Je-6Zyw7ZAge7MML5Bp1Ky7Ydus9yal8vwSI4foRKG67v2_MYupEjh-k2FE3KmjJ7RE_VImrl2S4KiTyEt9uMhkqHPs8P1z6ljIISuHMUz6sDeetXut-ih4wciVEws1Ot1QUZwd4WJ3oIQV7fpFpvtZa4JSrARUMZ9A4tyDbOZS8ud8_Af6_H7wSzfZJByYIaTLkshNky_Gca_w"/>
+<div class="absolute top-4 left-4 bg-tertiary-container text-on-tertiary-container px-3 py-1 rounded-full flex items-center gap-unit shadow-sm">
+<span class="material-symbols-outlined text-[16px] filled">event</span>
+<span class="font-label-sm text-label-sm uppercase">Upcoming</span>
+</div>
+</div>
+<div class="p-stack-md flex-1 flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start mb-unit">
+<h3 class="font-headline-md text-headline-md text-on-background">Sunrise Girls Accommodation</h3>
+<span class="font-headline-md text-headline-md text-primary">Rs. 18,000<span class="font-body-sm text-body-sm text-on-surface-variant font-normal">/mo</span></span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-sm flex items-center gap-unit">
+<span class="material-symbols-outlined text-[16px]">bed</span>
+                            Single Room (Non-AC)
+                        </p>
+<div class="bg-surface-container-low p-3 rounded-lg border border-outline-variant/50 inline-flex items-center gap-stack-md mb-stack-md">
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block uppercase tracking-wider mb-1">Check-in</span>
+<span class="font-body-md text-body-md text-on-surface">15 Jan 2024</span>
+</div>
+<div class="h-8 w-px bg-outline-variant"></div>
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block uppercase tracking-wider mb-1">Duration</span>
+<span class="font-body-md text-body-md text-on-surface">6 Months</span>
+</div>
+</div>
+</div>
+<div class="flex flex-wrap gap-stack-sm pt-stack-sm border-t border-outline-variant">
+<button class="bg-transparent border border-outline text-on-surface px-4 py-2 rounded font-label-md text-label-md hover:bg-surface-container-low transition-colors">Manage Booking</button>
+</div>
+</div>
+</article>
+<!-- Completed Booking Card -->
+<article class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden flex flex-col md:flex-row opacity-80">
+<div class="md:w-64 h-48 md:h-auto relative">
+<img class="w-full h-full object-cover grayscale-[30%]" data-alt="A neatly organized, slightly desaturated image of a student study area within a hostel room, featuring a desk, a lamp, and some books. The image has a calm, resolved mood, conveying a successfully completed academic term and housing stay. The lighting is soft, and the environment looks clean and vacated, ready for the next occupant, reflecting the institutional stability of the managing SaaS platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6EgAXVpjsfXqMySuS0YL65N3w6d4moecLPITSn6-63g_rT_91CrOCrrZwM2SxM6Ox-hshxU0XDknK42aUME0RF2F9GKc1ocRlqioc6Yusj9A1tz9KoafU17_Wd0dD1AuPrFLCU4_ZYx6wn6EFN1Z5f12jQeLqiwGEXdifZBTVnFi5mohlbV9jDDEl_zQsURjfJaXaAvwa8lGFVOr-CePRuHGdXZ0D16kTP1Pv6oVKPcfD0VAlvs_ENA"/>
+<div class="absolute top-4 left-4 bg-surface-variant text-on-surface-variant px-3 py-1 rounded-full flex items-center gap-unit shadow-sm border border-outline-variant">
+<span class="material-symbols-outlined text-[16px] filled">task_alt</span>
+<span class="font-label-sm text-label-sm uppercase">Completed</span>
+</div>
+</div>
+<div class="p-stack-md flex-1 flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start mb-unit">
+<h3 class="font-headline-md text-headline-md text-on-background">Crescent Scholars Lodge</h3>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-sm flex items-center gap-unit">
+<span class="material-symbols-outlined text-[16px]">room_preferences</span>
+                            Shared Triple Room
+                        </p>
+<div class="bg-surface-container-low p-3 rounded-lg border border-outline-variant/50 inline-flex items-center gap-stack-md mb-stack-md">
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block uppercase tracking-wider mb-1">Period</span>
+<span class="font-body-md text-body-md text-on-surface">Sep 2022 - Aug 2023</span>
+</div>
+</div>
+</div>
+<div class="flex flex-wrap gap-stack-sm pt-stack-sm border-t border-outline-variant">
+<button class="bg-transparent border border-outline text-on-surface px-4 py-2 rounded font-label-md text-label-md hover:bg-surface-container-low transition-colors flex items-center gap-unit">
+<span class="material-symbols-outlined text-[18px]">star_rate</span>
+                            Leave Review
+                        </button>
+</div>
+</div>
+</article>
+</div>
+</main>
+<!-- Mobile Bottom Navigation Bar (Hidden on md+) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 bg-surface border-t border-outline-variant shadow-sm h-16">
+<div class="flex justify-around items-center h-full w-full max-w-md mx-auto">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary active:scale-95 transition-transform duration-150 p-2" href="#">
+<span class="material-symbols-outlined">search</span>
+<span class="font-label-sm text-label-sm mt-1">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined filled">receipt_long</span>
+<span class="font-label-sm text-label-sm mt-1">Bookings</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary active:scale-95 transition-transform duration-150 p-2" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-sm text-label-sm mt-1">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary active:scale-95 transition-transform duration-150 p-2" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-sm text-label-sm mt-1">Profile</span>
+</a>
+</div>
+</nav>
+</body></html>

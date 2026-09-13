@@ -3,9 +3,13 @@ import { useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import {
   ArrowLeft,
+  Banknote,
+  Bed,
   CalendarDays,
   CheckCircle2,
   ChevronDown,
+  ChevronRight,
+  Clock,
   Heart,
   MapPin,
   MessageSquare,
@@ -138,17 +142,31 @@ export function HostelDetailPage() {
         animate={motionSafe ? "show" : undefined}
         variants={motionSafe ? stagger() : undefined}
       >
-        <Link to="/hostels" className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-primary-800">
+        <Link to="/hostels" className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-primary-800">
           <ArrowLeft size={18} /> Back to listings
         </Link>
+
+        <div className="mb-6 hidden items-center gap-2 text-sm text-slate-600 md:flex">
+          <Link to="/hostels" className="hover:text-primary-800">Home</Link>
+          <ChevronRight size={14} />
+          <Link to={`/hostels?city=${hostel.city}`} className="hover:text-primary-800">{hostel.city}</Link>
+          <ChevronRight size={14} />
+          <Link to={`/hostels?city=${hostel.city}&area=${hostel.area}`} className="hover:text-primary-800">{hostel.area}</Link>
+          <ChevronRight size={14} />
+          <span className="text-ink">{hostel.name}</span>
+        </div>
 
         <motion.div variants={motionSafe ? fadeUp : undefined} transition={motionSafe ? transitions.base : undefined} className="grid gap-5 lg:grid-cols-[1fr_320px]">
           <div className="grid gap-5 md:grid-cols-[1fr_320px]">
             <div className="relative min-h-[360px] overflow-hidden rounded-lg border border-line">
               <img src={hostel.gallery[0]} alt={hostel.name} className="h-full min-h-[360px] w-full object-cover" />
               <div className="absolute bottom-4 left-4 flex flex-wrap gap-2">
-                <span className="badge bg-accent-700 text-white"><ShieldCheck size={14} /> Verified Hostel</span>
-                <span className="badge bg-white text-slate-700">Islamabad, F-10</span>
+                {hostel.verified && (
+                  <span className="inline-flex items-center gap-1 rounded border border-white/40 bg-primary-700 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-white">
+                    <ShieldCheck size={14} /> Verified
+                  </span>
+                )}
+                <span className="badge bg-white text-slate-700">{hostel.area}, {hostel.city}</span>
               </div>
             </div>
             <div className="grid gap-5">
@@ -161,7 +179,7 @@ export function HostelDetailPage() {
             </div>
           </div>
 
-          <BookingCard hostel={hostel} onVisitRequest={requestVisit} visitMessage={visitMessage} />
+          <BookingCard hostel={hostel} rooms={detail.rooms} onVisitRequest={requestVisit} visitMessage={visitMessage} />
         </motion.div>
 
         <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_320px]">
@@ -169,7 +187,14 @@ export function HostelDetailPage() {
             <div>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <h1 className="text-3xl font-extrabold">{hostel.name}</h1>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <h1 className="text-3xl font-extrabold">{hostel.name}</h1>
+                    {hostel.verified && (
+                      <span className="inline-flex items-center gap-1 rounded border border-primary-200 bg-primary-50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-primary-800">
+                        <ShieldCheck size={14} /> Verified
+                      </span>
+                    )}
+                  </div>
                   <p className="mt-2 flex items-center gap-2 text-slate-700">
                     <Star size={17} className="text-primary-800" /> {rating(hostel.rating)} ({hostel.reviews} reviews)
                     <span className="hidden sm:inline">-</span>
@@ -183,6 +208,25 @@ export function HostelDetailPage() {
                 </div>
               </div>
               <p className="mt-7 max-w-4xl leading-8 text-slate-700">{hostel.description}</p>
+
+              <div className="mt-7 grid grid-cols-2 gap-4 md:grid-cols-4">
+                <div className="rounded-lg border border-line bg-surface-container-lowest p-4">
+                  <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-slate-600"><Bed size={16} /> Available Beds</p>
+                  <p className="mt-1 text-xl font-extrabold text-ink">{hostel.left ?? "-"} Left</p>
+                </div>
+                <div className="rounded-lg border border-line bg-surface-container-lowest p-4">
+                  <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-slate-600"><Banknote size={16} /> Monthly Rent</p>
+                  <p className="mt-1 text-xl font-extrabold text-ink">{currency(hostel.price)}+</p>
+                </div>
+                <div className="rounded-lg border border-line bg-surface-container-lowest p-4">
+                  <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-slate-600"><Lock size={16} /> Security Deposit</p>
+                  <p className="mt-1 text-xl font-extrabold text-ink">{topRooms[0]?.deposit || "1 Month Rent"}</p>
+                </div>
+                <div className="rounded-lg border border-line bg-surface-container-lowest p-4">
+                  <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-slate-600"><Clock size={16} /> Hostel Type</p>
+                  <p className="mt-1 text-xl font-extrabold text-ink">{hostel.type}</p>
+                </div>
+              </div>
             </div>
 
             <section className="grid gap-6 xl:grid-cols-[1fr_320px]">
@@ -346,13 +390,41 @@ export function HostelDetailPage() {
   );
 }
 
-function BookingCard({ hostel, onVisitRequest, visitMessage }) {
+// Room "deposit" fields come through as either a plain number, a "PKR 5,000" style
+// string, or a "1 Month Rent" style string (see mockData.roomOptions / normalizeRoom
+// mapping in HostelDetailPage). This turns whichever shape shows up into a number
+// for the price breakdown, without inventing a deposit when one truly isn't set.
+const parseDeposit = (deposit, rent) => {
+  if (typeof deposit === "number") return deposit;
+  if (!deposit) return rent;
+  if (/month/i.test(deposit)) return rent;
+  const digits = String(deposit).replace(/[^0-9]/g, "");
+  return digits ? Number(digits) : rent;
+};
+
+const SERVICE_FEE = 1500;
+
+function BookingCard({ hostel, rooms = [], onVisitRequest, visitMessage }) {
+  const roomOptionsList = rooms.length ? rooms : [{ id: "default", name: "Standard Room", price: hostel.price, deposit: "1 Month Rent" }];
+  const [roomId, setRoomId] = useState(roomOptionsList[0]?.id);
+  const [duration, setDuration] = useState(6);
+  const selectedRoom = roomOptionsList.find((room) => room.id === roomId) || roomOptionsList[0];
+  const rent = selectedRoom?.price || hostel.price;
+  const depositAmount = parseDeposit(selectedRoom?.deposit, rent);
+  const totalDueNow = depositAmount + SERVICE_FEE;
+
   return (
     <aside className="panel h-fit p-6 lg:sticky lg:top-28">
       <div className="mb-4 flex items-baseline justify-between">
-        <p><span className="text-2xl font-extrabold">{currency(hostel.price)}</span><span className="text-sm text-slate-600"> /mo</span></p>
+        <p><span className="text-2xl font-extrabold">{currency(rent)}</span><span className="text-sm text-slate-600"> /mo</span></p>
         <span className="text-sm text-primary-800">Starts from</span>
       </div>
+      <label className="mt-4 grid gap-2 text-sm font-medium">
+        Room Type
+        <select className="input" value={roomId} onChange={(event) => setRoomId(event.target.value)}>
+          {roomOptionsList.map((room) => <option key={room.id} value={room.id}>{room.name}</option>)}
+        </select>
+      </label>
       <label className="mt-4 grid gap-2 text-sm font-medium">
         Move-in Date
         <div className="relative">
@@ -361,19 +433,18 @@ function BookingCard({ hostel, onVisitRequest, visitMessage }) {
         </div>
       </label>
       <label className="mt-4 grid gap-2 text-sm font-medium">
-        Room Type
-        <select className="input">
-          <option>Standard Double</option>
-          <option>Premium Single</option>
-          <option>Dormitory</option>
+        Duration
+        <select className="input" value={duration} onChange={(event) => setDuration(Number(event.target.value))}>
+          {[1, 3, 6, 12].map((months) => <option key={months} value={months}>{months} Month{months > 1 ? "s" : ""}</option>)}
         </select>
       </label>
-      <div className="mt-5 rounded-md bg-primary-50 p-4 text-sm">
-        <div className="flex justify-between"><span>Monthly Rent</span><strong>{currency(hostel.price)}</strong></div>
-        <div className="mt-2 flex justify-between"><span>Security Deposit</span><strong>PKR 5,000</strong></div>
-        <div className="mt-3 flex justify-between border-t border-line pt-3"><span>Total due now</span><strong>PKR 23,500</strong></div>
+      <div className="mt-5 rounded-md border border-line bg-surface-container-lowest p-4 text-sm">
+        <div className="flex justify-between"><span>Rent x {duration} month{duration > 1 ? "s" : ""}</span><strong>{currency(rent * duration)}</strong></div>
+        <div className="mt-2 flex justify-between"><span>Security Deposit (Refundable)</span><strong>{currency(depositAmount)}</strong></div>
+        <div className="mt-2 flex justify-between"><span>Service Fee</span><strong>{currency(SERVICE_FEE)}</strong></div>
+        <div className="mt-3 flex justify-between border-t border-line pt-3 font-bold text-ink"><span>Total Due Now</span><strong>{currency(totalDueNow)}</strong></div>
       </div>
-      <Link to={`/booking?hostel=${hostel.slug}`} className="btn-primary mt-5 w-full">Book Now</Link>
+      <Link to={`/booking?hostel=${hostel.slug}&room=${selectedRoom?.id}&months=${duration}`} className="btn-primary mt-5 w-full">Book Now</Link>
       <button type="button" onClick={() => onVisitRequest("virtual")} className="btn-secondary mt-3 w-full">
         <Video size={16} /> Request Virtual Tour
       </button>
@@ -386,7 +457,9 @@ function BookingCard({ hostel, onVisitRequest, visitMessage }) {
       <button className="btn-secondary mt-3 w-full">
         <Phone size={16} /> Contact Host
       </button>
-      <p className="mt-4 text-center text-xs text-slate-600">You will not be charged yet. Management will contact you to confirm details.</p>
+      <p className="mt-4 flex items-center justify-center gap-1.5 text-center text-xs text-slate-600">
+        <Lock size={13} /> Contact details are shared only after your deposit is confirmed.
+      </p>
       {visitMessage && <p className="mt-3 rounded-md bg-primary-50 px-3 py-2 text-center text-xs font-semibold text-primary-800">{visitMessage}</p>}
       <div className="mt-5 rounded-md bg-primary-50 p-4 text-sm text-slate-700">
         <p className="font-semibold text-primary-800">Why book via Basera?</p>

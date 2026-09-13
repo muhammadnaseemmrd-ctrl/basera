@@ -1,8 +1,38 @@
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { AlertTriangle, CheckCircle2, Clock, LifeBuoy, ShieldAlert, ShieldCheck, Star, Wrench } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock, Gavel, LifeBuoy, ShieldAlert, ShieldCheck, Star, UploadCloud, Wrench } from "lucide-react";
 import { api, safeRequest } from "../../services/api";
+import { StatusPill } from "../../components/ui";
 import { useDocumentTitle } from "../../utils/useDocumentTitle";
+
+const ISSUE_TYPES = [
+  { value: "ROOM_CONDITION", label: "Property not as described" },
+  { value: "OTHER", label: "Missing amenities" },
+  { value: "REFUND", label: "Refund dispute" },
+  { value: "BEHAVIOUR", label: "Safety or security concern" },
+  { value: "PAYMENT", label: "Payment issue" }
+];
+
+const fallbackDisputes = [
+  {
+    id: "DSP-4092",
+    hostelName: "Royal Residence - Room 402",
+    category: "ROOM_CONDITION",
+    issueLabel: "Property not as described",
+    status: "under_review",
+    createdAt: "2026-08-12T00:00:00.000Z",
+    adminNote: "We are currently reviewing the uploaded photos and have contacted the hostel manager for their statement."
+  },
+  {
+    id: "DSP-3811",
+    hostelName: "Elite Student Housing - Room 11B",
+    category: "REFUND",
+    issueLabel: "Refund dispute",
+    status: "resolved",
+    createdAt: "2026-07-05T00:00:00.000Z",
+    resolutionNote: "Partial refund of PKR 5,000 has been processed to the original payment method."
+  }
+];
 
 const fallbackProfile = {
   name: "Ali Ahmed",
@@ -43,6 +73,11 @@ export function StudentSupport() {
     category: "wifi",
     priority: "medium"
   });
+  const [bookings, setBookings] = useState([]);
+  const [disputes, setDisputes] = useState(fallbackDisputes);
+  const [disputeForm, setDisputeForm] = useState({ bookingId: "", category: "ROOM_CONDITION", description: "", evidence: [] });
+  const [disputeMessage, setDisputeMessage] = useState("");
+  const [uploadingEvidence, setUploadingEvidence] = useState(false);
 
   useEffect(() => {
     safeRequest(() => api.get("/dashboard/student/profile"), { profile: fallbackProfile }).then((result) => {
@@ -55,6 +90,7 @@ export function StudentSupport() {
     });
     safeRequest(() => api.get("/maintenance/my"), { results: fallbackTickets }).then((result) => setTickets(result.results || fallbackTickets));
     safeRequest(() => api.get("/bookings/b1/cancellation-preview"), { preview: null }).then((result) => setRefundPreview(result.preview));
+    safeRequest(() => api.get("/dashboard/student/bookings"), { bookings: [] }).then((result) => setBookings(result.bookings || []));
   }, []);
 
   const updateEmergency = (field) => (event) => {
@@ -102,6 +138,70 @@ export function StudentSupport() {
     setTickets((current) => current.map((item) => ((item.id || item._id) === (ticket.id || ticket._id) ? result.ticket : item)));
     setMessage(result.demo ? "Ticket closed in demo mode." : "Ticket closed.");
     setTimeout(() => setMessage(""), 2500);
+  };
+
+  const uploadDisputeEvidence = async (file) => {
+    if (!file) return;
+    setUploadingEvidence(true);
+    const formData = new FormData();
+    formData.append("document", file);
+    try {
+      const { data } = await api.post("/uploads/document", formData, { headers: { "Content-Type": "multipart/form-data" } });
+      setDisputeForm((current) => ({
+        ...current,
+        evidence: [...current.evidence, { type: "document", url: data.url, originalName: data.originalName || file.name }]
+      }));
+    } catch {
+      // Evidence upload is optional -- ignore failures and let the student submit without it.
+    } finally {
+      setUploadingEvidence(false);
+    }
+  };
+
+  const submitDispute = async (event) => {
+    event.preventDefault();
+    if (!disputeForm.bookingId || !disputeForm.description.trim()) {
+      setDisputeMessage("Select a booking and describe the issue to file a dispute.");
+      return;
+    }
+    const issueLabel = ISSUE_TYPES.find((item) => item.value === disputeForm.category)?.label || "Booking dispute";
+    setDisputeMessage("Submitting dispute...");
+    const bookingRef = bookings.find((item) => (item.id || item._id) === disputeForm.bookingId);
+    const result = await safeRequest(
+      () => api.post(`/bookings/${disputeForm.bookingId}/dispute`, { title: issueLabel, category: disputeForm.category, description: disputeForm.description, evidence: disputeForm.evidence, priority: "medium" }),
+      {
+        demo: true,
+        dispute: {
+          id: `DSP-${Date.now()}`,
+          hostelName: bookingRef?.hostelName || "Booking",
+          category: disputeForm.category,
+          issueLabel,
+          status: "open",
+          createdAt: new Date().toISOString()
+        }
+      }
+    );
+    const dispute = result.dispute || {};
+    setDisputes((current) => [
+      {
+        id: dispute.caseId || dispute.id || dispute._id || `DSP-${Date.now()}`,
+        hostelName: bookingRef?.hostelName || dispute.hostelName || "Booking",
+        category: dispute.category || disputeForm.category,
+        issueLabel,
+        status: dispute.status || "open",
+        createdAt: dispute.createdAt || new Date().toISOString()
+      },
+      ...current
+    ]);
+    setDisputeForm({ bookingId: "", category: "ROOM_CONDITION", description: "", evidence: [] });
+    setDisputeMessage(result.demo ? "Dispute filed in demo mode." : "Dispute filed for admin mediation.");
+    setTimeout(() => setDisputeMessage(""), 2800);
+  };
+
+  const disputeTone = (status) => {
+    if (["resolved"].includes(status)) return "green";
+    if (["dismissed", "rejected"].includes(status)) return "red";
+    return "amber";
   };
 
   const updateRatingForm = (ticketId, patch) => {
@@ -303,6 +403,84 @@ export function StudentSupport() {
               <p className="text-sm text-slate-700">{refundPreview?.policyLabel || "Policy preview will appear after loading."}</p>
             </div>
           </section>
+        </div>
+      </section>
+
+      <section className="mt-6 rounded-xl border border-outline-variant bg-surface-container-lowest p-6 shadow-sm md:p-8">
+        <h2 className="flex items-center gap-2 font-display text-xl font-bold text-on-surface"><Gavel size={22} className="text-danger-600" /> File a New Dispute</h2>
+        <p className="mt-1 text-sm text-on-surface-variant">File a new dispute or track the status of your existing claims. We guarantee a secure and transparent process.</p>
+        <form onSubmit={submitDispute} className="mt-5 grid gap-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="grid gap-2 text-sm font-medium text-on-surface">
+              Select Booking
+              <select className="input" value={disputeForm.bookingId} onChange={(event) => setDisputeForm((current) => ({ ...current, bookingId: event.target.value }))}>
+                <option value="">Choose a recent booking...</option>
+                {(bookings.length ? bookings : [{ id: "b1", hostelName: "Cozy Boys Hostel F-10" }]).map((booking) => (
+                  <option key={booking.id || booking._id} value={booking.id || booking._id}>{booking.hostelName}</option>
+                ))}
+              </select>
+            </label>
+            <label className="grid gap-2 text-sm font-medium text-on-surface">
+              Issue Type
+              <select className="input" value={disputeForm.category} onChange={(event) => setDisputeForm((current) => ({ ...current, category: event.target.value }))}>
+                {ISSUE_TYPES.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
+              </select>
+            </label>
+          </div>
+          <label className="grid gap-2 text-sm font-medium text-on-surface">
+            Detailed Description
+            <textarea
+              className="input min-h-28 resize-none"
+              placeholder="Provide a detailed account of the issue. Be as specific as possible to expedite the resolution process."
+              value={disputeForm.description}
+              onChange={(event) => setDisputeForm((current) => ({ ...current, description: event.target.value }))}
+            />
+          </label>
+          <div className="grid gap-2">
+            <span className="text-sm font-medium text-on-surface">Upload Evidence</span>
+            <label className="flex cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-outline-variant bg-surface-container-low p-6 text-center transition-colors hover:bg-surface-container">
+              <UploadCloud size={26} className="text-outline" />
+              <span className="text-sm font-medium text-on-surface">{uploadingEvidence ? "Uploading..." : "Drag & drop files or click to browse"}</span>
+              <span className="text-xs text-on-surface-variant">Supported formats: JPG, PNG, PDF (Max 5MB)</span>
+              <input type="file" accept="image/*,.pdf,application/pdf" className="hidden" onChange={(event) => uploadDisputeEvidence(event.target.files?.[0])} />
+            </label>
+            {disputeForm.evidence.length > 0 && (
+              <ul className="grid gap-1 text-xs text-on-surface-variant">
+                {disputeForm.evidence.map((item) => <li key={item.url || item.originalName}>{item.originalName}</li>)}
+              </ul>
+            )}
+          </div>
+          {disputeMessage && <p className="rounded-md bg-primary-50 px-4 py-3 text-sm font-semibold text-primary-800">{disputeMessage}</p>}
+          <div className="flex justify-end border-t border-outline-variant pt-4">
+            <button type="submit" className="btn-primary px-6">Submit Dispute</button>
+          </div>
+        </form>
+      </section>
+
+      <section className="mt-6">
+        <h2 className="mb-4 font-display text-xl font-bold text-on-surface">Active Disputes</h2>
+        <div className="grid gap-4">
+          {disputes.map((dispute) => (
+            <article key={dispute.id} className="overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest shadow-sm">
+              <div className="flex items-center justify-between gap-3 border-b border-outline-variant bg-surface-container-low px-4 py-3">
+                <span className="font-label-md text-sm font-bold text-on-surface">ID: {dispute.id}</span>
+                <StatusPill tone={disputeTone(dispute.status)}>{String(dispute.status || "open").replace(/_/g, " ")}</StatusPill>
+              </div>
+              <div className="grid grid-cols-1 gap-4 p-4 md:grid-cols-3">
+                <div className="md:col-span-2">
+                  <h3 className="font-display font-bold text-primary-700">{dispute.hostelName}</h3>
+                  <p className="mt-1 text-sm text-on-surface-variant"><strong>Issue:</strong> {dispute.issueLabel}</p>
+                  <p className="mt-1 text-sm text-on-surface-variant"><strong>Date Filed:</strong> {new Date(dispute.createdAt).toLocaleDateString()}</p>
+                </div>
+                <div className="border-t border-outline-variant pt-3 md:border-l md:border-t-0 md:pl-4 md:pt-0">
+                  <p className="mb-1 text-sm font-medium text-on-surface">{dispute.status === "resolved" ? "Resolution:" : "Admin Response:"}</p>
+                  <p className="text-sm italic text-on-surface-variant">
+                    {dispute.resolutionNote || dispute.adminNote || "Awaiting review from the Basera trust & safety team."}
+                  </p>
+                </div>
+              </div>
+            </article>
+          ))}
         </div>
       </section>
     </>

@@ -538,6 +538,19 @@ router.post("/loyalty/referrals", protect, async (req, res, next) => {
     };
 
     if (!isDbReady()) {
+      // Idempotency guard (demo mode): a student re-submitting the same referral
+      // (double click, retried request) must not be credited twice for the same
+      // referredEmail.
+      const alreadyReferredDemo = demoLoyaltyAccount.referrals.some(
+        (item) => String(item.referredEmail || "").toLowerCase() === referredEmail
+      );
+      if (alreadyReferredDemo) {
+        return res.status(409).json({
+          message: "This student has already been referred.",
+          ...loyaltyShape(demoLoyaltyAccount, demoLoyaltyClaims),
+          demo: true
+        });
+      }
       demoLoyaltyAccount.referrals.unshift(referral);
       demoLoyaltyAccount.pointsBalance += points;
       demoLoyaltyAccount.lifetimePoints += points;
@@ -550,21 +563,43 @@ router.post("/loyalty/referrals", protect, async (req, res, next) => {
     }
 
     const account = await ensureLoyaltyAccount(req.user);
-    account.referrals.push({
-      referredName,
-      referredEmail,
-      status: "completed",
-      pointsAwarded: points,
-      awardedAt: new Date()
-    });
-    account.pointsBalance += points;
-    account.lifetimePoints += points;
-    account.referralCount += 1;
-    await account.save();
     const claims = await LoyaltyClaim.find({ student: req.user._id || req.user.id }).sort({ createdAt: -1 }).limit(10);
+    const alreadyReferred = account.referrals.some((item) => String(item.referredEmail || "").toLowerCase() === referredEmail);
+    if (alreadyReferred) {
+      return res.status(409).json({ message: "This student has already been referred.", ...loyaltyShape(account, claims) });
+    }
+
+    // Atomic idempotency guard: the filter's "referrals.referredEmail": { $ne }
+    // condition and the $push/$inc happen in a single Mongo update, so two
+    // concurrent requests for the same referredEmail cannot both succeed in
+    // crediting points (unlike a read-balance-then-save pattern, which would
+    // race). If another request already added this email between our check
+    // above and this update, findOneAndUpdate simply matches nothing and
+    // returns null here.
+    const updatedAccount = await LoyaltyAccount.findOneAndUpdate(
+      { _id: account._id, "referrals.referredEmail": { $ne: referredEmail } },
+      {
+        $push: {
+          referrals: {
+            referredName,
+            referredEmail,
+            status: "completed",
+            pointsAwarded: points,
+            awardedAt: new Date()
+          }
+        },
+        $inc: { pointsBalance: points, lifetimePoints: points, referralCount: 1 }
+      },
+      { new: true }
+    );
+
+    if (!updatedAccount) {
+      return res.status(409).json({ message: "This student has already been referred.", ...loyaltyShape(account, claims) });
+    }
+
     return res.status(201).json({
-      referral: account.referrals.at(-1),
-      ...loyaltyShape(account, claims)
+      referral: updatedAccount.referrals.at(-1),
+      ...loyaltyShape(updatedAccount, claims)
     });
   } catch (error) {
     return next(error);

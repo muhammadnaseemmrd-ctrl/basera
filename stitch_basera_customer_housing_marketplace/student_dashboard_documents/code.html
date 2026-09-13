@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Student Dashboard: Documents</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700&amp;family=Roboto+Flex:opsz,wght@8..144,400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-variant": "#e5e2e1",
+                      "on-secondary-fixed-variant": "#414560",
+                      "tertiary-fixed-dim": "#90d3cb",
+                      "on-background": "#1b1c1c",
+                      "secondary-fixed": "#dee0ff",
+                      "on-tertiary-container": "#a9ece4",
+                      "on-primary-fixed-variant": "#004f56",
+                      "on-surface": "#1b1c1c",
+                      "on-tertiary-fixed-variant": "#00504b",
+                      "on-surface-variant": "#3e494a",
+                      "secondary": "#595d78",
+                      "surface-dim": "#dcd9d9",
+                      "inverse-surface": "#303030",
+                      "surface-container-high": "#eae7e7",
+                      "primary-container": "#006d77",
+                      "on-error-container": "#93000a",
+                      "secondary-fixed-dim": "#c1c4e5",
+                      "error": "#ba1a1a",
+                      "on-secondary-container": "#5d617d",
+                      "outline": "#6f797a",
+                      "on-tertiary-fixed": "#00201e",
+                      "inverse-primary": "#82d3de",
+                      "surface-tint": "#006972",
+                      "on-primary-fixed": "#001f23",
+                      "primary": "#00535b",
+                      "surface-container-highest": "#e5e2e1",
+                      "on-secondary": "#ffffff",
+                      "surface": "#fcf9f8",
+                      "on-tertiary": "#ffffff",
+                      "surface-container-lowest": "#ffffff",
+                      "primary-fixed": "#9ff0fb",
+                      "outline-variant": "#bec8ca",
+                      "tertiary-container": "#286d67",
+                      "tertiary": "#01544f",
+                      "on-primary": "#ffffff",
+                      "secondary-container": "#dbdeff",
+                      "primary-fixed-dim": "#82d3de",
+                      "surface-container": "#f0eded",
+                      "surface-bright": "#fcf9f8",
+                      "on-error": "#ffffff",
+                      "on-primary-container": "#9becf7",
+                      "error-container": "#ffdad6",
+                      "tertiary-fixed": "#acefe7",
+                      "inverse-on-surface": "#f3f0ef",
+                      "background": "#fcf9f8",
+                      "surface-container-low": "#f6f3f2",
+                      "on-secondary-fixed": "#161a32"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "stack-lg": "32px",
+                      "stack-sm": "8px",
+                      "margin-desktop": "32px",
+                      "container-max": "1280px",
+                      "unit": "4px",
+                      "gutter": "24px",
+                      "stack-md": "16px",
+                      "margin-mobile": "16px"
+              },
+              "fontFamily": {
+                      "body-lg": [
+                              "Roboto Flex"
+                      ],
+                      "body-sm": [
+                              "Roboto Flex"
+                      ],
+                      "label-md": [
+                              "Roboto Flex"
+                      ],
+                      "body-md": [
+                              "Roboto Flex"
+                      ],
+                      "headline-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "headline-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "headline-lg-mobile": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "display-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "display-lg-mobile": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "label-sm": [
+                              "Roboto Flex"
+                      ]
+              },
+              "fontSize": {
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "30px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "display-lg-mobile": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.03em",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased min-h-screen flex flex-col md:flex-row">
+<aside class="hidden md:flex h-screen w-80 rounded-r-xl border-r border-outline-variant shadow-md bg-surface-container-lowest flex-col py-6 gap-stack-sm sticky top-0 shrink-0">
+<div class="px-6 pb-6 flex items-center gap-4">
+<div class="h-12 w-12 rounded-full bg-surface-variant overflow-hidden shrink-0 border border-outline-variant">
+<img alt="Student Profile Picture" class="h-full w-full object-cover" data-alt="A professional headshot of a male student with short dark hair, wearing a casual light blue button-down shirt. The background is a soft, blurred modern office environment with neutral tones and plenty of natural light. The lighting on his face is soft and even, suggesting a friendly and approachable demeanor. High quality, realistic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDpX8CpRd8N1ObZeiiTZvHZFC0UKouuZ724JgE-aRQI9jDWTiknIOFc-sNyDV3yqpaKAmYfg_8bb24gnlR1V15L_eQPyhmzAD1mdZkPCV3NIYpQqotfM0NLv-Z5YtcRuwCaUrV6K2UXWU24TsmNiKG4Y5XLYJzlBmi3jIGe8MAlOnOsb9XbrQr10HB9eHJKCsxgU9cNp_TvrwHoKqJNQAbUzNv8i6W31NyWdcoatj2rI9HK_wmeucV54Q"/>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-primary font-bold">Ahmed Khan</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-tertiary">verified</span>
+                    Verified Student
+                </p>
+<p class="font-label-sm text-label-sm text-outline mt-1 uppercase tracking-wider">NUST University</p>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-1 px-4 overflow-y-auto">
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-container-high transition-colors rounded-full cursor-pointer" href="#">
+<span class="material-symbols-outlined">favorite</span>
+<span class="font-body-md text-body-md">Saved Hostels</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-container-high transition-colors rounded-full cursor-pointer" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-body-md text-body-md">Booking History</span>
+</a>
+<a class="flex items-center gap-3 bg-secondary-container text-on-secondary-container font-bold rounded-full px-4 py-3 cursor-pointer" href="#">
+<span class="material-symbols-outlined icon-filled">description</span>
+<span class="font-body-md text-body-md">Documents</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-container-high transition-colors rounded-full cursor-pointer" href="#">
+<span class="material-symbols-outlined">verified_user</span>
+<span class="font-body-md text-body-md">Identity Verification</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-container-high transition-colors rounded-full cursor-pointer" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-body-md text-body-md">Payments</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-container-high transition-colors rounded-full cursor-pointer" href="#">
+<span class="material-symbols-outlined">contact_support</span>
+<span class="font-body-md text-body-md">Support</span>
+</a>
+</nav>
+</aside>
+<div class="flex-1 flex flex-col w-full pb-20 md:pb-0">
+<header class="w-full top-0 sticky bg-surface border-b border-outline-variant flat no shadows z-40">
+<div class="flex items-center justify-between px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto h-16">
+<div class="flex items-center gap-4">
+<button class="md:hidden text-on-surface-variant cursor-pointer active:opacity-80 p-2 -ml-2 rounded-full hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:text-headline-lg font-bold text-primary tracking-tight">HostelConnect</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant font-label-md text-label-md cursor-pointer active:opacity-80 hover:bg-surface-container-low transition-colors px-3 py-2 rounded-full">
+                        اردو / EN
+                    </button>
+</div>
+</div>
+</header>
+<main class="flex-1 w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-stack-lg md:py-8 space-y-stack-lg">
+<div class="space-y-stack-sm">
+<h2 class="font-display-lg-mobile text-display-lg-mobile md:font-display-lg md:text-display-lg text-primary tracking-tight">Your Documents</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">Manage your official agreements, receipts, and upload payment proofs securely.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+<div class="lg:col-span-2 space-y-stack-md">
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden">
+<div class="bg-surface-container-low px-6 py-4 border-b border-outline-variant flex justify-between items-center">
+<h3 class="font-headline-md text-headline-md text-on-surface">Official Records</h3>
+<span class="font-label-sm text-label-sm bg-tertiary-container text-on-tertiary-container px-2 py-1 rounded">4 Files</span>
+</div>
+<div class="divide-y divide-outline-variant">
+<div class="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-surface-container-lowest transition-colors">
+<div class="flex items-start gap-4">
+<div class="h-10 w-10 rounded bg-primary-container text-on-primary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined">description</span>
+</div>
+<div>
+<h4 class="font-body-md text-body-md font-medium text-on-surface">Booking Agreement</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Issued Oct 12, 2023</p>
+<div class="flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[14px] text-tertiary">qr_code_scanner</span>
+<span class="font-label-sm text-label-sm text-tertiary uppercase tracking-wider">Verified</span>
+</div>
+</div>
+</div>
+<button class="shrink-0 flex items-center gap-2 border border-outline px-4 py-2 rounded-lg font-label-md text-label-md text-on-surface hover:bg-surface-container-low transition-colors w-full sm:w-auto justify-center">
+<span class="material-symbols-outlined text-[18px]">download</span>
+                                    Download
+                                </button>
+</div>
+<div class="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-surface-container-lowest transition-colors">
+<div class="flex items-start gap-4">
+<div class="h-10 w-10 rounded bg-primary-container text-on-primary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined">receipt_long</span>
+</div>
+<div>
+<h4 class="font-body-md text-body-md font-medium text-on-surface">Rent Receipt - Oct 2023</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Issued Oct 01, 2023</p>
+<div class="flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[14px] text-tertiary">qr_code_scanner</span>
+<span class="font-label-sm text-label-sm text-tertiary uppercase tracking-wider">Verified</span>
+</div>
+</div>
+</div>
+<button class="shrink-0 flex items-center gap-2 border border-outline px-4 py-2 rounded-lg font-label-md text-label-md text-on-surface hover:bg-surface-container-low transition-colors w-full sm:w-auto justify-center">
+<span class="material-symbols-outlined text-[18px]">download</span>
+                                    Download
+                                </button>
+</div>
+</div>
+</div>
+</div>
+<div class="lg:col-span-1">
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-6 sticky top-24">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">Upload Proof</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-6">Submit your payment challan or bank transfer receipt for verification.</p>
+<div class="border-2 border-dashed border-outline-variant rounded-xl p-8 flex flex-col items-center justify-center text-center bg-surface-container-low hover:bg-surface-container-high transition-colors cursor-pointer mb-6">
+<span class="material-symbols-outlined text-4xl text-on-surface-variant mb-3">cloud_upload</span>
+<span class="font-label-md text-label-md text-primary font-medium mb-1">Click to upload or drag &amp; drop</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">PDF, JPG, PNG (Max 5MB)</span>
+</div>
+<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-3 rounded-lg hover:bg-primary/90 transition-colors">
+                            Submit Document
+                        </button>
+</div>
+</div>
+</div>
+</main>
+</div>
+<nav class="md:hidden fixed bottom-0 w-full z-50 bg-surface border-t border-outline-variant shadow-sm h-16">
+<div class="flex justify-around items-center h-full w-full max-w-md mx-auto">
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:scale-95 transition-transform duration-150 w-16" href="#">
+<span class="material-symbols-outlined mb-1">search</span>
+<span class="font-label-sm text-label-sm">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:scale-95 transition-transform duration-150 w-16" href="#">
+<span class="material-symbols-outlined mb-1">receipt_long</span>
+<span class="font-label-sm text-label-sm">Bookings</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined icon-filled mb-1">dashboard</span>
+<span class="font-label-sm text-label-sm font-bold">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:scale-95 transition-transform duration-150 w-16" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</a>
+</div>
+</nav>
+</body></html>

@@ -765,7 +765,19 @@ router.post(
 
 router.put("/:id", protect, authorize("host", "admin"), async (req, res, next) => {
   try {
-    if (mongoose.connection.readyState !== 1) return res.json({ room: { id: req.params.id, ...req.body }, demo: true });
+    if (mongoose.connection.readyState !== 1) {
+      const existingDemo = rooms.find((item) => item.id === req.params.id);
+      if (!existingDemo) return res.status(404).json({ message: "Room not found." });
+      if (req.user.role !== "admin" && String(existingDemo.listedBy) !== String(req.user._id || req.user.id)) {
+        return res.status(403).json({ message: "You can only update rooms you listed." });
+      }
+      return res.json({ room: { ...existingDemo, ...req.body, id: existingDemo.id }, demo: true });
+    }
+    const existing = await Room.findById(req.params.id).select("listedBy");
+    if (!existing) return res.status(404).json({ message: "Room not found." });
+    if (req.user.role !== "admin" && String(existing.listedBy) !== String(req.user._id || req.user.id)) {
+      return res.status(403).json({ message: "You can only update rooms you listed." });
+    }
     const room = await Room.findByIdAndUpdate(req.params.id, roomPayload(req), { new: true, runValidators: true });
     if (!room) return res.status(404).json({ message: "Room not found." });
     await hashAndFlagRoomPhotos({ room, req });
@@ -777,7 +789,19 @@ router.put("/:id", protect, authorize("host", "admin"), async (req, res, next) =
 
 router.delete("/:id", protect, authorize("host", "admin"), async (req, res, next) => {
   try {
-    if (mongoose.connection.readyState !== 1) return res.json({ deleted: true, archived: true, demo: true });
+    if (mongoose.connection.readyState !== 1) {
+      const existingDemo = rooms.find((item) => item.id === req.params.id);
+      if (!existingDemo) return res.status(404).json({ message: "Room not found." });
+      if (req.user.role !== "admin" && String(existingDemo.listedBy) !== String(req.user._id || req.user.id)) {
+        return res.status(403).json({ message: "You can only delete rooms you listed." });
+      }
+      return res.json({ deleted: true, archived: true, demo: true });
+    }
+    const existing = await Room.findById(req.params.id).select("listedBy");
+    if (!existing) return res.status(404).json({ message: "Room not found." });
+    if (req.user.role !== "admin" && String(existing.listedBy) !== String(req.user._id || req.user.id)) {
+      return res.status(403).json({ message: "You can only delete rooms you listed." });
+    }
     await Room.findByIdAndUpdate(req.params.id, { status: "ARCHIVED", isAvailable: false });
     return res.json({ deleted: true, archived: true });
   } catch (error) {

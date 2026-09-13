@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Basera AI Concierge</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Roboto+Flex:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#e5e2e1",
+                        "on-secondary-fixed-variant": "#414560",
+                        "tertiary-fixed-dim": "#90d3cb",
+                        "on-background": "#1b1c1c",
+                        "secondary-fixed": "#dee0ff",
+                        "on-tertiary-container": "#a9ece4",
+                        "on-primary-fixed-variant": "#004f56",
+                        "on-surface": "#1b1c1c",
+                        "on-tertiary-fixed-variant": "#00504b",
+                        "on-surface-variant": "#3e494a",
+                        "secondary": "#595d78",
+                        "surface-dim": "#dcd9d9",
+                        "inverse-surface": "#303030",
+                        "surface-container-high": "#eae7e7",
+                        "primary-container": "#006d77",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#c1c4e5",
+                        "error": "#ba1a1a",
+                        "on-secondary-container": "#5d617d",
+                        "outline": "#6f797a",
+                        "on-tertiary-fixed": "#00201e",
+                        "inverse-primary": "#82d3de",
+                        "surface-tint": "#006972",
+                        "on-primary-fixed": "#001f23",
+                        "primary": "#00535b",
+                        "surface-container-highest": "#e5e2e1",
+                        "on-secondary": "#ffffff",
+                        "surface": "#fcf9f8",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed": "#9ff0fb",
+                        "outline-variant": "#bec8ca",
+                        "tertiary-container": "#286d67",
+                        "tertiary": "#01544f",
+                        "on-primary": "#ffffff",
+                        "secondary-container": "#dbdeff",
+                        "primary-fixed-dim": "#82d3de",
+                        "surface-container": "#f0eded",
+                        "surface-bright": "#fcf9f8",
+                        "on-error": "#ffffff",
+                        "on-primary-container": "#9becf7",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed": "#acefe7",
+                        "inverse-on-surface": "#f3f0ef",
+                        "background": "#fcf9f8",
+                        "surface-container-low": "#f6f3f2",
+                        "on-secondary-fixed": "#161a32"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "stack-lg": "32px",
+                        "stack-sm": "8px",
+                        "margin-desktop": "32px",
+                        "container-max": "1280px",
+                        "unit": "4px",
+                        "gutter": "24px",
+                        "stack-md": "16px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Roboto Flex"],
+                        "body-sm": ["Roboto Flex"],
+                        "label-md": ["Roboto Flex"],
+                        "body-md": ["Roboto Flex"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "display-lg-mobile": ["Plus Jakarta Sans"],
+                        "label-sm": ["Roboto Flex"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "body-sm": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "1", "letterSpacing": "0.01em", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "headline-lg": ["30px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "headline-md": ["20px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "display-lg-mobile": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-sm": ["12px", { "lineHeight": "1", "letterSpacing": "0.03em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Roboto Flex', sans-serif; }
+        h1, h2, h3, h4, h5, h6, .font-headline { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col relative overflow-hidden">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky bg-surface dark:bg-surface-dim border-b border-outline-variant dark:border-outline z-50">
+<div class="flex items-center justify-between px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto">
+<button class="text-on-surface-variant hover:bg-surface-container-low transition-colors p-2 rounded-full cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<div class="flex items-center gap-2">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary dark:text-primary-fixed-dim font-bold">HostelConnect</h1>
+</div>
+<button class="text-on-surface-variant text-label-md font-label-md hover:bg-surface-container-low transition-colors px-4 py-2 rounded-lg cursor-pointer active:opacity-80">
+                اردو / EN
+            </button>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 max-w-container-max mx-auto w-full px-margin-mobile md:px-margin-desktop py-stack-md flex flex-col mb-20 md:mb-0">
+<!-- Header -->
+<div class="flex items-center justify-between border-b border-outline-variant pb-stack-sm mb-stack-md">
+<div class="flex items-center gap-3">
+<h2 class="font-headline-md text-headline-md text-primary">Basera AI Concierge</h2>
+<div class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full flex items-center gap-1 border border-secondary-fixed">
+<span class="material-symbols-outlined text-[16px]" data-icon="smart_toy">smart_toy</span>
+<span class="font-label-sm text-label-sm uppercase">AI Assitant</span>
+</div>
+</div>
+<button class="text-on-surface-variant hover:bg-surface-container-low p-2 rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+<!-- Chat Area -->
+<div class="flex-1 overflow-y-auto flex flex-col gap-stack-md pb-stack-lg scrollbar-hide">
+<!-- AI Welcome Message -->
+<div class="flex flex-col gap-1 items-start max-w-[85%] md:max-w-[70%]">
+<div class="bg-surface-container-high border border-outline-variant rounded-xl rounded-tl-sm p-4 text-on-surface shadow-sm">
+<p class="font-body-md text-body-md">Hello! I'm your Basera AI Concierge. I can help you find hostels, explain our secure escrow process, or compare different options. How can I assist you today?</p>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant pl-1">10:00 AM</span>
+</div>
+<!-- User Message -->
+<div class="flex flex-col gap-1 items-end self-end max-w-[85%] md:max-w-[70%]">
+<div class="bg-primary-container text-on-primary-container rounded-xl rounded-tr-sm p-4 shadow-sm">
+<p class="font-body-md text-body-md">Find me a premium boys hostel near NUST University with AC and high-speed internet.</p>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant pr-1">10:02 AM</span>
+</div>
+<!-- AI Response with Embedded Card -->
+<div class="flex flex-col gap-1 items-start max-w-[95%] md:max-w-[80%]">
+<div class="bg-surface-container-high border border-outline-variant rounded-xl rounded-tl-sm p-4 text-on-surface shadow-sm w-full">
+<p class="font-body-md text-body-md mb-stack-sm">I've found an excellent option that matches your criteria near NUST. It's highly rated for its amenities.</p>
+<!-- Embedded Hostel Card -->
+<div class="bg-surface border border-outline-variant rounded-lg overflow-hidden mt-stack-sm">
+<div class="h-40 w-full relative">
+<img class="w-full h-full object-cover" data-alt="A brightly lit, modern luxury boys hostel room featuring two comfortable single beds with crisp white linens, a sleek wooden study desk with a modern ergonomic chair, and large windows letting in abundant natural light. The room is styled in a clean, minimalist corporate aesthetic with subtle teal accents, conveying safety, premium quality, and a conducive environment for university students." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrumLSWHLuP4yvJU8CbWxw6dsKK2RN1RiZTqCIfbGiCwg5TRBC-ULFOmioClpyCpSuBxKXWAAoIEHPOjHiFS1PRau-bboWVT-N5D16sPRLnECNu-fRCe8oczxWPfMiMyTWdwHxwdWVQEmM_mbtDc08EhnDqY-yrNDM7IDMJQMHJXcEq8KBS1UfXBOgkV1iz1diSZr_1byKUjkfrUVV7YW2E-mpM01SX9MVz6C616Y16wU3oRYcFRht5A"/>
+<div class="absolute top-2 right-2 bg-surface px-2 py-1 rounded shadow-sm border border-outline-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-tertiary" data-icon="verified">verified</span>
+<span class="font-label-sm text-label-sm text-tertiary">Verified</span>
+</div>
+</div>
+<div class="p-4 bg-surface-container-lowest">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h3 class="font-label-md text-label-md text-on-surface font-bold">Elite Scholars Residence</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="location_on">location_on</span>
+                                        1.2 km from NUST Gate 1
+                                    </p>
+</div>
+<div class="text-right">
+<p class="font-label-md text-label-md text-primary font-bold">Rs. 35,000</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">/month</p>
+</div>
+</div>
+<div class="flex gap-2 mt-3 flex-wrap">
+<span class="bg-surface-container-low border border-outline-variant px-2 py-1 rounded text-xs text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]" data-icon="ac_unit">ac_unit</span> AC
+                                </span>
+<span class="bg-surface-container-low border border-outline-variant px-2 py-1 rounded text-xs text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]" data-icon="wifi">wifi</span> Fiber Wifi
+                                </span>
+<span class="bg-surface-container-low border border-outline-variant px-2 py-1 rounded text-xs text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]" data-icon="restaurant">restaurant</span> 3 Meals
+                                </span>
+</div>
+<button class="w-full mt-4 bg-primary text-on-primary py-2 rounded font-label-md text-label-md hover:bg-surface-tint transition-colors">
+                                View Details &amp; Book
+                            </button>
+</div>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant pl-1">10:03 AM</span>
+</div>
+<!-- Quick Prompts Area (Sticky to bottom of chat area) -->
+<div class="mt-auto pt-stack-md flex flex-wrap gap-2 justify-end">
+<button class="bg-surface border border-outline-variant text-on-surface-variant px-4 py-2 rounded-full font-body-sm text-body-sm hover:bg-surface-container-high transition-colors shadow-sm">
+                    Find me a hostel...
+                </button>
+<button class="bg-surface border border-outline-variant text-on-surface-variant px-4 py-2 rounded-full font-body-sm text-body-sm hover:bg-surface-container-high transition-colors shadow-sm">
+                    Compare hostels near FAST
+                </button>
+<button class="bg-surface border border-outline-variant text-on-surface-variant px-4 py-2 rounded-full font-body-sm text-body-sm hover:bg-surface-container-high transition-colors shadow-sm">
+                    What is escrow?
+                </button>
+</div>
+</div>
+<!-- Input Area -->
+<div class="pt-stack-md border-t border-outline-variant bg-background mt-auto sticky bottom-0">
+<div class="relative flex items-center">
+<input class="w-full bg-surface-container-low border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg py-3 pl-4 pr-12 font-body-md text-body-md text-on-surface shadow-sm" placeholder="Type your message..." type="text"/>
+<button class="absolute right-2 p-2 bg-primary text-on-primary rounded-md hover:bg-surface-tint transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]" data-icon="send">send</span>
+</button>
+</div>
+<div class="flex justify-center mt-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase flex items-center gap-1">
+                    Powered by Claude AI
+                </span>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Hidden on md and up as per Navigation Shell Mandate) -->
+<nav class="fixed bottom-0 w-full z-50 bg-surface dark:bg-surface-dim border-t border-outline-variant dark:border-outline shadow-sm flex justify-around items-center h-16 w-full max-w-md mx-auto md:hidden md:max-w-full">
+<!-- Dashboard (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="dashboard">dashboard</span>
+<span class="font-label-sm text-label-sm">Dashboard</span>
+</a>
+<!-- Explore (Active based on Semantic intent - Search/Explore) -->
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="search">search</span>
+<span class="font-label-sm text-label-sm">Explore</span>
+</a>
+<!-- Bookings (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="receipt_long">receipt_long</span>
+<span class="font-label-sm text-label-sm">Bookings</span>
+</a>
+<!-- Profile (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="person">person</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</a>
+</nav>
+</body></html>

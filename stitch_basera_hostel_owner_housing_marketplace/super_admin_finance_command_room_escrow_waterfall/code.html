@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&amp;family=Roboto+Flex:wght@400;500;600&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "surface-tint": "#006972",
+          "surface-container-lowest": "#ffffff",
+          "primary": "#00535b",
+          "surface-bright": "#fcf9f8",
+          "on-error": "#ffffff",
+          "on-tertiary-container": "#a9ece4",
+          "error-container": "#ffdad6",
+          "primary-fixed": "#9ff0fb",
+          "inverse-primary": "#82d3de",
+          "primary-fixed-dim": "#82d3de",
+          "on-tertiary-fixed-variant": "#00504b",
+          "tertiary": "#01544f",
+          "on-primary-fixed-variant": "#004f56",
+          "inverse-on-surface": "#f3f0ef",
+          "on-error-container": "#93000a",
+          "on-secondary-fixed-variant": "#414560",
+          "surface-container-high": "#eae7e7",
+          "on-secondary-fixed": "#161a32",
+          "surface-container-highest": "#e5e2e1",
+          "tertiary-fixed-dim": "#90d3cb",
+          "on-secondary-container": "#5d617d",
+          "surface-container": "#f0eded",
+          "tertiary-fixed": "#acefe7",
+          "on-surface": "#1b1c1c",
+          "outline-variant": "#bec8ca",
+          "inverse-surface": "#303030",
+          "on-background": "#1b1c1c",
+          "primary-container": "#006d77",
+          "on-tertiary-fixed": "#00201e",
+          "on-primary": "#ffffff",
+          "on-primary-fixed": "#001f23",
+          "on-surface-variant": "#3e494a",
+          "surface-variant": "#e5e2e1",
+          "secondary-fixed-dim": "#c1c4e5",
+          "on-secondary": "#ffffff",
+          "secondary-fixed": "#dee0ff",
+          "secondary-container": "#dbdeff",
+          "secondary": "#595d78",
+          "surface": "#fcf9f8",
+          "on-tertiary": "#ffffff",
+          "surface-container-low": "#f6f3f2",
+          "tertiary-container": "#286d67",
+          "background": "#fcf9f8",
+          "surface-dim": "#dcd9d9",
+          "on-primary-container": "#9becf7",
+          "error": "#ba1a1a",
+          "outline": "#6f797a"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.125rem",
+          "lg": "0.25rem",
+          "xl": "0.5rem",
+          "full": "0.75rem"
+        },
+        "spacing": {
+          "stack-lg": "32px",
+          "margin-mobile": "16px",
+          "stack-sm": "8px",
+          "stack-md": "16px",
+          "unit": "4px",
+          "margin-desktop": "32px",
+          "gutter": "24px",
+          "container-max": "1280px"
+        },
+        "fontFamily": {
+          "label-sm": [
+            "Roboto Flex"
+          ],
+          "body-lg": [
+            "Roboto Flex"
+          ],
+          "body-md": [
+            "Roboto Flex"
+          ],
+          "display-lg-mobile": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-md": [
+            "Plus Jakarta Sans"
+          ],
+          "label-md": [
+            "Roboto Flex"
+          ],
+          "display-lg": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-lg": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-lg-mobile": [
+            "Plus Jakarta Sans"
+          ],
+          "body-sm": [
+            "Roboto Flex"
+          ]
+        },
+        "fontSize": {
+          "label-sm": [
+            "12px",
+            {
+              "lineHeight": "1",
+              "letterSpacing": "0.03em",
+              "fontWeight": "600"
+            }
+          ],
+          "body-lg": [
+            "18px",
+            {
+              "lineHeight": "1.6",
+              "fontWeight": "400"
+            }
+          ],
+          "body-md": [
+            "16px",
+            {
+              "lineHeight": "1.5",
+              "fontWeight": "400"
+            }
+          ],
+          "display-lg-mobile": [
+            "32px",
+            {
+              "lineHeight": "1.2",
+              "letterSpacing": "-0.02em",
+              "fontWeight": "700"
+            }
+          ],
+          "headline-md": [
+            "20px",
+            {
+              "lineHeight": "1.4",
+              "fontWeight": "600"
+            }
+          ],
+          "label-md": [
+            "14px",
+            {
+              "lineHeight": "1",
+              "letterSpacing": "0.01em",
+              "fontWeight": "500"
+            }
+          ],
+          "display-lg": [
+            "48px",
+            {
+              "lineHeight": "1.2",
+              "letterSpacing": "-0.02em",
+              "fontWeight": "700"
+            }
+          ],
+          "headline-lg": [
+            "30px",
+            {
+              "lineHeight": "1.3",
+              "fontWeight": "600"
+            }
+          ],
+          "headline-lg-mobile": [
+            "24px",
+            {
+              "lineHeight": "1.3",
+              "fontWeight": "600"
+            }
+          ],
+          "body-sm": [
+            "14px",
+            {
+              "lineHeight": "1.5",
+              "fontWeight": "400"
+            }
+          ]
+        }
+      }
+    }
+  }</script></head><body class="bg-background font-body-md text-on-surface"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-container-lowest z-50 flex flex-col shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="p-6 pb-4 flex items-center justify-between"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center text-on-primary font-headline-lg text-headline-lg font-bold">B</div><div><div class="font-headline-md text-headline-md font-bold tracking-tight text-primary leading-none">Basera</div><span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Enterprise PMS</span></div></div><span class="material-symbols-outlined text-primary text-[20px]">verified</span></div><div class="px-6 py-3"><div class="p-2 rounded-xl bg-surface-container-low flex flex-col gap-1"><div class="flex items-center justify-between px-2 pt-1"><span class="font-label-sm text-label-sm text-on-surface-variant uppercase font-semibold">Active Role</span><span class="font-label-sm text-label-sm text-primary font-medium cursor-pointer">Switch</span></div><div class="flex items-center justify-between px-2 py-1.5 rounded-lg bg-surface-container-lowest shadow-[0_1px_4px_rgba(0,0,0,0.03)]"><div class="flex items-center gap-2 overflow-hidden"><span class="material-symbols-outlined text-[18px] text-primary">corporate_fare</span><span class="font-label-md text-label-md text-on-surface truncate font-semibold">Hostel Group Owner</span></div><span class="material-symbols-outlined text-[18px] text-on-surface-variant">unfold_more</span></div></div></div><nav class="flex-1 px-4 py-2 space-y-1 overflow-y-auto" data-active-classes="bg-primary-container text-on-primary font-semibold rounded-lg shadow-[0_1px_4px_rgba(0,0,0,0.04)]"><div class="px-3 pb-2 pt-1 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-semibold">Core Operations</div><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-all" data-path="overview" href="#"><span class="material-symbols-outlined text-[20px]">dashboard</span><span>Overview</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-all" data-path="properties-and-branches" href="#"><span class="material-symbols-outlined text-[20px]">domain</span><span>Properties &amp; Branches</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-all" data-path="bookings" href="#"><span class="material-symbols-outlined text-[20px]">hotel</span><span>Bookings</span></a><div class="px-3 pb-2 pt-4 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-semibold">Financial Architecture</div><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-all" data-path="finance-and-pnl" href="#"><span class="material-symbols-outlined text-[20px]">account_balance</span><span>Finance &amp; P&amp;L</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-all" data-path="ledger-and-escrow" href="#"><span class="material-symbols-outlined text-[20px]">receipt_long</span><span>Ledger &amp; Escrow</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-all" data-path="operating-expenses" href="#"><span class="material-symbols-outlined text-[20px]">payments</span><span>Operating Expenses</span></a><a class="flex items-center justify-between px-3 py-2.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-all" data-path="disputes" href="#"><div class="flex items-center gap-3"><span class="material-symbols-outlined text-[20px]">gavel</span><span>Disputes</span></div><span class="px-1.5 py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-semibold">2</span></a><div class="px-3 pb-2 pt-4 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-semibold">Intelligence &amp; Admin</div><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-all" data-path="analytics" href="#"><span class="material-symbols-outlined text-[20px]">insights</span><span>Analytics</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-all" data-path="system-settings" href="#"><span class="material-symbols-outlined text-[20px]">settings</span><span>System Settings</span></a></nav><div class="p-4 mt-auto bg-surface-container-low"><div class="flex items-center gap-3 p-2"><div class="w-9 h-9 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[20px]">shield_person</span></div><div class="flex-1 min-w-0"><div class="font-label-md text-label-md font-semibold text-on-surface truncate">Zubair Tariq</div><div class="font-label-sm text-label-sm text-on-surface-variant truncate">Royal Living Group</div></div><span class="material-symbols-outlined text-on-surface-variant text-[18px] cursor-pointer hover:text-on-surface">logout</span></div></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-16 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-8"><div class="flex items-center gap-4"><div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-lowest shadow-[0_1px_4px_rgba(0,0,0,0.03)] cursor-pointer"><span class="material-symbols-outlined text-primary text-[18px]">store</span><span class="font-label-md text-label-md text-on-surface font-semibold">All Branches - Royal Group of Hostels</span><span class="material-symbols-outlined text-on-surface-variant text-[18px]">expand_more</span></div><div class="flex items-center bg-surface-container-low rounded-lg p-0.5"><button class="px-2.5 py-1 rounded bg-surface-container-lowest shadow-[0_1px_2px_rgba(0,0,0,0.04)] font-label-sm text-label-sm font-semibold text-primary">PKR</button><button class="px-2.5 py-1 rounded font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface">USD</button></div></div><div class="flex items-center gap-3"><div class="flex items-center bg-surface-container-lowest px-3 py-1.5 rounded-lg shadow-[0_1px_4px_rgba(0,0,0,0.03)] gap-2"><span class="material-symbols-outlined text-on-surface-variant text-[18px]">search</span><span class="font-body-sm text-body-sm text-on-surface-variant">Search transactions, beds, residents...</span><span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant">⌘K</span></div><div class="relative p-2 rounded-lg bg-surface-container-lowest shadow-[0_1px_4px_rgba(0,0,0,0.03)] cursor-pointer text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-error"></span></div><div class="p-2 rounded-lg bg-surface-container-lowest shadow-[0_1px_4px_rgba(0,0,0,0.03)] cursor-pointer text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"><span class="material-symbols-outlined text-[20px]">help</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0 cursor-pointer shadow-[0_1px_4px_rgba(0,0,0,0.04)]"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><main class="w-full pt-16 bg-surface min-h-screen px-8 py-6"><div class="flex flex-col w-full">
+<!-- Command Header & Telemetry Status -->
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-8">
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center gap-2.5">
+<span class="px-2 py-0.5 rounded bg-primary-container text-on-primary font-label-sm text-label-sm uppercase tracking-wider">Tier-1 Audit Active</span>
+<div class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-surface-container-high text-tertiary font-label-sm text-label-sm">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+<span>System Integrity: Optimal (All Gateways Synced)</span>
+</div>
+</div>
+<h1 class="font-display-lg text-headline-lg font-bold text-on-surface tracking-tight">Platform Finance Command Room</h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-3xl">System-wide liquidity, escrow reserve waterfall, platform commission earnings, and dispute liabilities across Pakistan.</p>
+</div>
+<!-- Live Telemetry Badge & Quick Actions -->
+<div class="flex items-center gap-3 self-start lg:self-auto">
+<div class="px-4 py-2 rounded-lg bg-surface-container-lowest shadow-sm flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-[20px]">account_balance</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Settlement Clock</span>
+<span class="font-label-md text-label-md font-semibold text-on-surface" id="live-time-ticker">PKT 14:48:22 • Raast Online</span>
+</div>
+</div>
+<button class="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-primary hover:bg-primary-container text-on-primary transition-colors shadow-sm font-label-md text-label-md font-semibold">
+<span class="material-symbols-outlined text-[18px]">download</span>
+<span>Download Tax Audit CSV</span>
+</button>
+</div>
+</div>
+<!-- Top KPI Stat Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 pb-8">
+<!-- Card 1: Escrow Reserve -->
+<div class="p-6 rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between relative overflow-hidden group">
+<div class="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-primary-fixed/20 pointer-events-none transition-transform group-hover:scale-125"></div>
+<div>
+<div class="flex items-center justify-between pb-3">
+<span class="font-label-sm text-label-sm uppercase font-semibold tracking-wider text-on-surface-variant">Escrow Reserve Trust</span>
+<span class="material-symbols-outlined text-primary text-[22px]">shield_with_heart</span>
+</div>
+<div class="font-display-lg text-headline-lg font-bold text-on-surface tracking-tight">PKR 84,650,000</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant pt-1.5 leading-snug">Funds currently secured in Tier-1 banking trust accounts.</p>
+</div>
+<div class="pt-4 mt-2 flex items-center justify-between font-label-sm text-label-sm">
+<span class="px-2 py-0.5 rounded bg-surface-container text-primary font-semibold">100% Backed</span>
+<span class="text-tertiary flex items-center gap-1 font-semibold">
+<span class="material-symbols-outlined text-[16px]">lock</span> 48h Maturation
+        </span>
+</div>
+</div>
+<!-- Card 2: Monthly GMV -->
+<div class="p-6 rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between relative overflow-hidden group">
+<div class="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-secondary-fixed/20 pointer-events-none transition-transform group-hover:scale-125"></div>
+<div>
+<div class="flex items-center justify-between pb-3">
+<span class="font-label-sm text-label-sm uppercase font-semibold tracking-wider text-on-surface-variant">Gross Volume (GMV)</span>
+<span class="material-symbols-outlined text-secondary text-[22px]">analytics</span>
+</div>
+<div class="font-display-lg text-headline-lg font-bold text-on-surface tracking-tight">PKR 142,500,000</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant pt-1.5 leading-snug">Across 340 verified partner hostels &amp; guest houses.</p>
+</div>
+<div class="pt-4 mt-2 flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-tertiary font-semibold flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[16px]">trending_up</span> +18.4% MoM
+        </span>
+<span class="text-on-surface-variant">Active Run-Rate</span>
+</div>
+</div>
+<!-- Card 3: Platform Net Commission -->
+<div class="p-6 rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between relative overflow-hidden group">
+<div class="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-primary-fixed-dim/20 pointer-events-none transition-transform group-hover:scale-125"></div>
+<div>
+<div class="flex items-center justify-between pb-3">
+<span class="font-label-sm text-label-sm uppercase font-semibold tracking-wider text-on-surface-variant">Platform Net Earnings</span>
+<span class="material-symbols-outlined text-primary-container text-[22px]">payments</span>
+</div>
+<div class="font-display-lg text-headline-lg font-bold text-primary tracking-tight">PKR 10,975,000</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant pt-1.5 leading-snug">7% auto-commission + PKR 400 resident security fees.</p>
+</div>
+<div class="pt-4 mt-2 flex items-center justify-between font-label-sm text-label-sm">
+<span class="px-2 py-0.5 rounded bg-primary-container/10 text-primary-container font-semibold">Sweep Cleared</span>
+<span class="text-on-surface-variant">Est. EOM: PKR 14.8M</span>
+</div>
+</div>
+<!-- Card 4: Active Dispute Liability -->
+<div class="p-6 rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between relative overflow-hidden group">
+<div class="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-error-container/30 pointer-events-none transition-transform group-hover:scale-125"></div>
+<div>
+<div class="flex items-center justify-between pb-3">
+<span class="font-label-sm text-label-sm uppercase font-semibold tracking-wider text-on-surface-variant">Escrow Hold Liability</span>
+<span class="material-symbols-outlined text-error text-[22px]">gavel</span>
+</div>
+<div class="font-display-lg text-headline-lg font-bold text-error tracking-tight">PKR 1,420,000</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant pt-1.5 leading-snug">18 open cases under active administrative arbitration.</p>
+</div>
+<div class="pt-4 mt-2 flex items-center justify-between font-label-sm text-label-sm">
+<span class="px-2 py-0.5 rounded bg-error-container text-on-error-container font-semibold">0.99% of GMV</span>
+<span class="text-on-surface-variant">SLA: &lt;24h Resolution</span>
+</div>
+</div>
+</div>
+<!-- Primary Architecture: Waterfall Flow & Visual Stage -->
+<div class="p-6 rounded-xl bg-surface-container-lowest shadow-sm mb-8">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between pb-6 gap-2">
+<div>
+<span class="font-label-sm text-label-sm uppercase font-semibold tracking-wider text-primary">Capital Ingress &amp; Distribution Architecture</span>
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface">Escrow Waterfall &amp; Liquidity Pool Monitor</h2>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant font-label-sm text-label-sm">
+<span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-primary-container"></span> Collection</span>
+<span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-tertiary"></span> Trust Custody</span>
+<span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-secondary"></span> Net Clearance</span>
+</div>
+</div>
+<!-- Visual Staged Waterfall Flow -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 relative">
+<!-- Step 1 -->
+<div class="p-5 rounded-lg bg-surface-container-low flex flex-col justify-between relative">
+<div>
+<div class="flex items-center justify-between pb-3">
+<span class="px-2 py-0.5 rounded bg-primary text-on-primary font-label-sm text-label-sm font-semibold">Stage 01</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Gross Ingress</span>
+</div>
+<h3 class="font-headline-md text-headline-md font-bold text-on-surface">PKR 142.5M</h3>
+<p class="font-label-md text-label-md font-semibold text-primary pt-1">Inflow Collection</p>
+<div class="mt-4 space-y-2">
+<div class="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span>JazzCash Direct (42%)</span>
+<span class="font-semibold text-on-surface">PKR 59.85M</span>
+</div>
+<div class="w-full h-1.5 rounded-full bg-surface-container-highest overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 42%;"></div>
+</div>
+<div class="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm pt-1">
+<span>EasyPaisa Core (35%)</span>
+<span class="font-semibold text-on-surface">PKR 49.87M</span>
+</div>
+<div class="w-full h-1.5 rounded-full bg-surface-container-highest overflow-hidden">
+<div class="h-full bg-primary-container rounded-full" style="width: 35%;"></div>
+</div>
+<div class="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm pt-1">
+<span>1Link &amp; Raast (23%)</span>
+<span class="font-semibold text-on-surface">PKR 32.78M</span>
+</div>
+<div class="w-full h-1.5 rounded-full bg-surface-container-highest overflow-hidden">
+<div class="h-full bg-secondary rounded-full" style="width: 23%;"></div>
+</div>
+</div>
+</div>
+<div class="pt-4 mt-4 flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span>Processing Fee Avg: 1.1%</span>
+<span class="material-symbols-outlined text-primary text-[18px]">arrow_forward</span>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="p-5 rounded-lg bg-surface-container-low flex flex-col justify-between relative">
+<div>
+<div class="flex items-center justify-between pb-3">
+<span class="px-2 py-0.5 rounded bg-tertiary text-on-tertiary font-label-sm text-label-sm font-semibold">Stage 02</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Safe Escrow</span>
+</div>
+<h3 class="font-headline-md text-headline-md font-bold text-on-surface">PKR 84.65M</h3>
+<p class="font-label-md text-label-md font-semibold text-tertiary pt-1">In-Escrow Trust Hold</p>
+<div class="mt-4 p-3 rounded-lg bg-surface-container-lowest space-y-2">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-on-surface-variant">Hold Window</span>
+<span class="font-semibold text-on-surface">48h Post Check-In</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-on-surface-variant">Meezan Trust A/C</span>
+<span class="font-semibold text-on-surface">PKR 54.20M</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-on-surface-variant">Habib Bank Escrow</span>
+<span class="font-semibold text-on-surface">PKR 30.45M</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant pt-3 leading-tight">Residents protected against misrepresentation or sudden hostel cancellation.</p>
+</div>
+<div class="pt-4 mt-2 flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span class="text-tertiary font-semibold flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">verified_user</span> Sovereign Backing</span>
+<span class="material-symbols-outlined text-tertiary text-[18px]">arrow_forward</span>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="p-5 rounded-lg bg-surface-container-low flex flex-col justify-between relative">
+<div>
+<div class="flex items-center justify-between pb-3">
+<span class="px-2 py-0.5 rounded bg-primary-container text-on-primary font-label-sm text-label-sm font-semibold">Stage 03</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Margin Split</span>
+</div>
+<h3 class="font-headline-md text-headline-md font-bold text-on-surface">PKR 9.97M</h3>
+<p class="font-label-md text-label-md font-semibold text-primary pt-1">Commission Sweep</p>
+<div class="mt-4 space-y-2.5">
+<div class="p-2.5 rounded bg-surface-container-lowest flex items-center justify-between">
+<div>
+<div class="font-label-sm text-label-sm font-semibold text-on-surface">Host Standard Commission</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">7.0% Flat on Booking Total</div>
+</div>
+<span class="font-label-md text-label-md font-bold text-primary">PKR 8.85M</span>
+</div>
+<div class="p-2.5 rounded bg-surface-container-lowest flex items-center justify-between">
+<div>
+<div class="font-label-sm text-label-sm font-semibold text-on-surface">Resident Technology Fee</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">PKR 400 per active resident</div>
+</div>
+<span class="font-label-md text-label-md font-bold text-primary">PKR 1.12M</span>
+</div>
+</div>
+</div>
+<div class="pt-4 mt-2 flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span>Auto-deposited to OpEx Pool</span>
+<span class="material-symbols-outlined text-primary text-[18px]">arrow_forward</span>
+</div>
+</div>
+<!-- Step 4 -->
+<div class="p-5 rounded-lg bg-surface-container-low flex flex-col justify-between relative">
+<div>
+<div class="flex items-center justify-between pb-3">
+<span class="px-2 py-0.5 rounded bg-secondary text-on-secondary font-label-sm text-label-sm font-semibold">Stage 04</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Final Clearing</span>
+</div>
+<h3 class="font-headline-md text-headline-md font-bold text-on-surface">PKR 121.2M</h3>
+<p class="font-label-md text-label-md font-semibold text-secondary pt-1">Payout Release to Hosts</p>
+<div class="mt-4 p-3 rounded-lg bg-surface-container-lowest space-y-2">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-on-surface-variant">Settled via 1Link IBAN</span>
+<span class="font-semibold text-on-surface">PKR 118.6M</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-on-surface-variant">Pending In-Window Clearing</span>
+<span class="font-semibold text-on-surface">PKR 2.6M</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-on-surface-variant">Host IBANs Validated</span>
+<span class="font-semibold text-on-surface">340 of 340</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant pt-3 leading-tight">Instant settlement straight to property group operational IBANs.</p>
+</div>
+<div class="pt-4 mt-2 flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span class="text-primary font-semibold">Zero Settlement Failure</span>
+<span class="material-symbols-outlined text-tertiary text-[18px]">check_circle</span>
+</div>
+</div>
+</div>
+<!-- Inline Liquidity Sparkline & Protocol Status -->
+<div class="mt-6 p-4 rounded-lg bg-surface-container-low flex flex-col lg:flex-row items-center justify-between gap-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm">
+<span class="material-symbols-outlined text-[24px]">query_stats</span>
+</div>
+<div>
+<div class="font-label-md text-label-md font-semibold text-on-surface">30-Day Escrow Buffer Ratio: 1.58x (Surplus PKR 31.2M)</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Required regulatory reserve PKR 53.4M under SBP Electronic Money Institution (EMI) directives.</div>
+</div>
+</div>
+<div class="flex items-center gap-6 w-full lg:w-auto justify-end">
+<div class="hidden sm:block">
+<!-- Mini SVG Sparkline -->
+<svg class="w-36 h-8 text-primary" fill="none" viewbox="0 0 144 32">
+<path d="M0 24L20 20L40 22L60 14L80 17L100 8L120 12L144 2" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+<path d="M0 24L20 20L40 22L60 14L80 17L100 8L120 12L144 2V32H0Z" fill="currentColor" fill-opacity="0.08"></path>
+</svg>
+</div>
+<span class="px-3 py-1.5 rounded-lg bg-surface-container-lowest font-label-sm text-label-sm font-semibold text-tertiary shadow-sm">Audit Log Hash #PK-98214-SBP</span>
+</div>
+</div>
+</div>
+<!-- Dual Split: Payout Approval & Anomaly Queue (Left) vs Regulatory Tax Engine (Right) -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-8 mb-8">
+<!-- Payout Approval & Anomaly Detection Queue (7 Columns) -->
+<div class="xl:col-span-7 flex flex-col gap-4">
+<div class="p-6 rounded-xl bg-surface-container-lowest shadow-sm flex flex-col">
+<div class="flex items-center justify-between pb-5">
+<div class="flex items-center gap-2.5">
+<div class="w-8 h-8 rounded-lg bg-error-container/40 flex items-center justify-center text-error">
+<span class="material-symbols-outlined text-[20px]">security</span>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface">Escrow Queue &amp; Anomaly Detection</h2>
+<span class="font-label-sm text-label-sm text-on-surface-variant">High-priority finance operations requiring two-factor authorization</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-semibold">3 Actions Needed</span>
+</div>
+<!-- Action Items List -->
+<div class="space-y-3.5">
+<!-- Item 1: Move-in verification payout -->
+<div class="p-4 rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors flex flex-col gap-3">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest flex items-center justify-center text-primary font-bold shadow-sm">
+                  R
+                </div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-label-md text-label-md font-bold text-on-surface">Royal Group of Hostels</span>
+<span class="px-1.5 py-0.2 rounded bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm">KYC Verified</span>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Batch Payout: 14 Move-in releases authenticated via biometric resident sign-in.</div>
+</div>
+</div>
+<div class="text-right sm:self-center">
+<span class="font-headline-md text-headline-md font-bold text-on-surface">PKR 1,240,000</span>
+<div class="font-label-sm text-label-sm text-on-surface-variant">1Link IBAN: PK36...9012</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2">
+<span class="font-label-sm text-label-sm text-tertiary flex items-center gap-1 font-semibold">
+<span class="material-symbols-outlined text-[16px]">verified</span> 48h Escrow Maturity Met
+              </span>
+<div class="flex items-center gap-2">
+<button class="px-3 py-1.5 rounded bg-surface-container-lowest hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm font-medium transition-colors">Inspect Folios</button>
+<button class="px-4 py-1.5 rounded bg-primary hover:bg-primary-container text-on-primary font-label-sm text-label-sm font-semibold transition-colors shadow-sm" onclick="this.innerHTML='Approved ✓'; this.disabled=true;">
+                  Approve 1Link Payout
+                </button>
+</div>
+</div>
+</div>
+<!-- Item 2: Anomaly Flagged -->
+<div class="p-4 rounded-lg bg-surface-container-low flex flex-col gap-3 relative overflow-hidden">
+<div class="absolute top-0 left-0 bottom-0 w-1.5 bg-error"></div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pl-1">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-error-container flex items-center justify-center text-error font-bold shadow-sm">
+<span class="material-symbols-outlined text-[20px]">warning</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-label-md text-label-md font-bold text-on-surface">Margalla Boys Hostel</span>
+<span class="px-1.5 py-0.2 rounded bg-error-container text-on-error-container font-label-sm text-label-sm font-semibold">Anomaly Flagged</span>
+</div>
+<div class="font-body-sm text-body-sm text-error font-medium">Audit Trap: Host solicited PKR 25,000 cash deposit off-platform via WhatsApp.</div>
+</div>
+</div>
+<div class="text-right sm:self-center">
+<span class="font-headline-md text-headline-md font-bold text-error">PKR 315,000</span>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Held in Protective Lock</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2 pl-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Flagged by Anti-Disintermediation AI</span>
+<div class="flex items-center gap-2">
+<button class="px-3 py-1.5 rounded bg-surface-container-lowest hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm font-medium transition-colors">Chat Evidence</button>
+<button class="px-4 py-1.5 rounded bg-error hover:bg-red-800 text-on-error font-label-sm text-label-sm font-semibold transition-colors shadow-sm" onclick="this.innerHTML='Payout Frozen'; this.classList.add('bg-error-container','text-on-error-container');">
+                  Block Payout &amp; Review Case
+                </button>
+</div>
+</div>
+</div>
+<!-- Item 3: Instant Refund Cancellation Window -->
+<div class="p-4 rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors flex flex-col gap-3">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest flex items-center justify-center text-secondary font-bold shadow-sm">
+                  I
+                </div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-label-md text-label-md font-bold text-on-surface">Islamabad Executive Guest House</span>
+<span class="px-1.5 py-0.2 rounded bg-secondary-container text-on-secondary-container font-label-sm text-label-sm">Free Window</span>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Instant Student Refund Request (Cancellation T-36h prior to commencement).</div>
+</div>
+</div>
+<div class="text-right sm:self-center">
+<span class="font-headline-md text-headline-md font-bold text-on-surface">PKR 17,000</span>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Resident JazzCash Wallet</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">schedule</span> 18 mins remaining in auto-reversal SLA
+              </span>
+<div class="flex items-center gap-2">
+<button class="px-4 py-1.5 rounded bg-secondary-container hover:bg-secondary text-on-secondary-container hover:text-on-secondary font-label-sm text-label-sm font-semibold transition-colors shadow-sm" onclick="this.innerHTML='Refunded Instantly'; this.disabled=true;">
+                  Process Instant Refund
+                </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Live Settlement Audit Feed -->
+<div class="p-5 rounded-xl bg-surface-container-lowest shadow-sm flex flex-col">
+<div class="flex items-center justify-between pb-3">
+<span class="font-headline-md text-headline-md font-bold text-on-surface">Live Clearing Stream</span>
+<span class="font-label-sm text-label-sm text-tertiary font-semibold flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span> 1Link Batch Engine Active
+          </span>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left font-label-md text-label-md">
+<thead>
+<tr class="text-on-surface-variant font-label-sm text-label-sm uppercase bg-surface-container-low">
+<th class="py-2.5 px-3 rounded-l">Transaction Ref</th>
+<th class="py-2.5 px-3">Gateway</th>
+<th class="py-2.5 px-3">Entity</th>
+<th class="py-2.5 px-3">Amount</th>
+<th class="py-2.5 px-3 rounded-r text-right">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-transparent font-body-sm text-body-sm">
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-2.5 px-3 font-mono font-semibold text-primary">#TXN-88401</td>
+<td class="py-2.5 px-3">Raast P2M</td>
+<td class="py-2.5 px-3">Al-Rehman Girls Hostel</td>
+<td class="py-2.5 px-3 font-semibold text-on-surface">PKR 48,000</td>
+<td class="py-2.5 px-3 text-right"><span class="px-2 py-0.5 rounded bg-surface-container text-tertiary font-semibold">Cleared</span></td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-2.5 px-3 font-mono font-semibold text-primary">#TXN-88402</td>
+<td class="py-2.5 px-3">JazzCash API</td>
+<td class="py-2.5 px-3">Fast Campus Living</td>
+<td class="py-2.5 px-3 font-semibold text-on-surface">PKR 62,500</td>
+<td class="py-2.5 px-3 text-right"><span class="px-2 py-0.5 rounded bg-surface-container text-tertiary font-semibold">Cleared</span></td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-2.5 px-3 font-mono font-semibold text-primary">#TXN-88403</td>
+<td class="py-2.5 px-3">EasyPaisa Hub</td>
+<td class="py-2.5 px-3">NUST Lodges H-12</td>
+<td class="py-2.5 px-3 font-semibold text-on-surface">PKR 33,000</td>
+<td class="py-2.5 px-3 text-right"><span class="px-2 py-0.5 rounded bg-surface-container text-primary font-semibold">In Escrow</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Regulatory & Tax Compliance Console (5 Columns) -->
+<div class="xl:col-span-5 flex flex-col gap-4">
+<div class="p-6 rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between h-full">
+<div>
+<div class="flex items-center justify-between pb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[24px]">balance</span>
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface">Regulatory &amp; Tax Engine</h2>
+</div>
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm font-semibold">FY 2024-25</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant pb-5">Automated provincial revenue authority withholdings, FBR section 236A/C deduction manifests, and live tax filing exports.</p>
+<!-- Tax Reconciliation Matrix -->
+<div class="space-y-3.5">
+<!-- FBR Income Tax Withholding -->
+<div class="p-4 rounded-lg bg-surface-container-low flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+<span class="font-label-md text-label-md font-bold text-on-surface">FBR Withholding (Sec 153)</span>
+</div>
+<span class="font-headline-md text-headline-md font-bold text-on-surface">PKR 3,562,500</span>
+</div>
+<div class="flex items-center justify-between text-on-surface-variant font-body-sm text-body-sm">
+<span>Active Filer host deduction (3.5% avg)</span>
+<span class="text-tertiary font-semibold">100% CPRs Logged</span>
+</div>
+<div class="w-full h-1.5 rounded-full bg-surface-container-highest overflow-hidden mt-1">
+<div class="h-full bg-primary rounded-full" style="width: 82%;"></div>
+</div>
+</div>
+<!-- PRA (Punjab Revenue Authority) -->
+<div class="p-4 rounded-lg bg-surface-container-low flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-tertiary"></span>
+<span class="font-label-md text-label-md font-bold text-on-surface">PRA Punjab Service Tax (16%)</span>
+</div>
+<span class="font-headline-md text-headline-md font-bold text-on-surface">PKR 1,756,000</span>
+</div>
+<div class="flex items-center justify-between text-on-surface-variant font-body-sm text-body-sm">
+<span>218 Properties in Lahore/Rawalpindi/Multan</span>
+<span class="font-semibold text-on-surface">Reconciled</span>
+</div>
+<div class="w-full h-1.5 rounded-full bg-surface-container-highest overflow-hidden mt-1">
+<div class="h-full bg-tertiary rounded-full" style="width: 94%;"></div>
+</div>
+</div>
+<!-- BRA (Balochistan) & KP Revenue Authority (KPRA) -->
+<div class="p-4 rounded-lg bg-surface-container-low flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+<span class="font-label-md text-label-md font-bold text-on-surface">KPRA &amp; BRA Provincial Levies</span>
+</div>
+<span class="font-headline-md text-headline-md font-bold text-on-surface">PKR 412,000</span>
+</div>
+<div class="flex items-center justify-between text-on-surface-variant font-body-sm text-body-sm">
+<span>Peshawar, Quetta &amp; Abbottabad Branches</span>
+<span class="font-semibold text-on-surface">Auto-Accrued</span>
+</div>
+<div class="w-full h-1.5 rounded-full bg-surface-container-highest overflow-hidden mt-1">
+<div class="h-full bg-secondary rounded-full" style="width: 65%;"></div>
+</div>
+</div>
+</div>
+<!-- Banking Partner Settlement Health -->
+<div class="pt-6">
+<span class="font-label-sm text-label-sm uppercase font-semibold tracking-wider text-on-surface-variant block pb-3">Gateway Pipeline Uptime &amp; SLA</span>
+<div class="grid grid-cols-3 gap-2 text-center">
+<div class="p-2.5 rounded bg-surface-container-low">
+<div class="font-label-sm text-label-sm text-on-surface-variant">1Link / 1Bill</div>
+<div class="font-label-md text-label-md font-bold text-tertiary pt-0.5">99.98%</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant text-[10px]">Lat: 180ms</div>
+</div>
+<div class="p-2.5 rounded bg-surface-container-low">
+<div class="font-label-sm text-label-sm text-on-surface-variant">JazzCash EMI</div>
+<div class="font-label-md text-label-md font-bold text-tertiary pt-0.5">99.91%</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant text-[10px]">Lat: 310ms</div>
+</div>
+<div class="p-2.5 rounded bg-surface-container-low">
+<div class="font-label-sm text-label-sm text-on-surface-variant">Raast Core</div>
+<div class="font-label-md text-label-md font-bold text-tertiary pt-0.5">100.0%</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant text-[10px]">Lat: 85ms</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Compliance Seal & Export -->
+<div class="pt-6 mt-6 flex flex-col gap-3">
+<div class="p-3 rounded-lg bg-surface-container-low flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-[22px]">policy</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-tight">All escrow ledger transactions are hashed into immutable internal audit records compliant with SECP and State Bank of Pakistan regulations.</p>
+</div>
+<button class="w-full py-2.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-label-md text-label-md font-semibold transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+<span>Generate Official FBR IT-3 Return Package</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Operational Visual Footnote -->
+<div class="p-6 rounded-xl bg-surface-container-lowest shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-primary-container/10 flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-[28px]">lock_clock</span>
+</div>
+<div>
+<h4 class="font-headline-md text-headline-md font-bold text-on-surface">Escrow Dual-Key Release Protocol</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant max-w-2xl">Payout releases over PKR 5,000,000 require multi-signature confirmation from both Chief Financial Officer and Platform Compliance Director via hardware security keys.</p>
+</div>
+</div>
+<div class="flex items-center gap-3 shrink-0">
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center text-[12px] font-bold ring-2 ring-surface-container-lowest">ZT</div>
+<div class="w-8 h-8 rounded-full bg-tertiary text-on-tertiary flex items-center justify-center text-[12px] font-bold ring-2 ring-surface-container-lowest">AK</div>
+<div class="w-8 h-8 rounded-full bg-secondary text-on-secondary flex items-center justify-center text-[12px] font-bold ring-2 ring-surface-container-lowest">MS</div>
+</div>
+<span class="font-label-sm text-label-sm font-semibold text-tertiary">3 Keys Online</span>
+</div>
+</div>
+<!-- Inline Script for dynamic time & micro-interactions -->
+<script>
+    function updateClock() {
+      const now = new Date();
+      const options = { timeZone: 'Asia/Karachi', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' };
+      const timeStr = now.toLocaleTimeString('en-GB', options);
+      const el = document.getElementById('live-time-ticker');
+      if (el) {
+        el.innerText = `PKT ${timeStr} • Raast Online`;
+      }
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+  </script>
+</div></main></div></body></html>

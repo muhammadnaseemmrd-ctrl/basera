@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { BedDouble, MapPin, ShieldCheck, Star, Users } from "lucide-react";
 import { api, safeRequest } from "../services/api";
 import { stayProperties } from "../data/mockData";
@@ -58,7 +58,13 @@ function StayCard({ property }) {
 
 export function StaysSearchPage() {
   useDocumentTitle("Hotels & Guest Houses | Basera Stays");
-  const [city, setCity] = useState("Murree");
+  const [searchParams] = useSearchParams();
+  // Homepage's unified search bar (Type = Hotel Room / Guest House) links here with a
+  // ?city= param -- honor it if it matches one of our supported stay cities, otherwise
+  // fall back to the original Murree default.
+  const requestedCity = searchParams.get("city");
+  const initialCity = cities.find((item) => item.toLowerCase() === (requestedCity || "").toLowerCase()) || "Murree";
+  const [city, setCity] = useState(initialCity);
   const [checkInDate, setCheckInDate] = useState(todayIso());
   const [checkOutDate, setCheckOutDate] = useState(tomorrowIso());
   const [guestCount, setGuestCount] = useState(2);

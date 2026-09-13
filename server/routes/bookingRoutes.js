@@ -9,7 +9,8 @@ const DepositCase = require("../models/DepositCase");
 const TenancyAgreement = require("../models/TenancyAgreement");
 const CheckInVerification = require("../models/CheckInVerification");
 const validate = require("../middleware/validate");
-const { protect, authorize } = require("../middleware/auth");
+const { protect, authorize, roleMatches } = require("../middleware/auth");
+const WebhookEvent = require("../models/WebhookEvent");
 const { initiateJazzCash, initiateEasypaisa, createStripeIntent } = require("../services/paymentService");
 const { buildReceiptPdf } = require("../services/receiptService");
 const { generateInstalments } = require("../services/instalmentService");
@@ -115,9 +116,50 @@ const checklistPdf = async (checklist) => new Promise((resolve) => {
 const demoAgreements = [];
 const demoCheckIns = [];
 
+// -- Self-reported payment verification gate ---------------------------
+// POST /:id/token-pay, /:id/instalment/:idx and /:id/rent-pay accept a
+// client-supplied paymentRef. Real gateway confirmation for the *initial*
+// booking payment always happens out-of-band via the signature-verified
+// /api/v1/payments/{jazzcash,easypaisa,stripe}/callback webhooks
+// (paymentRoutes.js), which write a WebhookEvent. These three routes cover
+// *subsequent* payments (token/instalment/rent) and previously trusted the
+// caller's own claim to immediately flip the booking to paid/confirmed and
+// reveal host contact -- with no check that the paymentRef was ever
+// actually confirmed by a gateway. That lets a self-reported/offline claim
+// (e.g. "I paid cash/bank transfer") silently count as a verified payment,
+// which violates the "offline payment != verified payment" business rule.
+// The helpers below gate on either (a) real verified gateway proof for the
+// supplied paymentRef, or (b) the action being taken by platform staff
+// (admin/finance) who are themselves the verifying authority. Anything
+// else is recorded as PENDING_VERIFICATION and must be finalized through
+// POST /:id/payment-verification.
+const STAFF_PAYMENT_ROLES = ["admin", "finance"];
+const isStaffRole = (role) => STAFF_PAYMENT_ROLES.some((allowed) => roleMatches(role, allowed));
+const hasVerifiedGatewayProof = async (paymentRef) => {
+  if (!paymentRef || mongoose.connection.readyState !== 1) return false;
+  const event = await WebhookEvent.findOne({ paymentRef, verified: true }).lean();
+  return Boolean(event);
+};
+
 const loadBookingRecord = async (id) => {
-  if (mongoose.connection.readyState !== 1) return bookings.find((item) => item.id === id) || bookings[0];
+  if (mongoose.connection.readyState !== 1) return bookings.find((item) => item.id === id) || null;
   return Booking.findById(id).populate("student room hostel");
+};
+
+// Shared ownership gate for routes that load a booking via loadBookingRecord()
+// (or an equivalent demo/DB lookup) and must restrict access to the booking's
+// own student, the room's listing host, or an admin -- mirroring the
+// isOwnerStudent/isOwnerHost/admin pattern used across this file.
+const isAuthorizedForBooking = ({ booking, req }) => {
+  if (!booking) return false;
+  if (req.user.role === "admin") return true;
+  const requesterId = String(req.user._id || req.user.id);
+  const isOwnerStudent = String(booking.student?._id || booking.student) === requesterId;
+  if (isOwnerStudent) return true;
+  const hostId = mongoose.connection.readyState !== 1
+    ? (rooms.find((item) => item.id === booking.room) || {}).listedBy
+    : (booking.room?.listedBy || booking.hostel?.owner);
+  return Boolean(hostId && String(hostId) === requesterId);
 };
 
 const agreementRows = (booking = {}, agreement = {}) => {
@@ -362,6 +404,9 @@ router.get("/:id/agreement", protect, async (req, res, next) => {
   try {
     const booking = await loadBookingRecord(req.params.id);
     if (!booking) return res.status(404).json({ message: "Booking not found." });
+    if (!isAuthorizedForBooking({ booking, req })) {
+      return res.status(403).json({ message: "Not authorized for this booking." });
+    }
     const contractId = `HH-AGR-${String(booking._id || booking.id || req.params.id).slice(-8).toUpperCase()}`;
     let agreement = mongoose.connection.readyState !== 1
       ? demoAgreements.find((item) => item.bookingRef === req.params.id) || { bookingRef: req.params.id, contractId, status: "generated" }
@@ -404,6 +449,9 @@ router.post("/:id/agreement/sign", protect, async (req, res, next) => {
     };
     const booking = await loadBookingRecord(req.params.id);
     if (!booking) return res.status(404).json({ message: "Booking not found." });
+    if (!isAuthorizedForBooking({ booking, req })) {
+      return res.status(403).json({ message: "Not authorized for this booking." });
+    }
     const contractId = `HH-AGR-${String(booking._id || booking.id || req.params.id).slice(-8).toUpperCase()}`;
 
     if (mongoose.connection.readyState !== 1) {
@@ -434,6 +482,13 @@ router.post("/:id/agreement/sign", protect, async (req, res, next) => {
 
 router.post("/:id/checkin-verify", protect, async (req, res, next) => {
   try {
+    const booking = await loadBookingRecord(req.params.id);
+    if (!booking) return res.status(404).json({ message: "Booking not found." });
+    const requesterId = String(req.user._id || req.user.id);
+    const isOwnerStudent = String(booking.student?._id || booking.student) === requesterId;
+    if (req.user.role !== "admin" && !isOwnerStudent) {
+      return res.status(403).json({ message: "Not authorized for this booking." });
+    }
     const hasSelfie = Boolean(req.body.selfieUrl);
     const hasCnic = Boolean(req.body.cnicPhotoUrl);
     const confidence = Math.max(45, Math.min(98, Number(req.body.matchConfidence || (hasSelfie && hasCnic ? 91 : hasSelfie ? 74 : 58))));
@@ -465,12 +520,19 @@ router.post("/:id/checkin-verify", protect, async (req, res, next) => {
 router.get("/:id/checklist", protect, async (req, res, next) => {
   try {
     if (mongoose.connection.readyState !== 1) {
-      const booking = bookings.find((item) => item.id === req.params.id) || bookings[0];
+      const booking = bookings.find((item) => item.id === req.params.id);
+      if (!booking) return res.status(404).json({ message: "Booking not found." });
+      if (!isAuthorizedForBooking({ booking, req })) {
+        return res.status(403).json({ message: "Not authorized for this booking." });
+      }
       const room = rooms.find((item) => item.id === booking.room) || rooms[0];
       return res.json({ checklist: packingChecklistFor({ booking, room }), demo: true });
     }
     const booking = await Booking.findById(req.params.id).populate("room");
     if (!booking) return res.status(404).json({ message: "Booking not found." });
+    if (!isAuthorizedForBooking({ booking, req })) {
+      return res.status(403).json({ message: "Not authorized for this booking." });
+    }
     return res.json({ checklist: packingChecklistFor({ booking, room: booking.room }) });
   } catch (error) {
     return next(error);
@@ -479,8 +541,11 @@ router.get("/:id/checklist", protect, async (req, res, next) => {
 
 router.get("/:id/checklist/pdf", protect, async (req, res, next) => {
   try {
-    const booking = mongoose.connection.readyState === 1 ? await Booking.findById(req.params.id).populate("room") : bookings.find((item) => item.id === req.params.id) || bookings[0];
+    const booking = mongoose.connection.readyState === 1 ? await Booking.findById(req.params.id).populate("room") : bookings.find((item) => item.id === req.params.id);
     if (!booking) return res.status(404).json({ message: "Booking not found." });
+    if (!isAuthorizedForBooking({ booking, req })) {
+      return res.status(403).json({ message: "Not authorized for this booking." });
+    }
     const room = mongoose.connection.readyState === 1 ? booking.room : rooms.find((item) => item.id === booking.room) || rooms[0];
     const buffer = await checklistPdf(packingChecklistFor({ booking, room }));
     res.setHeader("Content-Type", "application/pdf");
@@ -494,11 +559,18 @@ router.get("/:id/checklist/pdf", protect, async (req, res, next) => {
 router.get("/:id/cancellation-preview", protect, async (req, res, next) => {
   try {
     if (mongoose.connection.readyState !== 1) {
-      const booking = bookings.find((item) => item.id === req.params.id) || bookings[0];
+      const booking = bookings.find((item) => item.id === req.params.id);
+      if (!booking) return res.status(404).json({ message: "Booking not found." });
+      if (!isAuthorizedForBooking({ booking, req })) {
+        return res.status(403).json({ message: "Not authorized for this booking." });
+      }
       return res.json({ bookingId: req.params.id, preview: calculateRefundPreview({ booking, reason: req.query.reason || "student_cancelled" }), demo: true });
     }
-    const booking = await Booking.findById(req.params.id);
+    const booking = await Booking.findById(req.params.id).populate("room");
     if (!booking) return res.status(404).json({ message: "Booking not found." });
+    if (!isAuthorizedForBooking({ booking, req })) {
+      return res.status(403).json({ message: "Not authorized for this booking." });
+    }
     return res.json({ bookingId: req.params.id, preview: calculateRefundPreview({ booking, reason: req.query.reason || "student_cancelled" }) });
   } catch (error) {
     return next(error);
@@ -508,8 +580,15 @@ router.get("/:id/cancellation-preview", protect, async (req, res, next) => {
 router.get("/:id", protect, async (req, res, next) => {
   try {
     if (mongoose.connection.readyState !== 1) {
-      const booking = bookings.find((item) => item.id === req.params.id) || bookings[0];
+      const booking = bookings.find((item) => item.id === req.params.id);
+      if (!booking) return res.status(404).json({ message: "Booking not found." });
       const room = rooms.find((item) => item.id === booking.room) || rooms[0];
+      const requesterId = String(req.user._id || req.user.id);
+      const isOwnerStudent = String(booking.student) === requesterId;
+      const isOwnerHost = room && String(room.listedBy) === requesterId;
+      if (req.user.role !== "admin" && !isOwnerStudent && !isOwnerHost) {
+        return res.status(403).json({ message: "Not authorized for this booking." });
+      }
       const host = users.find((user) => user.id === room.listedBy) || users.find((user) => ["host", "owner", "landlord"].includes(user.role));
       const reveal = booking.paymentStatus === "paid" && ["confirmed", "active", "completed"].includes(booking.status);
       return res.json({ booking, hostContact: publicHostProfile(host, { reveal }), contactRevealed: reveal, demo: true });
@@ -519,6 +598,12 @@ router.get("/:id", protect, async (req, res, next) => {
     if (!booking) return res.status(404).json({ message: "Booking not found." });
     const room = booking.room;
     const hostId = room?.listedBy || booking.hostel?.owner;
+    const requesterId = String(req.user._id || req.user.id);
+    const isOwnerStudent = String(booking.student) === requesterId;
+    const isOwnerHost = hostId && String(hostId) === requesterId;
+    if (req.user.role !== "admin" && !isOwnerStudent && !isOwnerHost) {
+      return res.status(403).json({ message: "Not authorized for this booking." });
+    }
     const User = require("../models/User");
     const host = hostId ? await User.findById(hostId).select("name email phone role avatar hostProfile landlordProfile") : null;
     const reveal = booking.paymentStatus === "paid" && ["confirmed", "active", "completed"].includes(booking.status);
@@ -531,13 +616,27 @@ router.get("/:id", protect, async (req, res, next) => {
 router.put("/:id/cancel", protect, async (req, res, next) => {
   try {
     if (mongoose.connection.readyState !== 1) {
-      const booking = bookings.find((item) => item.id === req.params.id) || bookings[0];
+      const booking = bookings.find((item) => item.id === req.params.id);
+      if (!booking) return res.status(404).json({ message: "Booking not found." });
+      const room = rooms.find((item) => item.id === booking.room);
+      const requesterId = String(req.user._id || req.user.id);
+      const isOwnerStudent = String(booking.student) === requesterId;
+      const isOwnerHost = room && String(room.listedBy) === requesterId;
+      if (req.user.role !== "admin" && !isOwnerStudent && !isOwnerHost) {
+        return res.status(403).json({ message: "Not authorized for this booking." });
+      }
       const refundPreview = calculateRefundPreview({ booking, reason: req.body.reason || "student_cancelled" });
       await recordAudit(req, { action: "booking.cancelled", entityType: "Booking", entityId: req.params.id, metadata: refundPreview });
       return res.json({ id: req.params.id, status: "cancelled", cancelReason: req.body.cancelReason, refundPreview, demo: true });
     }
-    const booking = await Booking.findById(req.params.id);
+    const booking = await Booking.findById(req.params.id).populate("room");
     if (!booking) return res.status(404).json({ message: "Booking not found." });
+    const requesterId = String(req.user._id || req.user.id);
+    const isOwnerStudent = String(booking.student) === requesterId;
+    const isOwnerHost = booking.room?.listedBy && String(booking.room.listedBy) === requesterId;
+    if (req.user.role !== "admin" && !isOwnerStudent && !isOwnerHost) {
+      return res.status(403).json({ message: "Not authorized for this booking." });
+    }
     const refundPreview = calculateRefundPreview({ booking, reason: req.body.reason || "student_cancelled" });
     booking.status = "cancelled";
     booking.cancelReason = req.body.cancelReason;
@@ -585,10 +684,50 @@ router.put("/:id/decline", protect, authorize("host", "admin"), async (req, res,
 
 router.post("/:id/token-pay", protect, async (req, res, next) => {
   try {
-    if (mongoose.connection.readyState !== 1) return res.json({ id: req.params.id, tokenPaid: true, demo: true });
+    if (mongoose.connection.readyState !== 1) {
+      const demoBooking = bookings.find((item) => item.id === req.params.id);
+      if (!demoBooking) return res.status(404).json({ message: "Booking not found." });
+      if (!isStaffRole(req.user.role) && String(demoBooking.student) !== String(req.user._id || req.user.id)) {
+        return res.status(403).json({ message: "Not authorized for this booking." });
+      }
+      const staffConfirmedDemo = isStaffRole(req.user.role);
+      const gatewayVerifiedDemo = await hasVerifiedGatewayProof(req.body.paymentRef);
+      if (!staffConfirmedDemo && !gatewayVerifiedDemo) {
+        demoBooking.status = "payment_pending";
+        return res.status(202).json({ id: req.params.id, verification: "pending", message: "Payment claim recorded and awaiting admin/finance verification.", demo: true });
+      }
+      demoBooking.status = "confirmed";
+      return res.json({ id: req.params.id, tokenPaid: true, demo: true });
+    }
     const booking = await Booking.findById(req.params.id);
     if (!booking) return res.status(404).json({ message: "Booking not found." });
+    if (!isStaffRole(req.user.role) && String(booking.student) !== String(req.user._id || req.user.id)) {
+      return res.status(403).json({ message: "Not authorized for this booking." });
+    }
     booking.tokenAmount = booking.tokenAmount || Number(req.body.amount || 5000);
+    const paymentRef = req.body.paymentRef;
+    const staffConfirmed = isStaffRole(req.user.role);
+    const gatewayVerified = await hasVerifiedGatewayProof(paymentRef);
+
+    if (!staffConfirmed && !gatewayVerified) {
+      // Unverified self-reported claim (no signed gateway callback on file
+      // for this paymentRef, and the caller isn't platform staff): hold the
+      // seat but do NOT reveal host contact, flip to paid/confirmed, or
+      // touch escrow/ledger. Business rule: offline/unconfirmed payment !=
+      // verified payment. See POST /:id/payment-verification for the
+      // admin/finance approve-or-reject step that this awaits.
+      if (booking.instalments?.[0]) {
+        booking.instalments[0].status = "PENDING_VERIFICATION";
+        booking.instalments[0].paymentRef = paymentRef || `token-claim-${Date.now()}`;
+        booking.instalments[0].submittedBy = req.user._id || req.user.id;
+        booking.instalments[0].previousBookingStatus = booking.status;
+      }
+      booking.status = "payment_pending";
+      await booking.save();
+      await recordAudit(req, { action: "booking.token_pay_pending_verification", entityType: "Booking", entityId: booking._id, status: "pending", metadata: { paymentRef } });
+      return res.status(202).json({ booking, verification: "pending", message: "Payment claim recorded and awaiting admin/finance verification." });
+    }
+
     booking.paymentStatus = "paid";
     booking.status = "confirmed";
     booking.hostContactReleasedAt = new Date();
@@ -596,9 +735,12 @@ router.post("/:id/token-pay", protect, async (req, res, next) => {
     if (booking.instalments?.[0]) {
       booking.instalments[0].status = "PAID";
       booking.instalments[0].paidAt = new Date();
-      booking.instalments[0].paymentRef = req.body.paymentRef || `token-${Date.now()}`;
+      booking.instalments[0].paymentRef = paymentRef || `token-${Date.now()}`;
+      booking.instalments[0].verifiedBy = req.user._id || req.user.id;
+      booking.instalments[0].verifiedAt = new Date();
     }
     await booking.save();
+    await recordAudit(req, { action: "booking.token_pay_confirmed", entityType: "Booking", entityId: booking._id, metadata: { gatewayVerified, staffConfirmed } });
     return res.json({ booking });
   } catch (error) {
     return next(error);
@@ -607,16 +749,48 @@ router.post("/:id/token-pay", protect, async (req, res, next) => {
 
 router.post("/:id/instalment/:idx", protect, async (req, res, next) => {
   try {
-    if (mongoose.connection.readyState !== 1) return res.json({ id: req.params.id, instalment: req.params.idx, paid: true, demo: true });
+    if (mongoose.connection.readyState !== 1) {
+      const demoBooking = bookings.find((item) => item.id === req.params.id);
+      if (!demoBooking) return res.status(404).json({ message: "Booking not found." });
+      if (!isStaffRole(req.user.role) && String(demoBooking.student) !== String(req.user._id || req.user.id)) {
+        return res.status(403).json({ message: "Not authorized for this booking." });
+      }
+      const staffConfirmedDemo = isStaffRole(req.user.role);
+      const gatewayVerifiedDemo = await hasVerifiedGatewayProof(req.body.paymentRef);
+      if (!staffConfirmedDemo && !gatewayVerifiedDemo) {
+        return res.status(202).json({ id: req.params.id, instalment: req.params.idx, verification: "pending", message: "Instalment payment claim recorded and awaiting admin/finance verification.", demo: true });
+      }
+      return res.json({ id: req.params.id, instalment: req.params.idx, paid: true, demo: true });
+    }
     const booking = await Booking.findById(req.params.id);
     if (!booking) return res.status(404).json({ message: "Booking not found." });
+    if (!isStaffRole(req.user.role) && String(booking.student) !== String(req.user._id || req.user.id)) {
+      return res.status(403).json({ message: "Not authorized for this booking." });
+    }
     const index = Number(req.params.idx);
     if (!booking.instalments?.[index]) return res.status(404).json({ message: "Instalment not found." });
+    const paymentRef = req.body.paymentRef;
+    const staffConfirmed = isStaffRole(req.user.role);
+    const gatewayVerified = await hasVerifiedGatewayProof(paymentRef);
+
+    if (!staffConfirmed && !gatewayVerified) {
+      booking.instalments[index].status = "PENDING_VERIFICATION";
+      booking.instalments[index].paymentRef = paymentRef || `inst-claim-${Date.now()}`;
+      booking.instalments[index].submittedBy = req.user._id || req.user.id;
+      booking.instalments[index].previousBookingStatus = booking.status;
+      await booking.save();
+      await recordAudit(req, { action: "booking.instalment_pay_pending_verification", entityType: "Booking", entityId: booking._id, status: "pending", metadata: { idx: index, paymentRef } });
+      return res.status(202).json({ booking, verification: "pending", message: "Instalment payment claim recorded and awaiting admin/finance verification." });
+    }
+
     booking.instalments[index].status = "PAID";
     booking.instalments[index].paidAt = new Date();
-    booking.instalments[index].paymentRef = req.body.paymentRef || `inst-${Date.now()}`;
+    booking.instalments[index].paymentRef = paymentRef || `inst-${Date.now()}`;
+    booking.instalments[index].verifiedBy = req.user._id || req.user.id;
+    booking.instalments[index].verifiedAt = new Date();
     if (booking.instalments.every((item) => item.status === "PAID")) booking.paymentStatus = "paid";
     await booking.save();
+    await recordAudit(req, { action: "booking.instalment_pay_confirmed", entityType: "Booking", entityId: booking._id, metadata: { idx: index, gatewayVerified, staffConfirmed } });
     return res.json({ booking });
   } catch (error) {
     return next(error);
@@ -628,20 +802,62 @@ router.post("/:id/rent-pay", protect, async (req, res, next) => {
     const amount = Number(req.body.amount || 0);
     if (!amount) return res.status(400).json({ message: "Amount is required." });
     if (mongoose.connection.readyState !== 1) {
+      const demoBooking = bookings.find((item) => item.id === req.params.id);
+      if (!demoBooking) return res.status(404).json({ message: "Booking not found." });
+      if (!isStaffRole(req.user.role) && String(demoBooking.student) !== String(req.user._id || req.user.id)) {
+        return res.status(403).json({ message: "Not authorized for this booking." });
+      }
+      const staffConfirmedDemo = isStaffRole(req.user.role);
+      const gatewayVerifiedDemo = await hasVerifiedGatewayProof(req.body.paymentRef);
+      if (!staffConfirmedDemo && !gatewayVerifiedDemo) {
+        demoBooking.pendingRentClaim = {
+          amount,
+          paymentRef: req.body.paymentRef || `rent-claim-${Date.now()}`,
+          submittedBy: req.user._id || req.user.id,
+          submittedAt: new Date(),
+          previousStatus: demoBooking.status
+        };
+        demoBooking.status = "payment_pending";
+        return res.status(202).json({ bookingId: req.params.id, verification: "pending", message: "Rent payment claim recorded and awaiting admin/finance verification.", demo: true });
+      }
       const breakdown = calculateEscrowBreakdown({ rentAmount: amount, securityDeposit: 0, duration: "monthly", bookingType: "MONTHLY" });
+      demoBooking.paymentStatus = "paid";
+      demoBooking.status = "active";
       return res.json({ paid: true, bookingId: req.params.id, escrow: { status: "HELD", ...breakdown }, demo: true });
     }
     const booking = await Booking.findById(req.params.id).populate("room");
     if (!booking) return res.status(404).json({ message: "Booking not found." });
+    if (!isStaffRole(req.user.role) && String(booking.student) !== String(req.user._id || req.user.id)) {
+      return res.status(403).json({ message: "Not authorized for this booking." });
+    }
+    const paymentRef = req.body.paymentRef;
+    const staffConfirmed = isStaffRole(req.user.role);
+    const gatewayVerified = await hasVerifiedGatewayProof(paymentRef);
+
+    if (!staffConfirmed && !gatewayVerified) {
+      booking.pendingRentClaim = {
+        amount,
+        paymentRef: paymentRef || `rent-claim-${Date.now()}`,
+        submittedBy: req.user._id || req.user.id,
+        submittedAt: new Date(),
+        previousStatus: booking.status
+      };
+      booking.status = "payment_pending";
+      await booking.save();
+      await recordAudit(req, { action: "booking.rent_pay_pending_verification", entityType: "Booking", entityId: booking._id, status: "pending", metadata: { amount, paymentRef } });
+      return res.status(202).json({ booking, verification: "pending", message: "Rent payment claim recorded and awaiting admin/finance verification." });
+    }
+
     booking.paymentStatus = "paid";
     booking.status = "active";
     booking.nextRentDueDate = req.body.nextRentDueDate || new Date(new Date().setMonth(new Date().getMonth() + 1));
     booking.totalRent = amount;
     booking.totalAmount = amount + Number(booking.serviceFee || 0);
+    booking.pendingRentClaim = undefined;
     await booking.save();
     const rentLedgerBooking = { ...booking.toObject(), _id: booking._id, securityDeposit: 0, totalRent: amount, totalAmount: amount + Number(booking.serviceFee || 0) };
     const escrow = await createEscrowForBooking({ booking: rentLedgerBooking, room: booking.room });
-    await recordBookingPaymentLedger({ booking: rentLedgerBooking, gateway: booking.paymentMethod || "manual", paymentRef: req.body.paymentRef || `rent-${Date.now()}`, idempotencyKey: `rent-paid-${booking._id}-${Date.now()}` });
+    await recordBookingPaymentLedger({ booking: rentLedgerBooking, gateway: booking.paymentMethod || "manual", paymentRef: paymentRef || `rent-${Date.now()}`, idempotencyKey: `rent-paid-${booking._id}-${Date.now()}` });
     await recordCommissionLedger({ booking: rentLedgerBooking, idempotencyKey: `rent-commission-${booking._id}-${Date.now()}` });
 
     let monthlyPlatformFee = 0;
@@ -655,13 +871,110 @@ router.post("/:id/rent-pay", protect, async (req, res, next) => {
           booking: rentLedgerBooking,
           amount: monthlyPlatformFee,
           period,
-          paymentRef: req.body.paymentRef || `rent-${Date.now()}`,
+          paymentRef: paymentRef || `rent-${Date.now()}`,
           idempotencyKey: `student-monthly-fee-${booking._id}-${period}`
         });
       }
     }
 
+    await recordAudit(req, { action: "booking.rent_pay_confirmed", entityType: "Booking", entityId: booking._id, metadata: { amount, gatewayVerified, staffConfirmed } });
     return res.json({ paid: true, booking, escrow, monthlyPlatformFee });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// Admin/finance-only approve-or-reject step for the PENDING_VERIFICATION
+// claims recorded above. This is the single choke point where a
+// self-reported/offline payment claim is allowed to become an actual
+// ledger-affecting, contact-revealing "paid" state -- mirroring the
+// existing ManualPayment challan review flow (manualPaymentRoutes.js) so
+// the same "pending verification -> admin approve/reject -> ledger update"
+// business rule applies here too.
+router.post("/:id/payment-verification", protect, authorize("admin", "finance"), async (req, res, next) => {
+  try {
+    const kind = req.body.kind;
+    const decision = req.body.action === "reject" ? "reject" : "approve";
+    const reason = req.body.reason;
+    if (!["token", "instalment", "rent"].includes(kind)) {
+      return res.status(400).json({ message: "kind must be one of token, instalment, rent." });
+    }
+    if (mongoose.connection.readyState !== 1) {
+      return res.json({ id: req.params.id, kind, decision, demo: true });
+    }
+
+    const booking = await Booking.findById(req.params.id).populate("room");
+    if (!booking) return res.status(404).json({ message: "Booking not found." });
+
+    if (kind === "rent") {
+      const claim = booking.pendingRentClaim;
+      if (!claim || !claim.amount) return res.status(409).json({ message: "No pending rent claim on this booking." });
+
+      if (decision === "reject") {
+        booking.status = claim.previousStatus || booking.status;
+        booking.pendingRentClaim = undefined;
+        await booking.save();
+        await recordAudit(req, { action: "booking.rent_pay_rejected", entityType: "Booking", entityId: booking._id, status: "failed", metadata: { reason } });
+        return res.json({ booking, decision });
+      }
+
+      const amount = claim.amount;
+      const paymentRef = claim.paymentRef;
+      booking.paymentStatus = "paid";
+      booking.status = "active";
+      booking.nextRentDueDate = req.body.nextRentDueDate || new Date(new Date().setMonth(new Date().getMonth() + 1));
+      booking.totalRent = amount;
+      booking.totalAmount = amount + Number(booking.serviceFee || 0);
+      booking.pendingRentClaim = undefined;
+      await booking.save();
+      const rentLedgerBooking = { ...booking.toObject(), _id: booking._id, securityDeposit: 0, totalRent: amount, totalAmount: amount + Number(booking.serviceFee || 0) };
+      const escrow = await createEscrowForBooking({ booking: rentLedgerBooking, room: booking.room });
+      await recordBookingPaymentLedger({ booking: rentLedgerBooking, gateway: booking.paymentMethod || "manual", paymentRef, idempotencyKey: `rent-paid-${booking._id}-${paymentRef}` });
+      await recordCommissionLedger({ booking: rentLedgerBooking, idempotencyKey: `rent-commission-${booking._id}-${paymentRef}` });
+
+      let monthlyPlatformFee = 0;
+      if (String(booking.duration).toLowerCase() === "monthly") {
+        const settings = await getPlatformSettings();
+        monthlyPlatformFee = calculateMonthlyStudentCommission({ duration: booking.duration, status: booking.status, studentPlatformFee: settings.studentMonthlyPlatformFeePkr });
+        if (monthlyPlatformFee > 0) {
+          const period = new Date().toISOString().slice(0, 7);
+          await recordStudentMonthlyFeeLedger({ student: booking.student, booking: rentLedgerBooking, amount: monthlyPlatformFee, period, paymentRef, idempotencyKey: `student-monthly-fee-${booking._id}-${period}` });
+        }
+      }
+      await recordAudit(req, { action: "booking.rent_pay_approved", entityType: "Booking", entityId: booking._id, metadata: { amount, paymentRef } });
+      return res.json({ paid: true, booking, escrow, monthlyPlatformFee, decision });
+    }
+
+    const index = kind === "token" ? 0 : Number(req.body.idx);
+    const instalment = booking.instalments?.[index];
+    if (!instalment || instalment.status !== "PENDING_VERIFICATION") {
+      return res.status(409).json({ message: "No pending verification instalment at that index." });
+    }
+
+    if (decision === "reject") {
+      instalment.status = "PENDING";
+      instalment.rejectionReason = reason || "Rejected by admin/finance";
+      booking.status = instalment.previousBookingStatus || booking.status;
+      await booking.save();
+      await recordAudit(req, { action: `booking.${kind}_pay_rejected`, entityType: "Booking", entityId: booking._id, status: "failed", metadata: { idx: index, reason } });
+      return res.json({ booking, decision });
+    }
+
+    instalment.status = "PAID";
+    instalment.paidAt = new Date();
+    instalment.verifiedBy = req.user._id || req.user.id;
+    instalment.verifiedAt = new Date();
+    if (kind === "token") {
+      booking.paymentStatus = "paid";
+      booking.status = "confirmed";
+      booking.hostContactReleasedAt = new Date();
+      booking.escrowStatus = "held";
+    } else if (booking.instalments.every((item) => item.status === "PAID")) {
+      booking.paymentStatus = "paid";
+    }
+    await booking.save();
+    await recordAudit(req, { action: `booking.${kind}_pay_approved`, entityType: "Booking", entityId: booking._id, metadata: { idx: index } });
+    return res.json({ booking, decision });
   } catch (error) {
     return next(error);
   }
@@ -671,6 +984,9 @@ router.get("/:id/directions", protect, async (req, res, next) => {
   try {
     const booking = await loadBookingRecord(req.params.id);
     if (!booking) return res.status(404).json({ message: "Booking not found." });
+    if (!isAuthorizedForBooking({ booking, req })) {
+      return res.status(403).json({ message: "Not authorized for this booking." });
+    }
     const room = mongoose.connection.readyState !== 1 ? rooms.find((item) => item.id === booking.room) || rooms[0] : booking.room;
     const hostel = mongoose.connection.readyState !== 1 ? hostels.find((item) => item.id === booking.hostel) || hostels[0] : booking.hostel;
     const category = String(req.query.category || "pharmacy").toLowerCase();
@@ -686,6 +1002,9 @@ router.get("/:id/leave-preview", protect, async (req, res, next) => {
   try {
     const booking = await loadBookingRecord(req.params.id);
     if (!booking) return res.status(404).json({ message: "Booking not found." });
+    if (!isAuthorizedForBooking({ booking, req })) {
+      return res.status(403).json({ message: "Not authorized for this booking." });
+    }
     return res.json({ bookingId: req.params.id, preview: calculateLeaveSettlement({ booking, moveOutDate: req.query.moveOutDate }), demo: mongoose.connection.readyState !== 1 });
   } catch (error) {
     return next(error);
@@ -695,6 +1014,11 @@ router.get("/:id/leave-preview", protect, async (req, res, next) => {
 router.post("/:id/switch", protect, async (req, res, next) => {
   try {
     if (mongoose.connection.readyState !== 1) {
+      const demoBooking = bookings.find((item) => item.id === req.params.id);
+      if (!demoBooking) return res.status(404).json({ message: "Booking not found." });
+      if (String(demoBooking.student) !== String(req.user._id || req.user.id)) {
+        return res.status(403).json({ message: "Not authorized for this booking." });
+      }
       return res.json({
         id: req.params.id,
         lifecycleStatus: "switch_requested",
@@ -723,7 +1047,11 @@ router.post("/:id/switch", protect, async (req, res, next) => {
 router.post("/:id/leave", protect, async (req, res, next) => {
   try {
     if (mongoose.connection.readyState !== 1) {
-      const booking = bookings.find((item) => item.id === req.params.id) || bookings[0];
+      const booking = bookings.find((item) => item.id === req.params.id);
+      if (!booking) return res.status(404).json({ message: "Booking not found." });
+      if (String(booking.student) !== String(req.user._id || req.user.id)) {
+        return res.status(403).json({ message: "Not authorized for this booking." });
+      }
       return res.json({
         id: req.params.id,
         lifecycleStatus: "leave_requested",
@@ -755,7 +1083,15 @@ router.post("/:id/leave", protect, async (req, res, next) => {
 
 router.post("/:id/lifecycle/approve", protect, authorize("host", "admin"), async (req, res, next) => {
   try {
-    if (mongoose.connection.readyState !== 1) return res.json({ id: req.params.id, decision: "approve", demo: true });
+    if (mongoose.connection.readyState !== 1) {
+      const demoBooking = bookings.find((item) => item.id === req.params.id);
+      if (!demoBooking) return res.status(404).json({ message: "Booking not found." });
+      const demoRoom = rooms.find((item) => item.id === demoBooking.room);
+      if (req.user.role !== "admin" && String(demoRoom?.listedBy) !== String(req.user._id || req.user.id)) {
+        return res.status(403).json({ message: "Not authorized for this booking." });
+      }
+      return res.json({ id: req.params.id, decision: "approve", demo: true });
+    }
     const booking = await Booking.findById(req.params.id).populate("room hostel");
     if (!booking) return res.status(404).json({ message: "Booking not found." });
     if (req.user.role !== "admin" && String(booking.room?.listedBy) !== String(req.user._id || req.user.id)) {
@@ -815,7 +1151,15 @@ router.post("/:id/lifecycle/approve", protect, authorize("host", "admin"), async
 
 router.post("/:id/lifecycle/decline", protect, authorize("host", "admin"), async (req, res, next) => {
   try {
-    if (mongoose.connection.readyState !== 1) return res.json({ id: req.params.id, decision: "decline", demo: true });
+    if (mongoose.connection.readyState !== 1) {
+      const demoBooking = bookings.find((item) => item.id === req.params.id);
+      if (!demoBooking) return res.status(404).json({ message: "Booking not found." });
+      const demoRoom = rooms.find((item) => item.id === demoBooking.room);
+      if (req.user.role !== "admin" && String(demoRoom?.listedBy) !== String(req.user._id || req.user.id)) {
+        return res.status(403).json({ message: "Not authorized for this booking." });
+      }
+      return res.json({ id: req.params.id, decision: "decline", demo: true });
+    }
     const booking = await Booking.findById(req.params.id).populate("room");
     if (!booking) return res.status(404).json({ message: "Booking not found." });
     if (req.user.role !== "admin" && String(booking.room?.listedBy) !== String(req.user._id || req.user.id)) {
@@ -862,6 +1206,15 @@ router.post("/:id/report-off-platform", protect, async (req, res, next) => {
       raisedBy: req.user._id || req.user.id
     };
     if (mongoose.connection.readyState !== 1) {
+      const demoBooking = bookings.find((item) => item.id === req.params.id);
+      if (!demoBooking) return res.status(404).json({ message: "Booking not found." });
+      const demoRoom = rooms.find((item) => item.id === demoBooking.room);
+      const demoRequesterId = String(req.user._id || req.user.id);
+      const demoIsOwnerStudent = String(demoBooking.student) === demoRequesterId;
+      const demoIsOwnerHost = demoRoom && String(demoRoom.listedBy) === demoRequesterId;
+      if (req.user.role !== "admin" && !demoIsOwnerStudent && !demoIsOwnerHost) {
+        return res.status(403).json({ message: "Not authorized for this booking." });
+      }
       return res.status(201).json({
         report: { id: `OFF-${Date.now()}`, booking: req.params.id, ...payload, status: "open" },
         studentCredit: Number(process.env.OFF_PLATFORM_REPORT_CREDIT_PKR || 500),
@@ -870,6 +1223,12 @@ router.post("/:id/report-off-platform", protect, async (req, res, next) => {
     }
     const booking = await Booking.findById(req.params.id).populate("room hostel");
     if (!booking) return res.status(404).json({ message: "Booking not found." });
+    const requesterId = String(req.user._id || req.user.id);
+    const isOwnerStudent = String(booking.student) === requesterId;
+    const isOwnerHost = booking.room?.listedBy && String(booking.room.listedBy) === requesterId;
+    if (req.user.role !== "admin" && !isOwnerStudent && !isOwnerHost) {
+      return res.status(403).json({ message: "Not authorized for this booking." });
+    }
     const dispute = await Dispute.create({
       ...payload,
       booking: booking._id,
@@ -893,16 +1252,32 @@ router.post("/:id/dispute", protect, async (req, res, next) => {
   try {
     const payload = {
       title: req.body.title || "Booking dispute",
+      category: req.body.category || "OTHER",
       description: req.body.description,
       evidence: req.body.evidence || [],
       priority: req.body.priority || "medium",
       openedBy: req.user._id || req.user.id
     };
     if (mongoose.connection.readyState !== 1) {
+      const demoBooking = bookings.find((item) => item.id === req.params.id);
+      if (!demoBooking) return res.status(404).json({ message: "Booking not found." });
+      const demoRoom = rooms.find((item) => item.id === demoBooking.room);
+      const demoRequesterId = String(req.user._id || req.user.id);
+      const demoIsOwnerStudent = String(demoBooking.student) === demoRequesterId;
+      const demoIsOwnerHost = demoRoom && String(demoRoom.listedBy) === demoRequesterId;
+      if (req.user.role !== "admin" && !demoIsOwnerStudent && !demoIsOwnerHost) {
+        return res.status(403).json({ message: "Not authorized for this booking." });
+      }
       return res.status(201).json({ dispute: { id: `DIS-${Date.now()}`, booking: req.params.id, ...payload, status: "open" }, demo: true });
     }
     const booking = await Booking.findById(req.params.id).populate("room hostel");
     if (!booking) return res.status(404).json({ message: "Booking not found." });
+    const requesterId = String(req.user._id || req.user.id);
+    const isOwnerStudent = String(booking.student) === requesterId;
+    const isOwnerHost = booking.room?.listedBy && String(booking.room.listedBy) === requesterId;
+    if (req.user.role !== "admin" && !isOwnerStudent && !isOwnerHost) {
+      return res.status(403).json({ message: "Not authorized for this booking." });
+    }
     const dispute = await Dispute.create({
       ...payload,
       booking: booking._id,
@@ -942,6 +1317,15 @@ router.put("/:id/dispute/:disputeId/resolve", protect, authorize("admin"), async
 router.get("/:id/deposit", protect, async (req, res, next) => {
   try {
     if (mongoose.connection.readyState !== 1) {
+      const demoBooking = bookings.find((item) => item.id === req.params.id);
+      if (!demoBooking) return res.status(404).json({ message: "Booking not found." });
+      if (req.user.role !== "admin") {
+        const requesterId = String(req.user._id || req.user.id);
+        const room = rooms.find((item) => item.id === demoBooking.room);
+        const isOwnerStudent = String(demoBooking.student) === requesterId;
+        const isOwnerHost = room && String(room.listedBy) === requesterId;
+        if (!isOwnerStudent && !isOwnerHost) return res.status(403).json({ message: "Not authorized for this booking." });
+      }
       return res.json({
         deposit: {
           caseId: `HH-DEP-DEMO-${req.params.id}`,
@@ -953,8 +1337,14 @@ router.get("/:id/deposit", protect, async (req, res, next) => {
         demo: true
       });
     }
-    const booking = await Booking.findById(req.params.id);
+    const booking = await Booking.findById(req.params.id).populate("room");
     if (!booking) return res.status(404).json({ message: "Booking not found." });
+    if (req.user.role !== "admin") {
+      const requesterId = String(req.user._id || req.user.id);
+      const isOwnerStudent = String(booking.student) === requesterId;
+      const isOwnerHost = booking.room?.listedBy && String(booking.room.listedBy) === requesterId;
+      if (!isOwnerStudent && !isOwnerHost) return res.status(403).json({ message: "Not authorized for this booking." });
+    }
     let deposit = await DepositCase.findOne({ booking: booking._id });
     if (!deposit) {
       deposit = await DepositCase.create({
@@ -1124,7 +1514,11 @@ router.post("/:id/deposit-protection/claim", protect, async (req, res, next) => 
     const evidence = Array.isArray(req.body.evidence) ? req.body.evidence : [];
 
     if (mongoose.connection.readyState !== 1) {
-      const booking = bookings.find((item) => item.id === req.params.id) || bookings[0];
+      const booking = bookings.find((item) => item.id === req.params.id);
+      if (!booking) return res.status(404).json({ message: "Booking not found." });
+      if (String(booking.student) !== String(req.user._id || req.user.id) && req.user.role !== "admin") {
+        return res.status(403).json({ message: "Not authorized for this booking." });
+      }
       if (!booking?.depositProtection?.optedIn) {
         return res.status(409).json({ message: "This booking did not opt in to Deposit Protection." });
       }
@@ -1172,8 +1566,15 @@ router.post("/:id/payout", protect, authorize("admin"), async (req, res, next) =
 
 router.get("/:id/receipt", protect, async (req, res, next) => {
   try {
-    const booking = mongoose.connection.readyState === 1 ? await Booking.findById(req.params.id) : bookings.find((item) => item.id === req.params.id) || bookings[0];
+    const booking = mongoose.connection.readyState === 1 ? await Booking.findById(req.params.id).populate("room") : bookings.find((item) => item.id === req.params.id);
     if (!booking) return res.status(404).json({ message: "Booking not found." });
+    if (req.user.role !== "admin") {
+      const requesterId = String(req.user._id || req.user.id);
+      const isOwnerStudent = String(booking.student) === requesterId;
+      const bookingRoom = mongoose.connection.readyState === 1 ? booking.room : rooms.find((item) => item.id === booking.room);
+      const isOwnerHost = bookingRoom?.listedBy && String(bookingRoom.listedBy) === requesterId;
+      if (!isOwnerStudent && !isOwnerHost) return res.status(403).json({ message: "Not authorized for this booking." });
+    }
     const buffer = await buildReceiptPdf(booking);
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename=basera-${req.params.id}.pdf`);

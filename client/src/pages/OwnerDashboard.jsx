@@ -425,10 +425,13 @@ export function OwnerDashboard() {
           </section>
 
           <section className="rounded-lg bg-primary-800 p-7 text-white shadow-soft">
-            <ReceiptText size={34} className="text-white/80" />
+            <div className="flex items-center justify-between gap-3">
+              <ReceiptText size={34} className="text-white/80" />
+              <span className="badge bg-white/15 text-white">Coming Soon</span>
+            </div>
             <h2 className="mt-5 text-xl font-semibold">Upgrade Property</h2>
-            <p className="mt-4 leading-7 text-white/90">Get verified badges and priority listing to boost occupancy rates by up to 30%.</p>
-            <button className="mt-6 rounded-md bg-white px-6 py-3 font-semibold text-primary-800">Upgrade Pro</button>
+            <p className="mt-4 leading-7 text-white/90">Self-service plan upgrades and featured-listing placement for Owner accounts are not yet available here. Featured ranking is currently granted manually by the Basera team as part of select Host subscription plans.</p>
+            <button type="button" disabled aria-disabled="true" title="Self-service upgrades are coming soon" className="mt-6 w-full cursor-not-allowed rounded-md bg-white/60 px-6 py-3 font-semibold text-primary-800/70">Upgrade Pro (Coming Soon)</button>
           </section>
 
           <AlertSubmitCard audience="all" title="Submit Hostel Alert" />

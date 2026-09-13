@@ -95,31 +95,31 @@ export function StudentPayments() {
   return (
     <section className="space-y-7">
       <div>
-        <h2 className="text-3xl font-extrabold tracking-tight">My Payments</h2>
-        <p className="mt-2 text-slate-700">Track rent dues, instalments, receipts, deposit escrow, and late fees.</p>
+        <h2 className="font-display text-3xl font-extrabold tracking-tight text-on-surface">My Payments</h2>
+        <p className="mt-2 text-on-surface-variant">Track rent dues, instalments, receipts, deposit escrow, and late fees.</p>
       </div>
       <div className="grid gap-5 md:grid-cols-4">
         {[
-          ["Outstanding", rows.filter((row) => row.paymentStatus !== "paid").reduce((sum, row) => sum + Number(row.totalRent || row.totalAmount || 0), 0), CreditCard],
-          ["Paid This Year", rows.filter((row) => row.paymentStatus === "paid").reduce((sum, row) => sum + Number(row.totalAmount || 0), 0), ReceiptText],
-          ["Deposit Held", rows.reduce((sum, row) => sum + Number(row.securityDeposit || 0), 0), ShieldCheck],
-          ["Monthly Fee", monthlyCommission, ArrowRightLeft]
-        ].map(([label, value, Icon]) => (
-          <article key={label} className="panel flex items-center gap-4 p-6">
-                    <span className="grid h-12 w-12 place-items-center rounded-lg bg-primary-50 text-primary-800"><Icon size={22} /></span>
+          ["Outstanding", rows.filter((row) => row.paymentStatus !== "paid").reduce((sum, row) => sum + Number(row.totalRent || row.totalAmount || 0), 0), CreditCard, "bg-primary-container text-on-primary-container"],
+          ["Paid This Year", rows.filter((row) => row.paymentStatus === "paid").reduce((sum, row) => sum + Number(row.totalAmount || 0), 0), ReceiptText, "bg-tertiary-container text-on-tertiary-container"],
+          ["Deposit Held", rows.reduce((sum, row) => sum + Number(row.securityDeposit || 0), 0), ShieldCheck, "bg-secondary-container text-on-secondary-container"],
+          ["Monthly Fee", monthlyCommission, ArrowRightLeft, "bg-primary-container text-on-primary-container"]
+        ].map(([label, value, Icon, iconClass]) => (
+          <article key={label} className="flex items-center gap-4 rounded-lg border border-outline-variant bg-surface-container-lowest p-6 shadow-sm">
+                    <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-full ${iconClass}`}><Icon size={22} /></span>
             <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-slate-700">{label}</p>
-              <p className="mt-1 text-2xl font-extrabold">{currency(value)}</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">{label}</p>
+              <p className="mt-1 text-2xl font-extrabold text-on-surface">{currency(value)}</p>
             </div>
           </article>
         ))}
       </div>
-      <section className="panel overflow-hidden">
-        <div className="p-6 pb-4">
-          <h3 className="text-xl font-bold">Payment History & Instalments</h3>
-          <p className="mt-1 text-sm text-neutral-600">Click a column to sort.</p>
+      <section className="overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest">
+        <div className="border-b border-outline-variant bg-surface-container-low p-6 pb-4">
+          <h3 className="font-display text-xl font-bold text-on-surface">Payment History & Instalments</h3>
+          <p className="mt-1 text-sm text-on-surface-variant">Click a column to sort.</p>
         </div>
-        <div className="px-6 pb-6">
+        <div className="px-6 pb-6 pt-4">
           <DataTable
             rows={rows}
             rowKey={(row) => row.id || row._id}
@@ -144,11 +144,11 @@ export function StudentPayments() {
           />
         </div>
       </section>
-      <section className="panel p-6">
+      <section className="rounded-lg border border-outline-variant bg-surface-container-lowest p-6 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h3 className="text-xl font-bold">Move-out & switch management</h3>
-            <p className="mt-1 text-sm text-slate-700">Request a hostel switch, leave notice, or review your monthly platform fee from My Bookings.</p>
+            <p className="mt-1 text-sm text-on-surface-variant">Request a hostel switch, leave notice, or review your monthly platform fee from My Bookings.</p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Link to="/dashboard/student/bookings" className="chip"><ArrowRightLeft size={14} /> Switch requests</Link>
@@ -157,26 +157,26 @@ export function StudentPayments() {
         </div>
       </section>
       {settledRows.length > 0 && (
-        <section className="panel p-6">
+        <section className="rounded-lg border border-outline-variant bg-surface-container-lowest p-6 shadow-sm">
           <h3 className="text-xl font-bold">Final Settlement</h3>
-          <p className="mt-1 text-sm text-slate-700">Your Host approved a move-out on these bookings. Refund figures below are estimates pending deposit inspection.</p>
+          <p className="mt-1 text-sm text-on-surface-variant">Your Host approved a move-out on these bookings. Refund figures below are estimates pending deposit inspection.</p>
           <div className="mt-5 grid gap-4">
             {settledRows.map((row) => {
               const id = row.id || row._id;
               const settlement = row.leaveSettlement;
               return (
-                <article key={`settlement-${id}`} className="grid gap-4 rounded-lg border border-line bg-canvas p-4 lg:grid-cols-[1fr_1fr_1fr] lg:items-center">
+                <article key={`settlement-${id}`} className="grid gap-4 rounded-lg border border-outline-variant bg-surface-container-low p-4 lg:grid-cols-[1fr_1fr_1fr] lg:items-center">
                   <div>
                     <p className="font-bold">{row.hostelName || row.room?.title || row.hostel?.name || id}</p>
-                    <p className="mt-1 text-sm text-slate-700">Moved out {String(row.moveOutDate || settlement.moveOutDate || "").slice(0, 10)}</p>
+                    <p className="mt-1 text-sm text-on-surface-variant">Moved out {String(row.moveOutDate || settlement.moveOutDate || "").slice(0, 10)}</p>
                   </div>
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-widest text-slate-600">Prorated rent refund</p>
-                    <p className="font-extrabold text-primary-800">{currency(settlement.proratedRentRefund || 0)}</p>
+                    <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Prorated rent refund</p>
+                    <p className="font-extrabold text-primary-600">{currency(settlement.proratedRentRefund || 0)}</p>
                   </div>
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-widest text-slate-600">Estimated total refund</p>
-                    <p className="font-extrabold text-primary-800">{currency(settlement.estimatedTotalRefund || 0)}</p>
+                    <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Estimated total refund</p>
+                    <p className="font-extrabold text-primary-600">{currency(settlement.estimatedTotalRefund || 0)}</p>
                   </div>
                 </article>
               );
@@ -184,21 +184,21 @@ export function StudentPayments() {
           </div>
         </section>
       )}
-      <section className="panel p-6">
+      <section className="rounded-lg border border-outline-variant bg-surface-container-lowest p-6 shadow-sm">
         <h3 className="flex items-center gap-2 text-xl font-bold"><ShieldCheck size={22} /> Security Deposit Cases</h3>
         <div className="mt-5 grid gap-4">
           {rows.map((row) => {
             const id = row.id || row._id;
             const deposit = depositCases[id] || {};
             return (
-              <article key={`deposit-${id}`} className="grid gap-4 rounded-lg border border-line bg-canvas p-4 lg:grid-cols-[1fr_160px_260px] lg:items-center">
+              <article key={`deposit-${id}`} className="grid gap-4 rounded-lg border border-outline-variant bg-surface-container-low p-4 lg:grid-cols-[1fr_160px_260px] lg:items-center">
                 <div>
                   <p className="font-bold">{row.hostelName || row.room?.title || row.hostel?.name || id}</p>
-                  <p className="mt-1 text-sm text-slate-700">Case {deposit.caseId || `HH-DEP-${id}`} - auto refund review after move-out inspection.</p>
+                  <p className="mt-1 text-sm text-on-surface-variant">Case {deposit.caseId || `HH-DEP-${id}`} - auto refund review after move-out inspection.</p>
                 </div>
                 <div>
-                  <p className="font-extrabold text-primary-800">{currency(deposit.amount || row.securityDeposit || 0)}</p>
-                  <span className="badge mt-2 bg-primary-50 text-primary-800">{deposit.status || "HELD"}</span>
+                  <p className="font-extrabold text-primary-600">{currency(deposit.amount || row.securityDeposit || 0)}</p>
+                  <span className="badge mt-2 bg-primary-container/15 text-primary-600">{deposit.status || "HELD"}</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <button type="button" className="btn-secondary py-2" onClick={() => download(row, "deposit")}>Deposit Receipt</button>

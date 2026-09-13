@@ -20,25 +20,60 @@ const fallbackMessages = [
   { id: "m2", senderRole: "host", message: "Yes. You can book or schedule a visit through Basera.", createdAt: new Date().toISOString() }
 ];
 
-export function ChatPanel({ title = "Messages", defaultHostelId = "h1", compact = false }) {
+const QUICK_PROMPTS = ["Is this room still available?", "Can I schedule a visit?", "What's included in the rent?"];
+
+// lockToSupport enforces the platform business rule that customers reach
+// Admin/Support first rather than messaging a specific property owner
+// directly. When set, the thread list/host picker is replaced by a single
+// fixed "Basera Support" conversation and every outgoing message is routed
+// to that support account, regardless of which hostel the student came from.
+export function ChatPanel({ title = "Messages", defaultHostelId = "h1", compact = false, lockToSupport = false }) {
   const user = useAuthStore((state) => state.user);
   const [threads, setThreads] = useState(fallbackThreads);
   const [activeThreadId, setActiveThreadId] = useState(fallbackThreads[0].id);
   const [messages, setMessages] = useState(fallbackMessages);
   const [draft, setDraft] = useState("");
-  const activeThread = threads.find((thread) => thread.id === activeThreadId) || threads[0];
+  const [supportContact, setSupportContact] = useState(null);
+  const [supportError, setSupportError] = useState(false);
+  const supportThread = useMemo(
+    () =>
+      supportContact
+        ? {
+            id: "thread-support",
+            hostelId: null,
+            hostelName: "Basera Support",
+            participant: supportContact,
+            lastMessage: "",
+            unread: 0
+          }
+        : null,
+    [supportContact]
+  );
+  const effectiveThreads = lockToSupport ? (supportThread ? [supportThread] : []) : threads;
+  const activeThread = lockToSupport ? supportThread : threads.find((thread) => thread.id === activeThreadId) || threads[0];
   const socket = useMemo(() => {
     const baseUrl = (import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1").replace(/\/api\/v1\/?$/, "");
     return io(baseUrl, { autoConnect: false });
   }, []);
 
   useEffect(() => {
+    if (!lockToSupport) return;
+    safeRequest(() => api.get("/chat/support-contact"), { contact: { id: "u-admin", name: "Basera Support Team", role: "admin" } })
+      .then((result) => {
+        if (result?.contact) setSupportContact(result.contact);
+        else setSupportError(true);
+      })
+      .catch(() => setSupportError(true));
+  }, [lockToSupport]);
+
+  useEffect(() => {
+    if (lockToSupport) return;
     safeRequest(() => api.get("/chat/threads"), { results: fallbackThreads }).then((result) => {
       const nextThreads = result.results?.length ? result.results : fallbackThreads;
       setThreads(nextThreads);
       setActiveThreadId(nextThreads[0]?.id || fallbackThreads[0].id);
     });
-  }, []);
+  }, [lockToSupport]);
 
   useEffect(() => {
     if (!activeThread) return;
@@ -66,6 +101,7 @@ export function ChatPanel({ title = "Messages", defaultHostelId = "h1", compact 
     event.preventDefault();
     const message = draft.trim();
     if (!message || !activeThread) return;
+    if (lockToSupport && !activeThread.participant?.id && !activeThread.participant?._id) return; // support contact not resolved yet
     setDraft("");
     const payload = {
       receiverId: activeThread.participant?.id || activeThread.participant?._id || "u-owner",
@@ -82,54 +118,97 @@ export function ChatPanel({ title = "Messages", defaultHostelId = "h1", compact 
   };
 
   return (
-    <section className={`panel overflow-hidden ${compact ? "" : "min-h-[620px]"}`}>
-      <div className="border-b border-line p-5">
-        <h2 className="flex items-center gap-2 text-xl font-bold"><MessageSquare size={22} /> {title}</h2>
+    <section className={`overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest shadow-sm ${compact ? "" : "min-h-[620px]"}`}>
+      <div className="flex items-center justify-between gap-3 border-b border-outline-variant px-5 py-4">
+        <h2 className="flex items-center gap-2 font-display text-xl font-bold text-on-surface"><MessageSquare size={22} className="text-primary-700" /> {title}</h2>
+        <span className="flex items-center gap-1 rounded-full border border-outline-variant bg-secondary-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-secondary-700">
+          {lockToSupport ? "Routed via Basera Support" : "Verified messaging"}
+        </span>
       </div>
       <div className="grid min-h-[520px] md:grid-cols-[280px_1fr]">
-        <aside className="border-b border-line bg-primary-50/60 p-4 md:border-b-0 md:border-r">
-          <div className="grid gap-3">
-            {threads.map((thread) => (
-              <button
-                type="button"
-                key={thread.id}
-                onClick={() => setActiveThreadId(thread.id)}
-                className={`rounded-lg border p-4 text-left transition duration-250 ease-smooth ${
-                  activeThreadId === thread.id ? "border-primary-700 bg-white shadow-card" : "border-transparent bg-white/70 hover:bg-white"
-                }`}
-              >
-                <p className="font-bold">{thread.hostelName}</p>
-                <p className="mt-1 truncate text-sm text-slate-700">{thread.lastMessage}</p>
-                {thread.unread ? <span className="badge mt-3 bg-primary-700 text-white">{thread.unread} new</span> : null}
-              </button>
-            ))}
-          </div>
+        <aside className="border-b border-outline-variant bg-surface-container-low p-4 md:border-b-0 md:border-r">
+          {lockToSupport ? (
+            <div className="rounded-lg border border-primary-700 bg-surface-container-lowest p-4 text-left shadow-sm">
+              <p className="font-semibold text-on-surface">Basera Support Team</p>
+              <p className="mt-1 text-sm text-on-surface-variant">
+                {supportError
+                  ? "Support routing is temporarily unavailable."
+                  : "Your host will be looped in by our team when needed. Direct host messaging is disabled for your protection."}
+              </p>
+            </div>
+          ) : (
+            <div className="grid gap-3">
+              {effectiveThreads.map((thread) => (
+                <button
+                  type="button"
+                  key={thread.id}
+                  onClick={() => setActiveThreadId(thread.id)}
+                  className={`rounded-lg border p-4 text-left transition duration-250 ease-smooth ${
+                    activeThreadId === thread.id ? "border-primary-700 bg-surface-container-lowest shadow-sm" : "border-transparent bg-surface-container-lowest/70 hover:bg-surface-container-lowest"
+                  }`}
+                >
+                  <p className="font-semibold text-on-surface">{thread.hostelName}</p>
+                  <p className="mt-1 truncate text-sm text-on-surface-variant">{thread.lastMessage}</p>
+                  {thread.unread ? <span className="badge mt-3 bg-primary-700 text-white">{thread.unread} new</span> : null}
+                </button>
+              ))}
+            </div>
+          )}
         </aside>
         <div className="grid min-h-[520px] grid-rows-[1fr_auto]">
           <div className="space-y-4 overflow-y-auto p-5">
             {messages.map((message) => {
               const own = message.senderRole === user?.role || message.sender === user?.id;
               return (
-                <div key={message.id || message._id || `${message.message}-${message.createdAt}`} className={`flex ${own ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[78%] rounded-2xl px-4 py-3 text-sm leading-6 ${message.isFlagged ? "border border-[#F97316] bg-[#FFF7ED] text-[#9A3412]" : own ? "bg-primary-700 text-white" : "bg-primary-50 text-ink"}`}>
+                <div key={message.id || message._id || `${message.message}-${message.createdAt}`} className={`flex flex-col gap-1 ${own ? "items-end" : "items-start"}`}>
+                  <div
+                    className={`max-w-[78%] px-4 py-3 text-sm leading-6 shadow-sm ${
+                      message.isFlagged
+                        ? "rounded-xl rounded-tl-sm border border-warning-600 bg-warning-50 text-[#9A3412]"
+                        : own
+                          ? "rounded-xl rounded-tr-sm bg-primary-container text-on-primary-container"
+                          : "rounded-xl rounded-tl-sm border border-outline-variant bg-surface-container-high text-on-surface"
+                    }`}
+                  >
                     <p>{message.message}</p>
                     {message.isFlagged && <p className="mt-2 text-xs font-bold">Contact or off-platform payment detail blocked by Basera.</p>}
-                    {message.createdAt && (
-                      <p className={`mt-1 text-[11px] ${message.isFlagged ? "text-[#9A3412]/70" : own ? "text-white/70" : "text-slate-500"}`}>
-                        {new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                      </p>
-                    )}
                   </div>
+                  {message.createdAt && (
+                    <span className="px-1 text-xs text-on-surface-variant">
+                      {new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                  )}
                 </div>
               );
             })}
           </div>
-          <form onSubmit={sendMessage} className="border-t border-line p-4">
-            <div className="flex gap-3">
-              <input className="input" value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="Type a message..." />
-              <button type="submit" className="btn-primary px-5" aria-label="Send message"><Send size={18} /></button>
+          <div className="border-t border-outline-variant px-4 pt-3">
+            <div className="flex flex-wrap justify-end gap-2 pb-3">
+              {QUICK_PROMPTS.map((prompt) => (
+                <button
+                  key={prompt}
+                  type="button"
+                  onClick={() => setDraft(prompt)}
+                  className="rounded-full border border-outline-variant bg-surface-container-lowest px-4 py-2 text-xs font-medium text-on-surface-variant shadow-sm transition-colors hover:bg-surface-container-high"
+                >
+                  {prompt}
+                </button>
+              ))}
             </div>
-          </form>
+            <form onSubmit={sendMessage} className="pb-4">
+              <div className="relative flex items-center">
+                <input
+                  className="w-full rounded-lg border border-outline-variant bg-surface-container-low py-3 pl-4 pr-14 text-sm text-on-surface shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                  value={draft}
+                  onChange={(event) => setDraft(event.target.value)}
+                  placeholder="Type your message..."
+                />
+                <button type="submit" className="absolute right-2 flex items-center justify-center rounded-md bg-primary p-2 text-on-primary transition-colors hover:bg-primary-700" aria-label="Send message">
+                  <Send size={18} />
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     </section>

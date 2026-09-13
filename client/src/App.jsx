@@ -32,6 +32,7 @@ const ListerOnboardingPage = lazyPage(() => import("./pages/ListerOnboardingPage
 const AdminDashboard = lazyPage(() => import("./pages/AdminDashboard"), "AdminDashboard");
 const AuthPage = lazyPage(() => import("./pages/AuthPage"), "AuthPage");
 const StaticPage = lazyPage(() => import("./pages/StaticPage"), "StaticPage");
+const AboutPage = lazyPage(() => import("./pages/AboutPage"), "AboutPage");
 const ReceiptVerifyPage = lazyPage(() => import("./pages/ReceiptVerifyPage"), "ReceiptVerifyPage");
 const ParentPortalPage = lazyPage(() => import("./pages/ParentPortalPage"), "ParentPortalPage");
 const LiveRoomBoardPage = lazyPage(() => import("./pages/LiveRoomBoardPage"), "LiveRoomBoardPage");
@@ -80,7 +81,7 @@ export default function App() {
             <Route path="/landlord/onboarding" element={<ListerOnboardingPage />} />
             <Route path="/verify/:receiptId" element={<ReceiptVerifyPage />} />
             <Route path="/parent/:token" element={<ParentPortalPage />} />
-            <Route path="/about" element={<StaticPage title="About Us" />} />
+            <Route path="/about" element={<AboutPage />} />
             <Route path="/contact" element={<StaticPage title="Contact Us" />} />
           </Route>
 

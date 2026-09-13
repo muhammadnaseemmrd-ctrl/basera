@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { BadgeCheck, CalendarDays, Clock, MapPin, MessageSquare, ShieldCheck, Video, X, Navigation } from "lucide-react";
 import { BedBar } from "../components/BedBar";
 import { GenderBadge } from "../components/GenderBadge";
@@ -22,7 +22,17 @@ import { useDocumentTitle } from "../utils/useDocumentTitle";
 
 export function RoomDetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
+  const openSupportChat = () => {
+    // Customers are platform-mediated by design -- this routes to Basera Support
+    // (StudentChat.jsx's lockToSupport mode), never straight to the room's host.
+    if (!user) {
+      navigate("/login", { state: { from: "/dashboard/student/chat" } });
+      return;
+    }
+    navigate("/dashboard/student/chat");
+  };
   const fallback = useMemo(() => roomListings.find((room) => room.id === id) || roomListings[0], [id]);
   const fallbackAvailability = useMemo(
     () => ({ totalBeds: fallback.totalBeds, availableBeds: fallback.availableBeds, isAvailable: fallback.availableBeds > 0 }),
@@ -153,7 +163,7 @@ export function RoomDetailPage() {
                 <CalendarDays size={16} /> Request 3-Day Trial
               </button>
               <button type="button" onClick={() => setTourOpen(true)} className="btn-secondary w-full"><Video size={16} /> Virtual Tour</button>
-              <button type="button" className="btn-secondary w-full"><MessageSquare size={16} /> Chat with Host</button>
+              <button type="button" onClick={openSupportChat} className="btn-secondary w-full"><MessageSquare size={16} /> Message Support</button>
             </div>
             <div className="mt-4">
               <p className="text-xs font-bold uppercase tracking-widest text-slate-600">Nearby help</p>
@@ -210,10 +220,12 @@ export function RoomDetailPage() {
                 <span className="grid h-14 w-14 place-items-center rounded-full bg-primary-700 font-bold text-white">{room.lister?.name?.slice(0, 2) || "HH"}</span>
                 <div>
                   <h2 className="text-lg font-bold">{hostDisplayName}</h2>
-                  <p className="text-sm text-slate-700">Verified Host</p>
+                  <span className="mt-1 inline-flex items-center gap-1 rounded border border-primary-200 bg-primary-50 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-primary-800">
+                    <ShieldCheck size={12} /> Verified
+                  </span>
                 </div>
               </div>
-              <div className="mt-5 rounded-lg bg-accent-50 p-4 text-sm text-accent-700">
+              <div className="mt-5 rounded-lg border border-accent-200 bg-accent-50 p-4 text-sm text-accent-700">
                 <ShieldCheck className="mb-2" size={20} />
                 {room.lister?.verificationTier?.replace("_", " ") || "Verified"} Host badge. Contact details unlock after paid booking confirmation.
               </div>

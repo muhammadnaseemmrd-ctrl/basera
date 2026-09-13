@@ -4,7 +4,9 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"]
+        sans: ["Roboto Flex", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["Plus Jakarta Sans", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        headline: ["Plus Jakarta Sans", "Inter", "ui-sans-serif", "system-ui", "sans-serif"]
       },
       colors: {
         neutral: {
@@ -21,36 +23,44 @@ export default {
           800: "#1F2937",
           900: "#0F172A"
         },
+        /* "The Gold Standard" — Deep Teal primary scale (basera.pk rebrand, Sept 2026) */
         primary: {
-          50: "#FFF3EF",
-          100: "#FFE2D6",
-          200: "#FFC4AD",
-          300: "#FFA47F",
-          400: "#FF8A5C",
-          500: "#FF6B4A",
-          600: "#F0512E",
-          700: "#C93D1E",
-          800: "#9C2F17",
-          900: "#6F2110"
+          50: "#E6F2F3",
+          100: "#CCE5E7",
+          200: "#9FF0FB",
+          300: "#82D3DE",
+          400: "#4DABB8",
+          500: "#006D77",
+          600: "#00535B",
+          700: "#004F56",
+          800: "#003940",
+          900: "#001F23"
         },
+        /* Slate Grey secondary scale */
         secondary: {
-          50: "#EEF1F8",
-          100: "#D7DEEC",
-          200: "#AFC0DA",
-          300: "#8496BC",
-          400: "#5A6F9C",
-          500: "#38507C",
-          600: "#243B60",
-          700: "#1B2A4A",
-          800: "#131F38",
-          900: "#0C1526"
+          50: "#F1F1F6",
+          100: "#DEE0FF",
+          200: "#C1C4E5",
+          300: "#A5A8C9",
+          400: "#797DAA",
+          500: "#5D617D",
+          600: "#595D78",
+          700: "#414560",
+          800: "#2A2D47",
+          900: "#161A32"
         },
+        /* Warm terracotta accent — retained for trust badges/highlights per brand direction */
         accent: {
-          50: "#FFFBEB",
-          100: "#FFF3C4",
-          200: "#FFE58A",
-          600: "#FFC857",
-          700: "#E0A63A"
+          50: "#FDEDE9",
+          100: "#FBD9D0",
+          200: "#F4B3A0",
+          600: "#C0392B",
+          700: "#9E2E22"
+        },
+        tertiary: {
+          container: "#286D67",
+          DEFAULT: "#01544F",
+          light: "#A9ECE4"
         },
         success: {
           50: "#E6FAF2",
@@ -65,19 +75,44 @@ export default {
           700: "#A66A05"
         },
         danger: {
-          50: "#FDECEC",
+          50: "#FFDAD6",
           100: "#FBD5D5",
-          600: "#E02424",
-          700: "#9B1C1C"
+          600: "#BA1A1A",
+          700: "#93000A"
         },
-        ink: "#182338",
-        line: "#E5E7EB",
-        canvas: "#FFF8F5",
+        ink: "#1B1C1C",
+        line: "#DEE2E6",
+        canvas: "#FCF9F8",
         surface: "#FFFFFF",
-        surface2: "#FFFCFB"
+        surface2: "#F8F9FA",
+        /* Literal Gold Standard token names — for screens ported directly from Stitch designs */
+        "on-surface": "#1B1C1C",
+        "on-surface-variant": "#3E494A",
+        "surface-dim": "#DCD9D9",
+        "surface-bright": "#FCF9F8",
+        "surface-container-lowest": "#FFFFFF",
+        "surface-container-low": "#F6F3F2",
+        "surface-container": "#F0EDED",
+        "surface-container-high": "#EAE7E7",
+        "surface-container-highest": "#E5E2E1",
+        outline: "#6F797A",
+        "outline-variant": "#BEC8CA",
+        "surface-variant": "#E5E2E1",
+        "surface-tint": "#006972",
+        "primary-container": "#006D77",
+        "on-primary-container": "#9BECF7",
+        "secondary-container": "#DBDEFF",
+        "on-secondary-container": "#5D617D",
+        "on-tertiary-container": "#A9ECE4",
+        error: "#BA1A1A",
+        "on-error": "#FFFFFF",
+        "error-container": "#FFDAD6",
+        "on-error-container": "#93000A"
       },
       borderRadius: {
-        xl: "0.9rem",
+        DEFAULT: "0.25rem",
+        md: "0.375rem",
+        xl: "0.75rem",
         "2xl": "1.25rem"
       },
       boxShadow: {

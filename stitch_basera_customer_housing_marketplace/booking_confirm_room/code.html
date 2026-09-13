@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Booking Flow Step 1: Room Selection Confirmation</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;family=Roboto+Flex:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-variant": "#e5e2e1",
+                      "on-secondary-fixed-variant": "#414560",
+                      "tertiary-fixed-dim": "#90d3cb",
+                      "on-background": "#1b1c1c",
+                      "secondary-fixed": "#dee0ff",
+                      "on-tertiary-container": "#a9ece4",
+                      "on-primary-fixed-variant": "#004f56",
+                      "on-surface": "#1b1c1c",
+                      "on-tertiary-fixed-variant": "#00504b",
+                      "on-surface-variant": "#3e494a",
+                      "secondary": "#595d78",
+                      "surface-dim": "#dcd9d9",
+                      "inverse-surface": "#303030",
+                      "surface-container-high": "#eae7e7",
+                      "primary-container": "#006d77",
+                      "on-error-container": "#93000a",
+                      "secondary-fixed-dim": "#c1c4e5",
+                      "error": "#ba1a1a",
+                      "on-secondary-container": "#5d617d",
+                      "outline": "#6f797a",
+                      "on-tertiary-fixed": "#00201e",
+                      "inverse-primary": "#82d3de",
+                      "surface-tint": "#006972",
+                      "on-primary-fixed": "#001f23",
+                      "primary": "#00535b",
+                      "surface-container-highest": "#e5e2e1",
+                      "on-secondary": "#ffffff",
+                      "surface": "#fcf9f8",
+                      "on-tertiary": "#ffffff",
+                      "surface-container-lowest": "#ffffff",
+                      "primary-fixed": "#9ff0fb",
+                      "outline-variant": "#bec8ca",
+                      "tertiary-container": "#286d67",
+                      "tertiary": "#01544f",
+                      "on-primary": "#ffffff",
+                      "secondary-container": "#dbdeff",
+                      "primary-fixed-dim": "#82d3de",
+                      "surface-container": "#f0eded",
+                      "surface-bright": "#fcf9f8",
+                      "on-error": "#ffffff",
+                      "on-primary-container": "#9becf7",
+                      "error-container": "#ffdad6",
+                      "tertiary-fixed": "#acefe7",
+                      "inverse-on-surface": "#f3f0ef",
+                      "background": "#fcf9f8",
+                      "surface-container-low": "#f6f3f2",
+                      "on-secondary-fixed": "#161a32"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "stack-lg": "32px",
+                      "stack-sm": "8px",
+                      "margin-desktop": "32px",
+                      "container-max": "1280px",
+                      "unit": "4px",
+                      "gutter": "24px",
+                      "stack-md": "16px",
+                      "margin-mobile": "16px"
+              },
+              "fontFamily": {
+                      "body-lg": [
+                              "Roboto Flex"
+                      ],
+                      "body-sm": [
+                              "Roboto Flex"
+                      ],
+                      "label-md": [
+                              "Roboto Flex"
+                      ],
+                      "body-md": [
+                              "Roboto Flex"
+                      ],
+                      "headline-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "headline-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "headline-lg-mobile": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "display-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "display-lg-mobile": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "label-sm": [
+                              "Roboto Flex"
+                      ]
+              },
+              "fontSize": {
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "30px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "display-lg-mobile": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.03em",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+          .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24;
+          }
+          .material-symbols-outlined.filled {
+            font-variation-settings:
+            'FILL' 1,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24;
+          }
+      </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased h-screen flex flex-col">
+<!-- Top App Bar (Transactional variant - no nav icons) -->
+<header class="bg-surface dark:bg-surface-dim w-full top-0 sticky border-b border-outline-variant dark:border-outline z-50">
+<div class="flex items-center justify-between px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto">
+<button class="text-on-surface-variant hover:bg-surface-container-low p-2 rounded-full transition-colors flex items-center justify-center cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<div class="font-headline-lg-mobile text-headline-lg-mobile text-primary dark:text-primary-fixed-dim font-bold">
+                HostelConnect
+            </div>
+<div class="w-10"></div> <!-- Placeholder for balance -->
+</div>
+</header>
+<main class="flex-1 overflow-y-auto w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-stack-lg">
+<div class="max-w-2xl mx-auto flex flex-col gap-stack-lg">
+<!-- Progress Indicator -->
+<div class="flex items-center justify-between w-full relative">
+<div class="absolute left-0 top-1/2 -translate-y-1/2 w-full h-0.5 bg-outline-variant -z-10"></div>
+<div class="flex flex-col items-center gap-stack-sm bg-background px-2">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-sm text-label-sm shadow-sm border-2 border-primary">
+                        1
+                    </div>
+<span class="font-label-sm text-label-sm text-primary">Confirm</span>
+</div>
+<div class="flex flex-col items-center gap-stack-sm bg-background px-2">
+<div class="w-8 h-8 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm border-2 border-outline-variant">
+                        2
+                    </div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Details</span>
+</div>
+<div class="flex flex-col items-center gap-stack-sm bg-background px-2">
+<div class="w-8 h-8 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm border-2 border-outline-variant">
+                        3
+                    </div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Payment</span>
+</div>
+</div>
+<div class="flex flex-col gap-stack-sm">
+<h1 class="font-headline-md text-headline-md md:font-headline-lg md:text-headline-lg text-on-background">Confirm your booking</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Review your selection before proceeding.</p>
+</div>
+<!-- Property Details Card -->
+<div class="bg-surface border border-outline-variant rounded-xl overflow-hidden flex flex-col md:flex-row shadow-sm">
+<div class="h-48 md:h-auto md:w-1/3 relative bg-surface-container-low">
+<img class="object-cover w-full h-full absolute inset-0" data-alt="A brightly lit, modern student hostel room featuring a clean, minimalist design with a neatly made bed, a small desk, and a window letting in natural sunlight. The color palette consists of crisp whites, subtle teal accents, and warm wooden textures, creating a professional, secure, and inviting atmosphere suitable for a premium student housing platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAiVdR-RJOU7xtXLL35CQIB_UrP3TDdDWSo-iaXwNLGYfbIADdcQvA158tXV7Jb61BSUxgua4Y0oWL33mxWETuVCrIHsNQA0nPgP67mnS-WRZKbHUI1WIFtAXpkPH6GsZmtN_KyYYfi0lH6lgxN8t2_JNsO6fGPOAZlNENtKc6CgKlxo8je4nl3LgzdcIrnMYsoV7YiSfXvfNi-ZVlSB6aI8WvvRU1_Fyr46riOan4_C2T-MlmtTqZ9Vw"/>
+</div>
+<div class="p-4 md:p-6 flex flex-col justify-between flex-1 gap-stack-md bg-surface">
+<div class="flex flex-col gap-stack-sm">
+<div class="flex justify-between items-start">
+<h2 class="font-headline-md text-headline-md text-on-background">Sunrise Boys Hostel</h2>
+<div class="flex items-center gap-1 bg-tertiary-container text-on-tertiary-container px-2 py-1 rounded">
+<span class="material-symbols-outlined text-[16px] filled">verified_user</span>
+<span class="font-label-sm text-label-sm uppercase">Verified</span>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Single Room • AC • Attached Bath</p>
+</div>
+<div class="flex flex-col gap-stack-sm pt-stack-sm border-t border-outline-variant">
+<div class="flex justify-between items-center">
+<span class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-2"><span class="material-symbols-outlined text-[18px]">calendar_month</span> Move-in Date</span>
+<span class="font-body-sm text-body-sm text-on-background font-medium">Oct 1, 2023</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-2"><span class="material-symbols-outlined text-[18px]">timer</span> Duration</span>
+<span class="font-body-sm text-body-sm text-on-background font-medium">6 Months</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Price Breakdown Card -->
+<div class="bg-surface border border-outline-variant rounded-xl p-4 md:p-6 flex flex-col gap-stack-md shadow-sm">
+<h3 class="font-headline-md text-headline-md text-on-background mb-2">Price Breakdown</h3>
+<div class="flex justify-between items-center font-body-md text-body-md text-on-background">
+<span>Monthly Rent</span>
+<span>PKR 15,000</span>
+</div>
+<div class="flex justify-between items-center font-body-md text-body-md text-on-background">
+<span>Security Deposit (Refundable)</span>
+<span>PKR 15,000</span>
+</div>
+<div class="flex justify-between items-center font-body-md text-body-md text-on-background">
+<span>Service Fee</span>
+<span>PKR 400</span>
+</div>
+<div class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg border border-outline-variant mt-2">
+<div class="flex flex-col gap-1">
+<span class="font-label-md text-label-md text-on-background">Deposit Protection</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Guarantee deposit return</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="font-body-md text-body-md text-on-background">+ PKR 500</span>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+<div class="border-t border-outline-variant pt-stack-md flex justify-between items-center mt-2">
+<span class="font-headline-md text-headline-md text-on-background">Total Due Today</span>
+<span class="font-headline-md text-headline-md text-primary">PKR 30,900</span>
+</div>
+</div>
+<!-- Escrow Info Box -->
+<div class="bg-surface-container-high border border-outline-variant rounded-xl p-4 flex gap-4 items-start shadow-sm">
+<span class="material-symbols-outlined text-primary text-[24px]">lock</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+<strong class="text-on-background block mb-1">Secure Escrow Payment</strong>
+                    Your payment is held securely in escrow. The hostel owner will only receive the funds after you have checked in and confirmed the room matches the description.
+                </p>
+</div>
+<!-- Action Button -->
+<button class="w-full bg-[#CC5A3D] hover:bg-[#B34D34] text-white py-4 rounded-xl font-label-md text-label-md uppercase tracking-wider transition-colors shadow-sm flex justify-center items-center gap-2 mt-4 cursor-pointer">
+                Continue to Details
+                <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+<p class="text-center font-body-sm text-body-sm text-on-surface-variant mt-2">You won't be charged yet.</p>
+</div>
+</main>
+</body></html>

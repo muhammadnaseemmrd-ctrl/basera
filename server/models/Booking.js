@@ -17,9 +17,20 @@ const bookingSchema = new mongoose.Schema(
       {
         dueDate: Date,
         amount: Number,
-        status: { type: String, enum: ["PENDING", "PAID", "OVERDUE"], default: "PENDING" },
+        // PENDING_VERIFICATION is additive: it represents a student/warden-
+        // reported offline or unconfirmed-gateway payment claim that has not
+        // yet been reviewed by an admin/finance user. It must never be
+        // treated as equivalent to PAID -- see POST /:id/payment-verification
+        // in bookingRoutes.js, which is the only path that can move a claim
+        // from PENDING_VERIFICATION to PAID.
+        status: { type: String, enum: ["PENDING", "PAID", "OVERDUE", "PENDING_VERIFICATION"], default: "PENDING" },
         paidAt: Date,
-        paymentRef: String
+        paymentRef: String,
+        submittedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        verifiedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        verifiedAt: Date,
+        rejectionReason: String,
+        previousBookingStatus: String
       }
     ],
     tokenAmount: Number,
@@ -71,6 +82,19 @@ const bookingSchema = new mongoose.Schema(
     cancelReason: String,
     ownerPaidOut: { type: Boolean, default: false },
     ownerPaidOutAt: Date,
+    // Additive holding area for a self-reported/unverified rent payment
+    // (e.g. cash or bank transfer relayed by the student) submitted via
+    // POST /:id/rent-pay before an admin/finance user confirms it via
+    // POST /:id/payment-verification. Mirrors the ManualPayment challan
+    // review flow so an unverified claim never silently updates the ledger
+    // or booking status.
+    pendingRentClaim: {
+      amount: Number,
+      paymentRef: String,
+      submittedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      submittedAt: Date,
+      previousStatus: String
+    },
     lifecycleStatus: { type: String, enum: ["none", "switch_requested", "switch_approved", "leave_requested", "leave_approved"], default: "none" },
     lifecycleReason: String,
     lifecycleRequestedAt: Date,

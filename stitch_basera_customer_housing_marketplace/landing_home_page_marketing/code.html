@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Basera - Find Your Perfect Housing</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Plus Jakarta Sans (Headline/Display) & Roboto Flex (Body/Label) -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700&amp;family=Roboto+Flex:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config injected from prompt -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-variant": "#e5e2e1",
+                    "on-secondary-fixed-variant": "#414560",
+                    "tertiary-fixed-dim": "#90d3cb",
+                    "on-background": "#1b1c1c",
+                    "secondary-fixed": "#dee0ff",
+                    "on-tertiary-container": "#a9ece4",
+                    "on-primary-fixed-variant": "#004f56",
+                    "on-surface": "#1b1c1c",
+                    "on-tertiary-fixed-variant": "#00504b",
+                    "on-surface-variant": "#3e494a",
+                    "secondary": "#595d78",
+                    "surface-dim": "#dcd9d9",
+                    "inverse-surface": "#303030",
+                    "surface-container-high": "#eae7e7",
+                    "primary-container": "#006d77",
+                    "on-error-container": "#93000a",
+                    "secondary-fixed-dim": "#c1c4e5",
+                    "error": "#ba1a1a",
+                    "on-secondary-container": "#5d617d",
+                    "outline": "#6f797a",
+                    "on-tertiary-fixed": "#00201e",
+                    "inverse-primary": "#82d3de",
+                    "surface-tint": "#006972",
+                    "on-primary-fixed": "#001f23",
+                    "primary": "#00535b",
+                    "surface-container-highest": "#e5e2e1",
+                    "on-secondary": "#ffffff",
+                    "surface": "#fcf9f8",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-fixed": "#9ff0fb",
+                    "outline-variant": "#bec8ca",
+                    "tertiary-container": "#286d67",
+                    "tertiary": "#01544f",
+                    "on-primary": "#ffffff",
+                    "secondary-container": "#dbdeff",
+                    "primary-fixed-dim": "#82d3de",
+                    "surface-container": "#f0eded",
+                    "surface-bright": "#fcf9f8",
+                    "on-error": "#ffffff",
+                    "on-primary-container": "#9becf7",
+                    "error-container": "#ffdad6",
+                    "tertiary-fixed": "#acefe7",
+                    "inverse-on-surface": "#f3f0ef",
+                    "background": "#fcf9f8",
+                    "surface-container-low": "#f6f3f2",
+                    "on-secondary-fixed": "#161a32"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "stack-lg": "32px",
+                    "stack-sm": "8px",
+                    "margin-desktop": "32px",
+                    "container-max": "1280px",
+                    "unit": "4px",
+                    "gutter": "24px",
+                    "stack-md": "16px",
+                    "margin-mobile": "16px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Roboto Flex"],
+                    "body-sm": ["Roboto Flex"],
+                    "label-md": ["Roboto Flex"],
+                    "body-md": ["Roboto Flex"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "display-lg": ["Plus Jakarta Sans"],
+                    "display-lg-mobile": ["Plus Jakarta Sans"],
+                    "label-sm": ["Roboto Flex"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "1", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                    "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "headline-lg": ["30px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "headline-md": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "display-lg-mobile": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-sm": ["12px", {"lineHeight": "1", "letterSpacing": "0.03em", "fontWeight": "600"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        body { font-family: 'Roboto Flex', sans-serif; background-color: theme('colors.background'); color: theme('colors.on-background'); }
+        h1, h2, h3, h4, h5, h6, .display-text { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky bg-surface dark:bg-surface-dim z-50 border-b border-outline-variant dark:border-outline shadow-sm md:shadow-none">
+<div class="flex items-center justify-between px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto">
+<!-- Leading / Logo -->
+<div class="flex items-center gap-4 cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim md:hidden" data-icon="menu">menu</span>
+<span class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-md md:text-headline-md text-primary dark:text-primary-fixed-dim font-bold">HostelConnect</span>
+</div>
+<!-- Desktop Navigation Links (Hidden on Mobile) -->
+<nav class="hidden md:flex items-center gap-6">
+<a class="font-label-md text-label-md text-primary dark:text-primary-fixed-dim font-bold" href="#">Explore</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-low transition-colors px-3 py-2 rounded-DEFAULT" href="#">Bookings</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-low transition-colors px-3 py-2 rounded-DEFAULT" href="#">Dashboard</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-low transition-colors px-3 py-2 rounded-DEFAULT" href="#">Profile</a>
+</nav>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-4">
+<button class="hidden md:block font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors cursor-pointer active:opacity-80">
+                    اردو / EN
+                </button>
+<div class="hidden md:flex gap-2">
+<button class="px-4 py-2 font-label-md text-label-md text-primary border border-primary rounded-DEFAULT hover:bg-surface-container-low transition-colors">Log In</button>
+<button class="px-4 py-2 font-label-md text-label-md bg-primary text-on-primary rounded-DEFAULT hover:bg-[#004248] transition-colors">Sign Up</button>
+</div>
+<!-- Mobile Urdu Toggle -->
+<button class="md:hidden font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer active:opacity-80">
+                    اردو / EN
+                </button>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-grow flex flex-col items-center w-full">
+<!-- Hero Section -->
+<section class="w-full bg-surface-container-lowest py-16 md:py-24 px-margin-mobile md:px-margin-desktop text-center relative overflow-hidden flex flex-col items-center">
+<!-- Background Image -->
+<div class="absolute inset-0 bg-cover bg-center opacity-10 z-0" data-alt="A modern, high-end student dormitory room featuring clean lines, bright natural light pouring through a large window, a well-organized study desk, and subtle teal accents in a pristine white environment. The mood is calm, studious, and highly professional, reflecting a premium SaaS aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD5psA2EFV9ZUxIL7kPk8uT9P_CulHSdg4DxCJiWqfDWX2J0yAeHCaNtRgZsxZJTcCnUnaL4-vHIcBf6FY54yVEZFZlF83gmIC2W6MO-zFfOTBFwpSm8rXmurmrjCShK6UG4xXJJaIZXiphbAJdgXh6OomqWLNG7kc5emKq76fv_pkxSXnICOjYn-4IkkOIVjjWFTpyy95BDKkiBQwQbWdRityI9o-EkJqhLR63KjcGfDp0ukGSV4uTmg')"></div>
+<div class="relative z-10 max-w-3xl w-full mx-auto flex flex-col items-center">
+<h1 class="font-display-lg-mobile text-display-lg-mobile md:font-display-lg md:text-display-lg text-primary mb-6">Find Your Basera — Safe Verified Student Housing</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-12 max-w-2xl">The gold standard in discovering, verifying, and booking premium student accommodations across major cities.</p>
+<!-- Search Bar Container (Glassmorphism inspired, structural alignment) -->
+<div class="w-full bg-surface bg-opacity-90 backdrop-blur-md p-4 rounded-xl shadow-[0px_8px_24px_rgba(0,0,0,0.08)] border border-outline-variant/50 flex flex-col md:flex-row gap-4 items-center max-w-4xl">
+<!-- Location Field -->
+<div class="flex-1 w-full border border-outline-variant bg-surface-container-low hover:bg-surface-container rounded-DEFAULT p-3 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-1 uppercase tracking-wider">Location</label>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline" data-icon="location_on">location_on</span>
+<select class="w-full bg-transparent border-none p-0 focus:ring-0 font-body-md text-body-md text-on-surface outline-none appearance-none cursor-pointer">
+<option disabled="" selected="" value="">Select City</option>
+<option>Islamabad</option>
+<option>Lahore</option>
+<option>Karachi</option>
+<option>Rawalpindi</option>
+</select>
+</div>
+</div>
+<!-- Room Type Field -->
+<div class="flex-1 w-full border border-outline-variant bg-surface-container-low hover:bg-surface-container rounded-DEFAULT p-3 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-1 uppercase tracking-wider">Type</label>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline" data-icon="bed">bed</span>
+<select class="w-full bg-transparent border-none p-0 focus:ring-0 font-body-md text-body-md text-on-surface outline-none appearance-none cursor-pointer">
+<option disabled="" selected="" value="">Select Type</option>
+<option>Hostel Room</option>
+<option>PG</option>
+<option>Shared</option>
+<option>Private</option>
+<option>Guest House</option>
+<option>Hotel Room</option>
+</select>
+</div>
+</div>
+<!-- Gender Filter Field -->
+<div class="flex-1 w-full border border-outline-variant bg-surface-container-low hover:bg-surface-container rounded-DEFAULT p-3 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-1 uppercase tracking-wider">Category</label>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline" data-icon="group">group</span>
+<select class="w-full bg-transparent border-none p-0 focus:ring-0 font-body-md text-body-md text-on-surface outline-none appearance-none cursor-pointer">
+<option disabled="" selected="" value="">Select Category</option>
+<option>Boys</option>
+<option>Girls</option>
+<option>Mixed</option>
+</select>
+</div>
+</div>
+<!-- Search Button (Custom Color requested in prompt, mapping closely to a primary/accent but adhering strictly to constraints, using inline style for requested specific hex if theme doesn't match perfectly, but preferring theme colors if possible. Requested: #CC5A3D. Since we MUST use theme colors, I will use a high contrast theme color, but prompt said "terracotta (#CC5A3D)". I will use `bg-[#CC5A3D]` ONLY IF explicitly demanded, but rule says "ONLY USE theme-derived Tailwind classes". I will use the `error` color (#ba1a1a) or `tertiary-container` (#286d67) as the closest theme-compliant prominent action, but to follow "use named colors", I will use `bg-primary` for the main action as it's the safest strict-system interpretation, but wait, the prompt specifically requested #CC5A3D. I will use the theme `error` color which is closest to a warm tone, or just stick to Primary to remain perfectly within the corporate identity. Let's use `primary`. -->
+<button class="w-full md:w-auto h-full min-h-[56px] px-8 bg-primary text-on-primary font-label-md text-label-md rounded-DEFAULT hover:bg-surface-tint transition-colors flex items-center justify-center gap-2 mt-4 md:mt-0">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+                        Search
+                    </button>
+</div>
+<!-- Quick Filter Pills -->
+<div class="mt-6 flex flex-wrap justify-center gap-3">
+<button class="px-4 py-1.5 rounded-full border border-outline-variant bg-surface-container text-on-surface-variant font-label-sm text-label-sm hover:border-primary hover:text-primary transition-colors cursor-pointer">Islamabad</button>
+<button class="px-4 py-1.5 rounded-full border border-outline-variant bg-surface-container text-on-surface-variant font-label-sm text-label-sm hover:border-primary hover:text-primary transition-colors cursor-pointer">Lahore</button>
+<button class="px-4 py-1.5 rounded-full border border-outline-variant bg-surface-container text-on-surface-variant font-label-sm text-label-sm hover:border-primary hover:text-primary transition-colors cursor-pointer">Private Rooms</button>
+<button class="px-4 py-1.5 rounded-full border border-outline-variant bg-surface-container text-on-surface-variant font-label-sm text-label-sm hover:border-primary hover:text-primary transition-colors cursor-pointer">PG</button>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 bg-surface dark:bg-surface-dim border-t border-outline-variant dark:border-outline shadow-sm h-16 max-w-md mx-auto md:max-w-full flex justify-around items-center px-2">
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+<span class="font-label-sm text-label-sm mt-1">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim active:scale-95 transition-transform duration-150 px-4 py-1" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span class="font-label-sm text-label-sm mt-1">Bookings</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim active:scale-95 transition-transform duration-150 px-4 py-1" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-sm text-label-sm mt-1">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim active:scale-95 transition-transform duration-150 px-4 py-1" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-sm text-label-sm mt-1">Profile</span>
+</a>
+</nav>
+</body></html>

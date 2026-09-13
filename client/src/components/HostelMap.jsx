@@ -33,7 +33,7 @@ export function HostelMap({ hostels = [], className = "", height = "520px" }) {
   const center = points[0] || [33.6844, 73.0479];
 
   return (
-    <div className={`overflow-hidden rounded-xl border border-line bg-surface shadow-card ${className}`} style={{ minHeight: height }}>
+    <div className={`overflow-hidden rounded-lg border border-line bg-surface shadow-card ${className}`} style={{ minHeight: height }}>
       <MapContainer center={center} zoom={12} scrollWheelZoom={false} className="h-full min-h-[inherit] w-full">
         <TileLayer
           attribution="&copy; OpenStreetMap contributors"

@@ -9,11 +9,11 @@ import "leaflet/dist/leaflet.css";
 
 const roomColor = (room) => {
   if (String(room.genderPolicy).includes("GIRLS")) return "#9D174D";
-  if (room.roomType === "SINGLE") return "#1B2A4A";
+  if (room.roomType === "SINGLE") return "#595D78";
   if (room.roomType === "DOUBLE") return "#0E7490";
   if (room.roomType === "PG") return "#6C2BD9";
   if (room.roomType === "BUNK_DORM") return "#D03801";
-  return "#F0512E";
+  return "#C0392B";
 };
 
 const priceLabel = (value) => `PKR ${Math.round(Number(value || 0) / 1000)}K`;
@@ -110,13 +110,13 @@ export function SmartDiscoveryMap({
   };
 
   const map = (
-    <div className="relative min-h-[420px] overflow-hidden rounded-xl border border-line bg-surface shadow-card" style={{ minHeight: height }}>
+    <div className="relative min-h-[420px] overflow-hidden rounded-lg border border-line bg-surface shadow-card" style={{ minHeight: height }}>
       <MapContainer center={[center.lat, center.lng]} zoom={12} scrollWheelZoom className="h-full min-h-[inherit] w-full">
         <TileLayer attribution="&copy; OpenStreetMap contributors" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <MapEvents onBoundsChange={onBoundsChange} drawMode={drawMode} setDrawPoints={setDrawPoints} setZoom={setZoom} />
 
         {overlay === "availability" && heatmap.map((point, index) => (
-          <CircleMarker key={`heat-${index}`} center={[point.lat, point.lng]} radius={Math.max(8, point.intensity * 28)} pathOptions={{ color: "#F0512E", fillColor: point.intensity > 0.7 ? "#EF4444" : point.intensity > 0.4 ? "#10B981" : "#3730A3", fillOpacity: 0.28, weight: 1 }} />
+          <CircleMarker key={`heat-${index}`} center={[point.lat, point.lng]} radius={Math.max(8, point.intensity * 28)} pathOptions={{ color: "#00535B", fillColor: point.intensity > 0.7 ? "#EF4444" : point.intensity > 0.4 ? "#10B981" : "#3730A3", fillOpacity: 0.28, weight: 1 }} />
         ))}
 
         {overlay === "safety" && safety.map((cell) => (
@@ -127,12 +127,12 @@ export function SmartDiscoveryMap({
 
         {campus?.polygon?.length ? (
           <>
-            <Polygon positions={campus.polygon.map((point) => [point.lat, point.lng])} pathOptions={{ color: "#1B2A4A", fillColor: "#1B2A4A", fillOpacity: 0.08 }} />
-            {campus.rings?.map((ring) => <Circle key={ring.label} center={[campus.university.lat, campus.university.lng]} radius={ring.radiusMeters} pathOptions={{ color: "#1B2A4A", dashArray: "6 6", fillOpacity: 0 }} />)}
+            <Polygon positions={campus.polygon.map((point) => [point.lat, point.lng])} pathOptions={{ color: "#595D78", fillColor: "#595D78", fillOpacity: 0.08 }} />
+            {campus.rings?.map((ring) => <Circle key={ring.label} center={[campus.university.lat, campus.university.lng]} radius={ring.radiusMeters} pathOptions={{ color: "#595D78", dashArray: "6 6", fillOpacity: 0 }} />)}
           </>
         ) : null}
 
-        {drawPoints.length >= 2 && <Polygon positions={drawPoints} pathOptions={{ color: "#F0512E", fillColor: "#F0512E", fillOpacity: 0.12 }} />}
+        {drawPoints.length >= 2 && <Polygon positions={drawPoints} pathOptions={{ color: "#00535B", fillColor: "#00535B", fillOpacity: 0.12 }} />}
 
         {clusters?.length ? clusters.map((cluster, index) => (
           <Marker key={`cluster-${index}`} position={[cluster.lat, cluster.lng]} icon={clusterIcon(cluster.count)}>
@@ -168,10 +168,10 @@ export function SmartDiscoveryMap({
       </div>
 
       {selectedRoom && (
-        <div className="absolute bottom-4 left-4 z-[500] hidden w-72 rounded-xl border border-line bg-white p-4 shadow-float lg:block">
-          <p className="text-xs font-bold uppercase tracking-widest text-primary-800">Selected listing</p>
-          <h3 className="mt-2 font-bold">{selectedRoom.title}</h3>
-          <p className="mt-1 text-sm text-slate-700">{currency(selectedRoom.pricePerHead || selectedRoom.pricePerBed)} - {selectedRoom.availableBeds} beds left</p>
+        <div className="absolute bottom-4 left-4 z-[500] hidden w-72 rounded-lg border border-line bg-surface p-4 shadow-float lg:block">
+          <p className="text-xs font-bold uppercase tracking-widest text-primary-700">Selected listing</p>
+          <h3 className="mt-2 font-bold text-on-surface">{selectedRoom.title}</h3>
+          <p className="mt-1 text-sm text-on-surface-variant">{currency(selectedRoom.pricePerHead || selectedRoom.pricePerBed)} - {selectedRoom.availableBeds} beds left</p>
         </div>
       )}
     </div>
@@ -182,12 +182,12 @@ export function SmartDiscoveryMap({
   return (
     <section className="grid gap-6 xl:grid-cols-[440px_minmax(0,1fr)]">
       <aside className="max-h-[680px] overflow-y-auto pr-1">
-        <div className="mb-4 rounded-xl border border-line bg-surface p-4 shadow-card">
+        <div className="mb-4 rounded-lg border border-line bg-surface p-4 shadow-card">
           <div className="flex items-center justify-between gap-3">
-            <p className="font-bold">{validRooms.length} results in this area</p>
-            <span className="badge bg-accent-50 text-accent-700"><ShieldCheck size={14} /> OSM powered</span>
+            <p className="font-bold text-on-surface">{validRooms.length} results in this area</p>
+            <span className="badge bg-primary-50 text-primary-700"><ShieldCheck size={14} /> OSM powered</span>
           </div>
-          <p className="mt-2 text-sm text-slate-700">Pan, zoom, draw a preferred area, or click a price marker.</p>
+          <p className="mt-2 text-sm text-on-surface-variant">Pan, zoom, draw a preferred area, or click a price marker.</p>
         </div>
         <div className="grid gap-4">
           {validRooms.map((room) => (

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>HostelConnect - Payment</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Roboto+Flex:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-variant": "#e5e2e1",
+                    "on-secondary-fixed-variant": "#414560",
+                    "tertiary-fixed-dim": "#90d3cb",
+                    "on-background": "#1b1c1c",
+                    "secondary-fixed": "#dee0ff",
+                    "on-tertiary-container": "#a9ece4",
+                    "on-primary-fixed-variant": "#004f56",
+                    "on-surface": "#1b1c1c",
+                    "on-tertiary-fixed-variant": "#00504b",
+                    "on-surface-variant": "#3e494a",
+                    "secondary": "#595d78",
+                    "surface-dim": "#dcd9d9",
+                    "inverse-surface": "#303030",
+                    "surface-container-high": "#eae7e7",
+                    "primary-container": "#006d77",
+                    "on-error-container": "#93000a",
+                    "secondary-fixed-dim": "#c1c4e5",
+                    "error": "#ba1a1a",
+                    "on-secondary-container": "#5d617d",
+                    "outline": "#6f797a",
+                    "on-tertiary-fixed": "#00201e",
+                    "inverse-primary": "#82d3de",
+                    "surface-tint": "#006972",
+                    "on-primary-fixed": "#001f23",
+                    "primary": "#00535b",
+                    "surface-container-highest": "#e5e2e1",
+                    "on-secondary": "#ffffff",
+                    "surface": "#fcf9f8",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-fixed": "#9ff0fb",
+                    "outline-variant": "#bec8ca",
+                    "tertiary-container": "#286d67",
+                    "tertiary": "#01544f",
+                    "on-primary": "#ffffff",
+                    "secondary-container": "#dbdeff",
+                    "primary-fixed-dim": "#82d3de",
+                    "surface-container": "#f0eded",
+                    "surface-bright": "#fcf9f8",
+                    "on-error": "#ffffff",
+                    "on-primary-container": "#9becf7",
+                    "error-container": "#ffdad6",
+                    "tertiary-fixed": "#acefe7",
+                    "inverse-on-surface": "#f3f0ef",
+                    "background": "#fcf9f8",
+                    "surface-container-low": "#f6f3f2",
+                    "on-secondary-fixed": "#161a32"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "stack-lg": "32px",
+                    "stack-sm": "8px",
+                    "margin-desktop": "32px",
+                    "container-max": "1280px",
+                    "unit": "4px",
+                    "gutter": "24px",
+                    "stack-md": "16px",
+                    "margin-mobile": "16px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Roboto Flex"],
+                    "body-sm": ["Roboto Flex"],
+                    "label-md": ["Roboto Flex"],
+                    "body-md": ["Roboto Flex"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "display-lg": ["Plus Jakarta Sans"],
+                    "display-lg-mobile": ["Plus Jakarta Sans"],
+                    "label-sm": ["Roboto Flex"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "1", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                    "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "headline-lg": ["30px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "headline-md": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "display-lg-mobile": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-sm": ["12px", {"lineHeight": "1", "letterSpacing": "0.03em", "fontWeight": "600"}]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        body { background-color: #fcf9f8; }
+        .progress-line {
+            height: 2px;
+            background: linear-gradient(to right, #00535b 50%, #e5e2e1 50%);
+            background-size: 200% 100%;
+            background-position: left bottom;
+            transition: all .5s ease-out;
+        }
+        .custom-button {
+            background-color: #CC5A3D; /* Terracotta requirement */
+            color: white;
+        }
+        .custom-button:hover {
+            background-color: #b54f35;
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-surface antialiased bg-background min-h-screen flex flex-col">
+<!-- TopAppBar (Transactional - Hidden/Simplified) -->
+<header class="bg-surface w-full top-0 sticky border-b border-outline-variant z-10 flat no shadows">
+<div class="flex items-center justify-between px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto">
+<div class="flex items-center gap-4">
+<button aria-label="Go back" class="cursor-pointer active:opacity-80 p-2 hover:bg-surface-container-low transition-colors rounded-full">
+<span class="material-symbols-outlined text-on-surface" data-icon="arrow_back">arrow_back</span>
+</button>
+<div class="font-headline-lg-mobile md:font-headline-md text-headline-lg-mobile md:text-headline-md text-primary font-bold">HostelConnect</div>
+</div>
+<div class="font-label-md text-label-md text-on-surface-variant cursor-pointer active:opacity-80">Cancel</div>
+</div>
+</header>
+<main class="flex-grow w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-stack-lg pb-32">
+<!-- Progress Indicator -->
+<div class="w-full max-w-3xl mx-auto mb-stack-lg">
+<div class="flex justify-between items-center mb-2">
+<div class="flex flex-col items-center w-1/3">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-md text-label-md mb-2">
+<span class="material-symbols-outlined" data-icon="check" style="font-size: 16px;">check</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary">Details</span>
+</div>
+<div class="flex flex-col items-center w-1/3">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-md text-label-md mb-2">
+<span class="material-symbols-outlined" data-icon="check" style="font-size: 16px;">check</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary">Review</span>
+</div>
+<div class="flex flex-col items-center w-1/3">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-md text-label-md mb-2 border-2 border-primary">
+                        3
+                    </div>
+<span class="font-label-sm text-label-sm text-primary">Payment</span>
+</div>
+</div>
+<div class="relative w-full h-1 bg-surface-container-high rounded-full overflow-hidden">
+<div class="absolute top-0 left-0 h-full bg-primary rounded-full w-[83%]"></div>
+</div>
+</div>
+<div class="flex flex-col lg:flex-row gap-gutter max-w-5xl mx-auto">
+<!-- Left Column: Payment Methods -->
+<div class="flex-1 flex flex-col gap-stack-md">
+<div>
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-2">Select Payment Method</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Choose how you'd like to pay for your booking.</p>
+</div>
+<!-- Payment Options -->
+<div class="flex flex-col gap-stack-sm mt-stack-sm">
+<!-- JazzCash -->
+<label class="cursor-pointer border border-primary bg-surface-container-lowest rounded-xl p-4 flex flex-col gap-4 relative overflow-hidden transition-all hover:bg-surface-container-low shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-4">
+<input checked="" class="text-primary focus:ring-primary h-5 w-5 border-outline" name="payment_method" type="radio" value="jazzcash"/>
+<div class="font-label-md text-label-md text-on-surface font-semibold">JazzCash</div>
+</div>
+<img alt="JazzCash Logo" class="h-8 w-auto object-contain" data-alt="A small, stylized icon or logo representing a mobile wallet payment system, using red and black brand colors, minimalist corporate style, high quality." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAjggKouaDp2d8_rrpkaXd1HjMqjZOAS5TTjcPuzZ_xjx0XHnswJB1OOlY_yUsh95YodTPtEygLc1M7O06P-Q2xO-1UZaNMojTe5zS-j4pibrTWaNNxErUaPLUsPCm0zbDGmzUKJKXuIORyCZT5dZNlMkC2sJ1o06wZk3HGS7tuDV7_wmUGtUzrUcQB_fu0oBNhK7O93sUKRbPAGszBAHBwL4d6FePWtdLJ5KiRHBthZovIOBj07sBBgQ"/>
+</div>
+<div class="pl-9 pr-4 pb-2">
+<div class="flex flex-col gap-2">
+<label class="font-label-sm text-label-sm text-on-surface-variant">Mobile Number</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-3 font-body-md text-body-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="03XX XXXXXXX" type="text"/>
+</div>
+</div>
+</label>
+<!-- EasyPaisa -->
+<label class="cursor-pointer border border-outline-variant bg-surface-container-lowest rounded-xl p-4 flex flex-col gap-4 relative overflow-hidden transition-all hover:bg-surface-container-low">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-4">
+<input class="text-primary focus:ring-primary h-5 w-5 border-outline" name="payment_method" type="radio" value="easypaisa"/>
+<div class="font-label-md text-label-md text-on-surface font-semibold">EasyPaisa</div>
+</div>
+<img alt="EasyPaisa Logo" class="h-8 w-auto object-contain" data-alt="A small, stylized icon or logo representing a digital payment app, using green and white brand colors, minimalist corporate style, high quality." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTB52zqQUsYnUit94xz1I1qsu0r_i-aHt9L4j67ZC96TAbkAh0U4H21W7_I6caazPeaL3o0o1_tnLuGmKBidQdTEx7DabeXH2NuHBSVaq08W7d9ZNxfA6np1IpVPkPob1ooKvpk8XT64RRZvX9rx9FzFKyLpYwboAyxJGLLMrqPIPAnb84rkkbCmJHlaoxY2VGczW_jpxoQe8MlG0HkXo0qehTPso3gM7otj_DgNpenAsmbX_zDcGD4w"/>
+</div>
+</label>
+<!-- Bank Transfer -->
+<label class="cursor-pointer border border-outline-variant bg-surface-container-lowest rounded-xl p-4 flex flex-col gap-4 relative overflow-hidden transition-all hover:bg-surface-container-low">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-4">
+<input class="text-primary focus:ring-primary h-5 w-5 border-outline" name="payment_method" type="radio" value="bank"/>
+<div class="font-label-md text-label-md text-on-surface font-semibold">Bank Transfer</div>
+</div>
+<span class="material-symbols-outlined text-outline" data-icon="account_balance">account_balance</span>
+</div>
+</label>
+</div>
+<div class="mt-stack-md flex items-center gap-2 p-3 bg-surface-container-low rounded-lg border border-outline-variant">
+<span class="material-symbols-outlined text-primary" data-icon="lock" style="font-size: 20px;">lock</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Secured by Basera Escrow. Your funds are safe until you move in.</span>
+</div>
+</div>
+<!-- Right Column: Order Summary -->
+<div class="w-full lg:w-96 flex flex-col gap-stack-md">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm sticky top-24">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-6 border-b border-surface-container-high pb-4">Order Summary</h2>
+<div class="flex flex-col gap-4 mb-6">
+<div class="flex gap-4">
+<div class="w-16 h-16 rounded-lg bg-cover bg-center flex-shrink-0" data-alt="A small thumbnail image showing a clean, modern hostel room interior with a neatly made bed, bright lighting, and minimal decor. High quality, corporate photography." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAhJZgO938TUnhYCSgJphJI75lvQiqj_-WLV9Ki5ipxv0JOhFsZYxFdVD0bou3yRn9fd26hJelTDphGeFjUXxwFtyK34i6x5EXXrmZrH4h2wbnvSpw0Ib3jIfIGUJUUzHSNiF10ZTwn0Op-9jj_0D91HWhg9zZRp2_I10LOZs1LPN2SY0ilSJIFOKakKQ4dqAPAzYCwHOPIBKDvBSlQfPAW9Wd7qr4s6NRcY5bwu5MyJvmWJHXunsf_4w')"></div>
+<div>
+<h3 class="font-label-md text-label-md text-on-surface font-semibold">Greenwood Boys Hostel</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Private Room • 6 Months</p>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-3 font-body-sm text-body-sm text-on-surface border-b border-surface-container-high pb-4 mb-4">
+<div class="flex justify-between">
+<span class="text-on-surface-variant">Monthly Rent (x6)</span>
+<span>PKR 150,000</span>
+</div>
+<div class="flex justify-between">
+<span class="text-on-surface-variant">Security Deposit</span>
+<span>PKR 25,000</span>
+</div>
+<div class="flex justify-between">
+<span class="text-on-surface-variant">Service Fee</span>
+<span>PKR 2,500</span>
+</div>
+</div>
+<div class="flex justify-between items-center mb-8">
+<span class="font-headline-md text-headline-md text-on-surface">Total Amount</span>
+<span class="font-headline-md text-headline-md text-primary">PKR 177,500</span>
+</div>
+<button class="w-full custom-button rounded-full py-4 px-6 font-label-md text-label-md text-center transition-transform active:scale-95 shadow-sm flex items-center justify-center gap-2">
+<span class="material-symbols-outlined" data-icon="lock" style="font-size: 20px;">lock</span>
+                        Pay Now
+                    </button>
+<p class="font-label-sm text-label-sm text-center text-on-surface-variant mt-4">By clicking Pay Now, you agree to our Terms of Service.</p>
+</div>
+</div>
+</div>
+</main>
+</body></html>

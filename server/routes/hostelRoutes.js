@@ -680,7 +680,19 @@ router.put("/:id", protect, authorize("host", "admin"), async (req, res, next) =
       address: req.body.address,
       rules: Array.isArray(req.body.rules) ? req.body.rules.join(" ") : req.body.rules
     });
-    if (mongoose.connection.readyState !== 1) return res.json({ hostel: { id: req.params.id, ...req.body }, demo: true });
+    if (mongoose.connection.readyState !== 1) {
+      const existingDemo = hostels.find((item) => item.id === req.params.id || item.slug === req.params.id);
+      if (!existingDemo) return res.status(404).json({ message: "Hostel not found." });
+      if (req.user.role !== "admin" && String(existingDemo.owner) !== String(req.user._id || req.user.id)) {
+        return res.status(403).json({ message: "You can only update hostels you own." });
+      }
+      return res.json({ hostel: { ...existingDemo, ...req.body, id: existingDemo.id }, demo: true });
+    }
+    const existing = await Hostel.findById(req.params.id).select("owner");
+    if (!existing) return res.status(404).json({ message: "Hostel not found." });
+    if (req.user.role !== "admin" && String(existing.owner) !== String(req.user._id || req.user.id)) {
+      return res.status(403).json({ message: "You can only update hostels you own." });
+    }
     const hostel = await Hostel.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
     if (!hostel) return res.status(404).json({ message: "Hostel not found." });
     return res.json({ hostel: shapeHostel(hostel) });
@@ -691,7 +703,19 @@ router.put("/:id", protect, authorize("host", "admin"), async (req, res, next) =
 
 router.delete("/:id", protect, authorize("host", "admin"), async (req, res, next) => {
   try {
-    if (mongoose.connection.readyState !== 1) return res.json({ deleted: true, demo: true });
+    if (mongoose.connection.readyState !== 1) {
+      const existingDemo = hostels.find((item) => item.id === req.params.id || item.slug === req.params.id);
+      if (!existingDemo) return res.status(404).json({ message: "Hostel not found." });
+      if (req.user.role !== "admin" && String(existingDemo.owner) !== String(req.user._id || req.user.id)) {
+        return res.status(403).json({ message: "You can only delete hostels you own." });
+      }
+      return res.json({ deleted: true, demo: true });
+    }
+    const existing = await Hostel.findById(req.params.id).select("owner");
+    if (!existing) return res.status(404).json({ message: "Hostel not found." });
+    if (req.user.role !== "admin" && String(existing.owner) !== String(req.user._id || req.user.id)) {
+      return res.status(403).json({ message: "You can only delete hostels you own." });
+    }
     await Hostel.findByIdAndDelete(req.params.id);
     return res.json({ deleted: true });
   } catch (error) {

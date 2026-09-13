@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Student Dashboard Overview - Basera</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700&amp;family=Roboto+Flex:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-variant": "#e5e2e1",
+                      "on-secondary-fixed-variant": "#414560",
+                      "tertiary-fixed-dim": "#90d3cb",
+                      "on-background": "#1b1c1c",
+                      "secondary-fixed": "#dee0ff",
+                      "on-tertiary-container": "#a9ece4",
+                      "on-primary-fixed-variant": "#004f56",
+                      "on-surface": "#1b1c1c",
+                      "on-tertiary-fixed-variant": "#00504b",
+                      "on-surface-variant": "#3e494a",
+                      "secondary": "#595d78",
+                      "surface-dim": "#dcd9d9",
+                      "inverse-surface": "#303030",
+                      "surface-container-high": "#eae7e7",
+                      "primary-container": "#006d77",
+                      "on-error-container": "#93000a",
+                      "secondary-fixed-dim": "#c1c4e5",
+                      "error": "#ba1a1a",
+                      "on-secondary-container": "#5d617d",
+                      "outline": "#6f797a",
+                      "on-tertiary-fixed": "#00201e",
+                      "inverse-primary": "#82d3de",
+                      "surface-tint": "#006972",
+                      "on-primary-fixed": "#001f23",
+                      "primary": "#00535b",
+                      "surface-container-highest": "#e5e2e1",
+                      "on-secondary": "#ffffff",
+                      "surface": "#fcf9f8",
+                      "on-tertiary": "#ffffff",
+                      "surface-container-lowest": "#ffffff",
+                      "primary-fixed": "#9ff0fb",
+                      "outline-variant": "#bec8ca",
+                      "tertiary-container": "#286d67",
+                      "tertiary": "#01544f",
+                      "on-primary": "#ffffff",
+                      "secondary-container": "#dbdeff",
+                      "primary-fixed-dim": "#82d3de",
+                      "surface-container": "#f0eded",
+                      "surface-bright": "#fcf9f8",
+                      "on-error": "#ffffff",
+                      "on-primary-container": "#9becf7",
+                      "error-container": "#ffdad6",
+                      "tertiary-fixed": "#acefe7",
+                      "inverse-on-surface": "#f3f0ef",
+                      "background": "#fcf9f8",
+                      "surface-container-low": "#f6f3f2",
+                      "on-secondary-fixed": "#161a32"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "stack-lg": "32px",
+                      "stack-sm": "8px",
+                      "margin-desktop": "32px",
+                      "container-max": "1280px",
+                      "unit": "4px",
+                      "gutter": "24px",
+                      "stack-md": "16px",
+                      "margin-mobile": "16px"
+              },
+              "fontFamily": {
+                      "body-lg": [
+                              "Roboto Flex"
+                      ],
+                      "body-sm": [
+                              "Roboto Flex"
+                      ],
+                      "label-md": [
+                              "Roboto Flex"
+                      ],
+                      "body-md": [
+                              "Roboto Flex"
+                      ],
+                      "headline-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "headline-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "headline-lg-mobile": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "display-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "display-lg-mobile": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "label-sm": [
+                              "Roboto Flex"
+                      ]
+              },
+              "fontSize": {
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "30px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "display-lg-mobile": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.03em",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col md:flex-row">
+<!-- TopAppBar for Mobile -->
+<header class="md:hidden w-full top-0 sticky bg-surface dark:bg-surface-dim border-b border-outline-variant z-40">
+<div class="flex items-center justify-between px-margin-mobile py-4 max-w-container-max mx-auto">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary cursor-pointer">menu</span>
+</div>
+<div class="font-headline-lg-mobile text-headline-lg-mobile text-primary font-bold">
+                HostelConnect
+            </div>
+<div class="flex items-center gap-2">
+<button class="text-primary font-label-md">اردو / EN</button>
+</div>
+</div>
+</header>
+<!-- Side Navigation for Web (NavigationDrawer) -->
+<aside class="hidden md:flex h-full w-80 rounded-r-xl border-r border-outline-variant shadow-md bg-surface-container-lowest flex-col py-6 gap-stack-sm sticky top-0 shrink-0 z-40">
+<!-- Profile Header -->
+<div class="px-6 mb-8 flex flex-col gap-2">
+<div class="font-headline-lg text-headline-lg text-primary font-bold mb-4">
+                HostelConnect
+            </div>
+<div class="flex items-center gap-4">
+<img class="w-12 h-12 rounded-full object-cover border border-outline-variant" data-alt="Professional corporate headshot of a young male student named Ahmed Khan. He is wearing a crisp white shirt, smiling slightly against a neutral grey background. High-quality lighting, sharp focus, conveying trust and reliability." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFEjb1LcvJKhCzyIMrZpfvjxEGMQYHdDVjd4hH8FBUPa-55Hm2GC5czJFPwIUukkvO8I5ht1yGShK2Aa6pzQ7ud_tEu2NL4TyoXg7dpjYyUKzF-bJGpDpfa-SJwcBhiee29eAq5xKfTO17owDQ848F69nuTMK3k8MxvF19pOVSluRVBZK2MmSD1HyoeX0VCI4r33y2yqVHGF1bUn7ZvuZQzbx1wrXRfHlJqfZJwZHf0m9U98ftEt2IFw"/>
+<div>
+<h3 class="font-headline-md text-headline-md text-primary">Ahmed Khan</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">verified</span> Verified Student
+                    </p>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1">NUST University</p>
+</div>
+</div>
+</div>
+<nav class="flex flex-col gap-1 w-full">
+<a class="flex items-center gap-3 px-6 py-3 bg-secondary-container text-on-secondary-container font-bold rounded-full mx-2 cursor-pointer transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-body-md text-body-md">Overview</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors cursor-pointer mx-2 rounded-full" href="#">
+<span class="material-symbols-outlined">search</span>
+<span class="font-body-md text-body-md">Explore</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors cursor-pointer mx-2 rounded-full" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-body-md text-body-md">Bookings</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors cursor-pointer mx-2 rounded-full" href="#">
+<span class="material-symbols-outlined">favorite</span>
+<span class="font-body-md text-body-md">Saved Hostels</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors cursor-pointer mx-2 rounded-full" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-body-md text-body-md">Payments</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors cursor-pointer mx-2 rounded-full" href="#">
+<span class="material-symbols-outlined">contact_support</span>
+<span class="font-body-md text-body-md">Support</span>
+</a>
+</nav>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-stack-lg md:py-stack-lg overflow-y-auto mb-20 md:mb-0">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Left Column (Dashboard Content) -->
+<div class="lg:col-span-8 flex flex-col gap-stack-lg">
+<!-- Welcome Section -->
+<div>
+<h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-primary">Welcome back, Ahmed</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-2">Here is your dashboard overview for this month.</p>
+</div>
+<!-- Alert Card -->
+<div class="bg-error-container text-on-error-container p-6 rounded-xl border border-error/20 flex items-start gap-4">
+<span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1;">warning</span>
+<div class="flex-1">
+<h3 class="font-headline-md text-headline-md font-semibold">Rent Reminder</h3>
+<p class="font-body-md text-body-md mt-1">Your upcoming rent payment of Rs 15,000 for Heritage Hostel is due in 3 days. Please ensure timely payment to avoid late fees.</p>
+</div>
+<button class="bg-error text-on-error px-4 py-2 rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity whitespace-nowrap">Pay Now</button>
+</div>
+<!-- Stats Bento -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-stack-md">
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm flex flex-col gap-2">
+<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center mb-2">
+<span class="material-symbols-outlined">luggage</span>
+</div>
+<h4 class="font-body-sm text-body-sm text-on-surface-variant">Active Booking</h4>
+<p class="font-headline-lg text-headline-lg text-primary">1</p>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm flex flex-col gap-2">
+<div class="w-10 h-10 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center mb-2">
+<span class="material-symbols-outlined">favorite</span>
+</div>
+<h4 class="font-body-sm text-body-sm text-on-surface-variant">Saved</h4>
+<p class="font-headline-lg text-headline-lg text-primary">4</p>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm flex flex-col gap-2">
+<div class="w-10 h-10 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center mb-2">
+<span class="material-symbols-outlined">star_rate</span>
+</div>
+<h4 class="font-body-sm text-body-sm text-on-surface-variant">Reviews</h4>
+<p class="font-headline-lg text-headline-lg text-primary">2</p>
+</div>
+</div>
+<!-- Current Stay Card -->
+<div class="bg-[#e9aa96]/20 border border-[#e9aa96]/40 p-6 rounded-xl relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-[#e9aa96]/30 rounded-full blur-2xl -mr-10 -mt-10"></div>
+<div class="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-[#b95b3b]" style="font-variation-settings: 'FILL' 1;">hotel</span>
+<span class="font-label-sm text-label-sm text-[#b95b3b] uppercase tracking-wider">Current Stay</span>
+</div>
+<h3 class="font-headline-lg text-headline-lg text-on-surface font-bold">Heritage Hostel</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">123 University Road, Block B</p>
+<div class="flex gap-6 mt-4">
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block mb-1">Room</span>
+<span class="font-body-md text-body-md font-semibold">204 (Shared)</span>
+</div>
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block mb-1">Move-in Date</span>
+<span class="font-body-md text-body-md font-semibold">01 Sep 2023</span>
+</div>
+</div>
+</div>
+<button class="bg-[#b95b3b] text-white px-6 py-3 rounded-lg font-label-md text-label-md hover:bg-[#a04a2c] transition-colors flex items-center gap-2 shadow-sm w-full sm:w-auto justify-center">
+<span class="material-symbols-outlined text-sm">chat</span> Contact Host
+                        </button>
+</div>
+</div>
+<!-- Recent Bookings Table -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden">
+<div class="p-6 border-b border-outline-variant bg-surface-container-low/50">
+<h3 class="font-headline-md text-headline-md text-primary font-semibold">Recent Bookings</h3>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
+<th class="p-4 font-semibold border-b border-outline-variant/50">Hostel Name</th>
+<th class="p-4 font-semibold border-b border-outline-variant/50">Date</th>
+<th class="p-4 font-semibold border-b border-outline-variant/50">Status</th>
+<th class="p-4 font-semibold border-b border-outline-variant/50">Amount</th>
+</tr>
+</thead>
+<tbody class="font-body-md text-body-md text-on-surface divide-y divide-outline-variant/50">
+<tr class="hover:bg-surface-container-lowest/80 transition-colors">
+<td class="p-4">Heritage Hostel</td>
+<td class="p-4 text-on-surface-variant">01 Sep 2023</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full font-label-sm text-label-sm bg-tertiary-container/20 text-tertiary">Active</span>
+</td>
+<td class="p-4">Rs 15,000</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest/80 transition-colors">
+<td class="p-4">Skyline Dorms</td>
+<td class="p-4 text-on-surface-variant">15 Jan 2023</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full font-label-sm text-label-sm bg-surface-variant text-on-surface-variant">Completed</span>
+</td>
+<td class="p-4">Rs 12,500</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest/80 transition-colors">
+<td class="p-4">Greenwich House</td>
+<td class="p-4 text-on-surface-variant">10 Aug 2022</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full font-label-sm text-label-sm bg-surface-variant text-on-surface-variant">Completed</span>
+</td>
+<td class="p-4">Rs 14,000</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Right Column (Profile & Sidebar) -->
+<div class="lg:col-span-4 flex flex-col gap-stack-lg">
+<!-- Profile Summary Card -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-6 text-center flex flex-col items-center relative">
+<button class="absolute top-4 right-4 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-sm">edit</span>
+</button>
+<img class="w-24 h-24 rounded-full object-cover border-4 border-surface shadow-sm mb-4" data-alt="Close up professional headshot of Ahmed Khan. White background. Clear bright lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwROnp-QMZhfw-LqxEdKXwFe_vRWE1ezq0TKLcIKrimttsglHT8diNVRVZ4Q2SiHnoJGZS5hD3Pc7MEtDpXup9Phfk9STRzcdrUODYv-LEPEAN2ajZcjEZdAOtTWvVeSR_U5cth-bSJN1581W-AmgSWbh73ESnI3r086yNaE2xVw1f6Rrlhxa9rjfBPMg7DaDz4CAUfS8L9Wy05MOa100J-6DQXRxp1jjQ-K-ASXma-9iFAlQc-Mxj4Q"/>
+<h2 class="font-headline-md text-headline-md text-primary font-bold">Ahmed Khan</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4">Verified Student · NUST</p>
+<div class="w-full bg-surface-container-high rounded-full h-2.5 mb-2">
+<div class="bg-primary h-2.5 rounded-full" style="width: 85%"></div>
+</div>
+<div class="w-full flex justify-between font-label-sm text-label-sm text-on-surface-variant">
+<span>Profile Completion</span>
+<span class="text-primary font-bold">85%</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-4 text-left w-full">Complete your emergency contact details to reach 100%.</p>
+</div>
+<!-- Nearby Help Widget -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-6">
+<h3 class="font-headline-md text-headline-md text-primary font-semibold mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined">location_on</span> Nearby Services
+                    </h3>
+<div class="grid grid-cols-2 gap-3">
+<a class="flex flex-col items-center justify-center p-4 rounded-lg bg-surface-container-low hover:bg-secondary-container transition-colors border border-outline-variant/30 text-center gap-2 group" href="#">
+<span class="material-symbols-outlined text-tertiary group-hover:text-primary transition-colors">local_pharmacy</span>
+<span class="font-label-sm text-label-sm text-on-surface">Pharmacy</span>
+</a>
+<a class="flex flex-col items-center justify-center p-4 rounded-lg bg-surface-container-low hover:bg-secondary-container transition-colors border border-outline-variant/30 text-center gap-2 group" href="#">
+<span class="material-symbols-outlined text-tertiary group-hover:text-primary transition-colors">local_hospital</span>
+<span class="font-label-sm text-label-sm text-on-surface">Hospital</span>
+</a>
+<a class="flex flex-col items-center justify-center p-4 rounded-lg bg-surface-container-low hover:bg-secondary-container transition-colors border border-outline-variant/30 text-center gap-2 group" href="#">
+<span class="material-symbols-outlined text-tertiary group-hover:text-primary transition-colors">atm</span>
+<span class="font-label-sm text-label-sm text-on-surface">ATM</span>
+</a>
+<a class="flex flex-col items-center justify-center p-4 rounded-lg bg-surface-container-low hover:bg-secondary-container transition-colors border border-outline-variant/30 text-center gap-2 group" href="#">
+<span class="material-symbols-outlined text-tertiary group-hover:text-primary transition-colors">local_grocery_store</span>
+<span class="font-label-sm text-label-sm text-on-surface">Grocery</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar for Mobile -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 border-t border-outline-variant dark:border-outline shadow-sm bg-surface dark:bg-surface-dim flex justify-around items-center h-16 max-w-md mx-auto">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">search</span>
+<span class="font-label-sm text-label-sm mt-1">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-label-sm text-label-sm mt-1">Bookings</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-label-sm text-label-sm mt-1">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-sm text-label-sm mt-1">Profile</span>
+</a>
+</nav>
+</body></html>

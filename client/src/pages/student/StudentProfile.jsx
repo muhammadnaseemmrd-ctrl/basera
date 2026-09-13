@@ -267,28 +267,29 @@ export function StudentProfile() {
             </div>
           </form>
 
-          <section className="panel p-7 sm:p-10">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <section className="overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest">
+            <div className="flex flex-col gap-3 border-b border-outline-variant bg-surface-container-low p-6 sm:flex-row sm:items-start sm:justify-between sm:p-7">
               <div>
-                <h3 className="flex items-center gap-2 text-xl font-bold"><ShieldCheck size={22} /> Student Verification</h3>
-                <p className="mt-2 text-sm text-neutral-700">Upload identity and university proof to unlock verified-stay reviews and faster approvals.</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Documents</p>
+                <h3 className="mt-1 flex items-center gap-2 font-display text-xl font-bold text-on-surface"><ShieldCheck size={22} /> Student Verification</h3>
+                <p className="mt-2 text-sm text-on-surface-variant">Upload identity and university proof to unlock verified-stay reviews and faster approvals.</p>
               </div>
-              <span className={`badge ${form.isVerified ? "bg-accent-50 text-accent-700" : "bg-primary-50 text-primary-800"}`}>
+              <span className={`inline-flex h-fit items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${form.isVerified ? "bg-tertiary-container/20 text-tertiary" : "bg-primary-container/15 text-primary-600"}`}>
                 {form.isVerified ? "Verified student" : "Review pending"}
               </span>
             </div>
 
-            <div className="mt-6 grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 p-7 sm:p-10 md:grid-cols-2">
               {documentFields.map((field) => {
                 const uploaded = (form.verificationDocuments || []).find((document) => document.type === field.type);
                 return (
-                  <div key={field.type} className="rounded-lg border border-line bg-canvas p-5">
+                  <div key={field.type} className="rounded-lg border border-dashed border-outline-variant bg-surface-container-low p-5">
                     <div className="mb-4 flex items-start justify-between gap-4">
                       <div>
-                        <p className="font-bold">{field.label}</p>
-                        <p className="mt-1 text-sm text-neutral-700">{uploaded ? uploaded.originalName || "Document uploaded" : "Image or PDF, max 8MB"}</p>
+                        <p className="font-bold text-on-surface">{field.label}</p>
+                        <p className="mt-1 text-sm text-on-surface-variant">{uploaded ? uploaded.originalName || "Document uploaded" : "Image or PDF, max 8MB"}</p>
                       </div>
-                      <span className={`grid h-11 w-11 place-items-center rounded-lg ${uploaded ? "bg-accent-50 text-accent-700" : "bg-primary-50 text-primary-800"}`}>
+                      <span className={`grid h-11 w-11 shrink-0 place-items-center rounded ${uploaded ? "bg-tertiary-container text-on-tertiary-container" : "bg-primary-container text-on-primary-container"}`}>
                         <FileCheck2 size={20} />
                       </span>
                     </div>
@@ -296,16 +297,17 @@ export function StudentProfile() {
                       type="file"
                       accept="image/*,.pdf,application/pdf"
                       onChange={(event) => uploadStudentDocument({ ...field, file: event.target.files?.[0] })}
-                      className="block w-full text-sm text-slate-700 file:mr-4 file:rounded-md file:border-0 file:bg-primary-700 file:px-4 file:py-2 file:font-semibold file:text-white"
+                      className="block w-full text-sm text-on-surface-variant file:mr-4 file:rounded file:border-0 file:bg-primary-600 file:px-4 file:py-2 file:font-semibold file:text-white"
                     />
-                    <p className="mt-3 text-xs font-semibold uppercase tracking-widest text-neutral-600">
+                    <p className="mt-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-on-surface-variant">
+                      {uploaded ? <ShieldCheck size={13} className="text-tertiary" /> : null}
                       {uploading === field.type ? "Uploading..." : uploaded?.status || "Required"}
                     </p>
                   </div>
                 );
               })}
             </div>
-            {verificationMessage && <p className="mt-5 rounded-md bg-primary-50 px-4 py-3 text-sm font-semibold text-primary-800">{verificationMessage}</p>}
+            {verificationMessage && <p className="mx-7 mb-7 rounded-md bg-primary-container/15 px-4 py-3 text-sm font-semibold text-primary-600 sm:mx-10">{verificationMessage}</p>}
           </section>
 
           <form onSubmit={onSubmit} className="panel p-7 sm:p-10">

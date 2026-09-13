@@ -1,11 +1,41 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const ChatMessage = require("../models/ChatMessage");
+const User = require("../models/User");
 const { protect } = require("../middleware/auth");
 const { filterChatMessage } = require("../services/chatFilter");
 const { users, hostels } = require("../data/mockData");
 
 const router = express.Router();
+
+// Platform business rule: customers should reach Admin/Support first, not a
+// specific property owner directly. This resolves the fixed "Basera Support"
+// recipient that the student-facing chat entry point routes to by default.
+// See StudentChat.jsx / ChatPanel.jsx (lockToSupport) for the client side.
+const FALLBACK_SUPPORT_CONTACT = { id: "u-admin", name: "Basera Support Team", role: "admin" };
+
+router.get("/support-contact", protect, async (req, res, next) => {
+  try {
+    if (mongoose.connection.readyState !== 1) {
+      const demoAdmin = users.find((candidate) => candidate.role === "admin");
+      return res.json({
+        contact: demoAdmin ? { id: demoAdmin.id, name: demoAdmin.name || "Basera Support Team", role: "admin" } : FALLBACK_SUPPORT_CONTACT,
+        demo: true
+      });
+    }
+
+    const admin = await User.findOne({ role: "admin" }).select("name role").sort({ createdAt: 1 });
+    if (!admin) {
+      // No admin/support account provisioned yet in this environment. Surface this
+      // clearly instead of silently routing messages to a made-up id that no inbox
+      // reads from.
+      return res.status(503).json({ message: "Support routing is not configured yet. Please contact the platform administrator." });
+    }
+    return res.json({ contact: { id: admin._id, name: admin.name || "Basera Support Team", role: "admin" } });
+  } catch (error) {
+    return next(error);
+  }
+});
 
 const demoThreads = [
   {

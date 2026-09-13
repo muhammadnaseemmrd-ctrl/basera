@@ -1,6 +1,7 @@
 import { Link, NavLink } from "react-router-dom";
 import { MobileBottomNav } from "./Layout";
 import { GlobalAlertBanner } from "./GlobalAlertBanner";
+import { Logo } from "./Logo";
 
 // Derives up to 2 initials from user.name, falling back to user.email, then "U",
 // so a missing/undefined name (e.g. incomplete profile) never throws in the sidebar.
@@ -41,9 +42,8 @@ export function DashboardShell({
   return (
     <div className="min-h-screen overflow-x-hidden bg-canvas text-ink lg:grid lg:grid-cols-[280px_1fr]">
       <aside className="min-w-0 overflow-hidden border-r border-line bg-surface lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col">
-        <div className="flex h-20 items-center gap-3 px-6 text-xl font-extrabold tracking-tight text-ink">
-          <img src="/favicon.svg" alt="Basera" className="h-10 w-10 rounded-xl shadow-card" />
-          <span>Basera</span>
+        <div className="flex h-20 items-center gap-3 px-6">
+          <Logo wordmarkClassName="text-xl" />
         </div>
 
         <p className="hidden px-6 pb-2 text-[0.7rem] font-bold uppercase tracking-[0.14em] text-neutral-400 lg:block">{navLabel}</p>

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Hotel and Guest House Detail Page - Basera</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Roboto+Flex:opsz,wght@8..144,400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                            "surface-variant": "#e5e2e1",
+                            "on-secondary-fixed-variant": "#414560",
+                            "tertiary-fixed-dim": "#90d3cb",
+                            "on-background": "#1b1c1c",
+                            "secondary-fixed": "#dee0ff",
+                            "on-tertiary-container": "#a9ece4",
+                            "on-primary-fixed-variant": "#004f56",
+                            "on-surface": "#1b1c1c",
+                            "on-tertiary-fixed-variant": "#00504b",
+                            "on-surface-variant": "#3e494a",
+                            "secondary": "#595d78",
+                            "surface-dim": "#dcd9d9",
+                            "inverse-surface": "#303030",
+                            "surface-container-high": "#eae7e7",
+                            "primary-container": "#006d77",
+                            "on-error-container": "#93000a",
+                            "secondary-fixed-dim": "#c1c4e5",
+                            "error": "#ba1a1a",
+                            "on-secondary-container": "#5d617d",
+                            "outline": "#6f797a",
+                            "on-tertiary-fixed": "#00201e",
+                            "inverse-primary": "#82d3de",
+                            "surface-tint": "#006972",
+                            "on-primary-fixed": "#001f23",
+                            "primary": "#00535b",
+                            "surface-container-highest": "#e5e2e1",
+                            "on-secondary": "#ffffff",
+                            "surface": "#fcf9f8",
+                            "on-tertiary": "#ffffff",
+                            "surface-container-lowest": "#ffffff",
+                            "primary-fixed": "#9ff0fb",
+                            "outline-variant": "#bec8ca",
+                            "tertiary-container": "#286d67",
+                            "tertiary": "#01544f",
+                            "on-primary": "#ffffff",
+                            "secondary-container": "#dbdeff",
+                            "primary-fixed-dim": "#82d3de",
+                            "surface-container": "#f0eded",
+                            "surface-bright": "#fcf9f8",
+                            "on-error": "#ffffff",
+                            "on-primary-container": "#9becf7",
+                            "error-container": "#ffdad6",
+                            "tertiary-fixed": "#acefe7",
+                            "inverse-on-surface": "#f3f0ef",
+                            "background": "#fcf9f8",
+                            "surface-container-low": "#f6f3f2",
+                            "on-secondary-fixed": "#161a32"
+                    },
+                    "borderRadius": {
+                            "DEFAULT": "0.125rem",
+                            "lg": "0.25rem",
+                            "xl": "0.5rem",
+                            "full": "0.75rem"
+                    },
+                    "spacing": {
+                            "stack-lg": "32px",
+                            "stack-sm": "8px",
+                            "margin-desktop": "32px",
+                            "container-max": "1280px",
+                            "unit": "4px",
+                            "gutter": "24px",
+                            "stack-md": "16px",
+                            "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                            "body-lg": ["Roboto Flex"],
+                            "body-sm": ["Roboto Flex"],
+                            "label-md": ["Roboto Flex"],
+                            "body-md": ["Roboto Flex"],
+                            "headline-lg": ["Plus Jakarta Sans"],
+                            "headline-md": ["Plus Jakarta Sans"],
+                            "headline-lg-mobile": ["Plus Jakarta Sans"],
+                            "display-lg": ["Plus Jakarta Sans"],
+                            "display-lg-mobile": ["Plus Jakarta Sans"],
+                            "label-sm": ["Roboto Flex"]
+                    },
+                    "fontSize": {
+                            "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                            "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                            "label-md": ["14px", {"lineHeight": "1", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                            "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                            "headline-lg": ["30px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                            "headline-md": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                            "headline-lg-mobile": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                            "display-lg": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                            "display-lg-mobile": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                            "label-sm": ["12px", {"lineHeight": "1", "letterSpacing": "0.03em", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased min-h-screen">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface-dim w-full top-0 sticky border-b border-outline-variant dark:border-outline z-40 flat no shadows">
+<div class="flex items-center justify-between px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto">
+<div class="flex items-center gap-4 cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined text-on-surface-variant dark:text-on-surface-variant text-2xl" data-icon="menu">menu</span>
+<span class="font-headline-lg-mobile md:font-headline-md text-headline-lg-mobile md:text-headline-md text-primary dark:text-primary-fixed-dim font-bold">HostelConnect</span>
+</div>
+<div class="hidden md:flex items-center gap-8">
+<a class="font-label-md text-label-md text-primary dark:text-primary-fixed-dim font-bold hover:bg-surface-container-low transition-colors px-3 py-2 rounded" href="#">Explore</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-low transition-colors px-3 py-2 rounded" href="#">Bookings</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-low transition-colors px-3 py-2 rounded" href="#">Dashboard</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-low transition-colors px-3 py-2 rounded" href="#">Profile</a>
+</div>
+<button class="font-label-md text-label-md text-primary dark:text-primary-fixed-dim hover:bg-surface-container-low transition-colors px-4 py-2 rounded border border-outline-variant">
+                اردو / EN
+            </button>
+</div>
+</header>
+<main class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-stack-lg mb-20 md:mb-0">
+<!-- Breadcrumb & Actions -->
+<div class="flex justify-between items-center mb-stack-md">
+<div class="flex items-center text-on-surface-variant text-body-sm font-body-sm gap-2">
+<span class="material-symbols-outlined text-[18px]">arrow_back</span>
+<span>Back to Search</span>
+</div>
+<div class="flex gap-4">
+<button class="flex items-center gap-2 text-primary text-label-md font-label-md hover:bg-surface-container-low px-3 py-2 rounded transition-colors">
+<span class="material-symbols-outlined text-[20px]">share</span>
+                    Share
+                </button>
+<button class="flex items-center gap-2 text-primary text-label-md font-label-md hover:bg-surface-container-low px-3 py-2 rounded transition-colors">
+<span class="material-symbols-outlined text-[20px]">favorite_border</span>
+                    Save
+                </button>
+</div>
+</div>
+<!-- Title Section -->
+<div class="mb-stack-lg">
+<div class="flex items-start justify-between gap-4">
+<div>
+<h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-background mb-2">The Royal Guest House</h1>
+<div class="flex items-center text-on-surface-variant text-body-md font-body-md gap-2">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+<span>F-7/2, Islamabad, Pakistan</span>
+<a class="text-primary hover:underline ml-2" href="#">View on map</a>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<div class="flex items-center gap-1 bg-surface-container-high px-3 py-1 rounded-full mb-2">
+<span class="material-symbols-outlined text-[16px] text-tertiary">star</span>
+<span class="font-label-md text-label-md font-bold text-on-background">4.8</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">(124 reviews)</span>
+</div>
+<div class="flex items-center gap-1 bg-tertiary-container/10 px-2 py-1 rounded border border-tertiary/20">
+<span class="material-symbols-outlined text-[14px] text-tertiary fill">verified_user</span>
+<span class="text-label-sm font-label-sm text-tertiary uppercase">Verified Property</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Image Gallery Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-4 h-[400px] md:h-[500px] mb-stack-lg rounded-xl overflow-hidden">
+<div class="md:col-span-2 row-span-2 relative">
+<img class="w-full h-full object-cover" data-alt="A spacious, brightly lit luxury guest house bedroom with a large plush bed, crisp white linens, modern minimalist furniture, and large windows revealing a sunny day. The color palette features neutral tones with subtle teal accents, evoking a high-end, comfortable stay." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmYz3xnlIRqR9rB0TmbXPRX5ORsEDG-5E3rufq8VogDSmUEbFeMO_YsLpzAKAPAbN5o_YsUeREUQ8sQZ_D8kGX-54nzUg-KXsN-IJl78ASQLRkJp112d2bRIw2A0rzQH6hsGp_yx4ekb8HWVmrBKgiJmsjw2UxQfrLuejydDahim7YB8_zZFzLszi7rUqEL48dJPoHJWjQaA3PK3VcPDR_h-MAcAbXS8imNdhqXVvDm_z7UxdwAga_OQ"/>
+</div>
+<div class="hidden md:block relative">
+<img class="w-full h-full object-cover" data-alt="A pristine, modern en-suite bathroom with glass shower enclosure, polished marble tiles, white ceramic fixtures, and soft, warm overhead lighting. The aesthetic is clean, sanitary, and luxurious, matching a premium hospitality experience." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQtfxItZ4bGSLd_W-mLAqv3ABhBZikRVq-TWdE1T0PDom5nI78csfxZlPlOHE516pKVndDLHAgG5QgZgIeDsdPZ1cw9f2zHh5yAOyNMrfSTT1QRv_h-1DlwbwNnX4E5h09CFn2tZy8SO_PxScnDI6HwSYizJiuT-w2JmVlet0KA5ao9BRmw7oiyZtltGgx14DRhwBFypFdx1V6tIjpHv5deJ-7HKcYXCswlIDUBKnFdxT4_1hRXihGrw"/>
+</div>
+<div class="hidden md:block relative">
+<img class="w-full h-full object-cover" data-alt="A comfortable, elegant lounge area in a guest house, featuring a plush gray sofa, a sleek glass coffee table, and a large flat-screen TV on a minimalist wooden stand. Sunlight streams through sheer curtains, creating an inviting, professional atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIhSGeQZslIBvok7gaRUqO3WP6odAdTvPuQ8eb156OcrsL9JuSZqlNHUIzRynCxPJrCNvd5ADHXWaEQAs1vNnFtloBAZ1kMeUqW8eVUachC_8eVczSroprHaoX9q_6AF8p-19zWxV_KRCrsTKOp-bGhPBPUrmcl4BFfpLJ1Q00MFPZwj_dR21YXRPfTNDZBf7e_SY4SPLsLoRIiXbXJkh94ugsiqzzvPYlbcP42xErIwLKOm1b89bZeg"/>
+</div>
+<div class="hidden md:block relative">
+<img class="w-full h-full object-cover" data-alt="A bright, clean dining area in a premium guest house, with a long modern table set for breakfast. Fresh fruit, croissants, and coffee are neatly arranged. The lighting is crisp and natural, highlighting a hygienic and welcoming dining experience." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUNm__JvUb85R_IVxpsoMj0RTSpxviAk2CLQsqo4qclL5Q9mrVivbVYNhJiHP5H8giwLRamrYu6GP_xF67xFGv6-r70Pi0XGTwcrvCtSyMdMpoIUk9e8uW5WUv_TeOQLOwzRoT0x5UnBkly6OyXgql4n1F6UUvW4euLQZBO-YASlm1X792FmR-2FGl-hMET3tziNCYDzGILP8HxNBP3pNiy73CLxu9EMjD8dRiBzTPkF2gM1slTqPdZw"/>
+</div>
+<div class="hidden md:block relative">
+<img class="w-full h-full object-cover" data-alt="A well-maintained exterior view of a modern guest house in an upscale neighborhood. The architecture is clean, with neatly trimmed landscaping, a paved driveway, and clear, welcoming signage. Shot in daylight to emphasize security and prestige." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAW2J0f0AB5UhxA2pBMEXs0h1PxSujG6wMNi5w28xC1Q2_NMFzO5oIpHnWBmfiLvVmAivAN2fjSk4Pan6fat-wLWvJCVRPwxHgyx1J8IXs1blGiLyKVWM2pigvHHBFozOD9pPj016DTtnQOj-MDJodFTgCsKTJoCYg8KAB7b8WSC6cvvHA6dWrsk8zOVfZ4YDWfZkeBqhZU116dCQUN6nEAl-Y2ILSuPkikpa0-YbfUoYuyhYJIBuFT2w"/>
+<div class="absolute inset-0 bg-black/40 flex items-center justify-center cursor-pointer hover:bg-black/50 transition-colors">
+<span class="text-white font-label-md text-label-md flex items-center gap-2">
+<span class="material-symbols-outlined">grid_view</span>
+                        View all 24 photos
+                    </span>
+</div>
+</div>
+</div>
+<!-- Content Layout -->
+<div class="flex flex-col lg:flex-row gap-gutter">
+<!-- Main Content Left -->
+<div class="flex-1 space-y-stack-lg">
+<!-- Highlights & Description -->
+<section>
+<h2 class="font-headline-md text-headline-md mb-4 text-on-background border-b border-outline-variant pb-2">About This Property</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6 leading-relaxed">
+                        Experience premium comfort in the heart of Islamabad. The Royal Guest House offers beautifully appointed rooms designed for short-term travelers and professionals seeking a quiet, reliable stay. Enjoy modern amenities, rigorous cleanliness standards, and immediate access to major commercial hubs.
+                    </p>
+<div class="grid grid-cols-2 gap-4">
+<div class="flex gap-3 items-start p-4 border border-outline-variant rounded-lg bg-surface-container-lowest">
+<span class="material-symbols-outlined text-primary text-[24px]">workspace_premium</span>
+<div>
+<h3 class="font-label-md text-label-md text-on-background mb-1">Premium Quality</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">High-end furnishings and pristine environment.</p>
+</div>
+</div>
+<div class="flex gap-3 items-start p-4 border border-outline-variant rounded-lg bg-surface-container-lowest">
+<span class="material-symbols-outlined text-primary text-[24px]">support_agent</span>
+<div>
+<h3 class="font-label-md text-label-md text-on-background mb-1">24/7 Support</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Round-the-clock front desk assistance.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Amenities -->
+<section>
+<h2 class="font-headline-md text-headline-md mb-4 text-on-background border-b border-outline-variant pb-2">Amenities</h2>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-2">
+<div class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-[24px]">wifi</span>
+<span class="font-body-md text-body-md">High-Speed WiFi</span>
+</div>
+<div class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-[24px]">tv</span>
+<span class="font-body-md text-body-md">Smart TV</span>
+</div>
+<div class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-[24px]">ac_unit</span>
+<span class="font-body-md text-body-md">Air Conditioning</span>
+</div>
+<div class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-[24px]">water_drop</span>
+<span class="font-body-md text-body-md">Hot Water</span>
+</div>
+<div class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-[24px]">restaurant</span>
+<span class="font-body-md text-body-md">Breakfast Included</span>
+</div>
+<div class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-[24px]">local_laundry_service</span>
+<span class="font-body-md text-body-md">Laundry Service</span>
+</div>
+</div>
+</section>
+<!-- Room Types -->
+<section>
+<h2 class="font-headline-md text-headline-md mb-4 text-on-background border-b border-outline-variant pb-2">Available Rooms</h2>
+<div class="space-y-4">
+<!-- Room Option 1 -->
+<div class="border border-outline-variant rounded-xl p-4 flex flex-col md:flex-row gap-4 hover:border-primary transition-colors bg-surface-container-lowest">
+<div class="w-full md:w-48 h-32 rounded-lg overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="A neat, modern single room in a guest house with a comfortable twin bed, white linens, a small desk, and a window letting in bright daylight. The decor is minimal and professional." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCo1Zdl2ghIQN8FkVbmXgiBy8RwiY0Nv-lr_d-sS1MY6ekkfk-UO5vIDziKQhHtKYJRShj1bxZmHrXoxpSKXUw7a7O_FUU7flaaqWpSVXR4gGRZqVcptZDstxVVrz08zCwZNZAGjrHbR1TlbOmMs3eMkCKs_EID99-SvMljxVdS3kt5_cgroRFx6bfaUK2HAPq-8DGgZ4Arg2m_YbsOHeT6RukDMox8bA2A-rjNYbdmNHNjvTwnj1Ld5A"/>
+</div>
+<div class="flex-1 flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-headline-md text-headline-md text-on-background">Standard Single</h3>
+<span class="font-headline-md text-headline-md text-primary font-bold">PKR 5,000<span class="text-body-sm font-body-sm font-normal text-on-surface-variant">/night</span></span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-2">1 Twin Bed • En-suite Bathroom • City View</p>
+</div>
+<div class="flex justify-between items-end mt-2">
+<div class="flex gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]" title="WiFi">wifi</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]" title="AC">ac_unit</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]" title="TV">tv</span>
+</div>
+<button class="border border-primary text-primary px-4 py-2 rounded-lg font-label-md text-label-md hover:bg-primary-container hover:text-on-primary-container transition-colors">Select</button>
+</div>
+</div>
+</div>
+<!-- Room Option 2 -->
+<div class="border-2 border-primary rounded-xl p-4 flex flex-col md:flex-row gap-4 bg-primary-container/5">
+<div class="w-full md:w-48 h-32 rounded-lg overflow-hidden shrink-0 relative">
+<div class="absolute top-2 left-2 bg-primary text-on-primary text-label-sm font-label-sm px-2 py-1 rounded">Popular</div>
+<img class="w-full h-full object-cover" data-alt="A spacious deluxe double room in a premium guest house, featuring a large king-size bed with crisp white bedding, a sitting area with two armchairs, and elegant modern lighting. Professional and inviting ambiance." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPjTK5yuyoXpMua8au_HUfNKms2IT9w2oSrJvu6PuT2DfBsWzat7P3BIxP-9dx_Zt_NqTLE1sGiSQcXKY_msmLyVGgWL7_B_SW7BUIkMuZDpTJhSLRY_J8OxgVZn6REyF61-O6Q9RpkeQX3WRVcec5Fg0wgMT_ka1YbwX9Pc3Bx6QKXDJM-QaiCLdJhFvMzSp1ucXtFVhUVnnVCCfAPX6zVErBtBVu_cw0DVTjEm2a27UsFqN7cooVMg"/>
+</div>
+<div class="flex-1 flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-headline-md text-headline-md text-on-background">Deluxe Double</h3>
+<span class="font-headline-md text-headline-md text-primary font-bold">PKR 8,500<span class="text-body-sm font-body-sm font-normal text-on-surface-variant">/night</span></span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-2">1 King Bed • En-suite Bathroom • Balcony • Mini Fridge</p>
+</div>
+<div class="flex justify-between items-end mt-2">
+<div class="flex gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]" title="WiFi">wifi</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]" title="AC">ac_unit</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]" title="TV">tv</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]" title="Breakfast">restaurant</span>
+</div>
+<button class="bg-primary text-on-primary px-4 py-2 rounded-lg font-label-md text-label-md hover:bg-on-primary-fixed-variant transition-colors flex items-center gap-1">Selected <span class="material-symbols-outlined text-[18px]">check</span></button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Location Map Placeholder -->
+<section>
+<h2 class="font-headline-md text-headline-md mb-4 text-on-background border-b border-outline-variant pb-2">Location</h2>
+<div class="h-64 bg-surface-container-high rounded-xl overflow-hidden border border-outline-variant relative flex items-center justify-center">
+<img class="absolute inset-0 w-full h-full object-cover opacity-70" data-alt="A clear, high-contrast map view of sector F-7 in Islamabad, showing street grid lines, a prominent pin indicating the guest house location, and surrounding landmarks. Professional navigation style." data-location="Islamabad" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJi9aR2cuYVhrcDtIP5T0eC04wD1d0rCWBw_DZM5VJjl7U9mYSX7GQK6Zeir40BiBDoQ5SHURJ_QotYZh3C1LepCGRc_BWa57jvv2v03YFssb43zMBuLoItfRGGK4rkTJghpzPRiMVNBU0CJCE10ceoN-s-qHmJPJ-0S6JJO3saq5JjiN2EFaM7uX5sRp8GC7vH47OP86HUMll3VemT-wi4FIiPiyitNXoJs0Wsbj825-3zXOZWyiuiw"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-variant/80 to-transparent"></div>
+<div class="relative z-10 bg-surface px-4 py-3 rounded-lg shadow-md border border-outline-variant flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-[28px] fill">location_on</span>
+<div>
+<p class="font-label-md text-label-md text-on-background">F-7/2, Islamabad</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">2.5 km from city center</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Booking Widget Sidebar -->
+<div class="w-full lg:w-[400px] shrink-0">
+<div class="sticky top-24 bg-surface border border-outline-variant rounded-xl p-6 shadow-[0px_8px_24px_rgba(0,0,0,0.08)]">
+<div class="mb-6 flex justify-between items-end border-b border-outline-variant pb-4">
+<div>
+<span class="text-body-md font-body-md text-on-surface-variant block mb-1">Price</span>
+<span class="font-headline-lg text-headline-lg text-on-background">PKR 8,500</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant"> / night</span>
+</div>
+</div>
+<div class="space-y-4 mb-6">
+<!-- Dates -->
+<div class="grid grid-cols-2 gap-2 border border-outline-variant rounded-lg p-1 bg-surface-container-lowest">
+<div class="p-2 border-r border-outline-variant">
+<label class="block font-label-sm text-label-sm text-on-surface-variant uppercase mb-1">Check-in</label>
+<input class="w-full border-none p-0 text-body-md font-body-md text-on-background focus:ring-0 bg-transparent" type="date" value="2023-11-15"/>
+</div>
+<div class="p-2">
+<label class="block font-label-sm text-label-sm text-on-surface-variant uppercase mb-1">Check-out</label>
+<input class="w-full border-none p-0 text-body-md font-body-md text-on-background focus:ring-0 bg-transparent" type="date" value="2023-11-18"/>
+</div>
+</div>
+<!-- Guests -->
+<div class="border border-outline-variant rounded-lg p-3 flex justify-between items-center bg-surface-container-lowest cursor-pointer hover:border-primary transition-colors">
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant uppercase mb-1">Guests</label>
+<span class="font-body-md text-body-md text-on-background">2 Guests</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
+</div>
+<!-- Room Selection summary -->
+<div class="bg-surface-container-low p-3 rounded-lg border border-outline-variant">
+<div class="flex justify-between items-center mb-1">
+<span class="font-label-md text-label-md text-on-background">Deluxe Double Room</span>
+<a class="font-label-sm text-label-sm text-primary hover:underline" href="#">Change</a>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">1 Room</span>
+</div>
+</div>
+<!-- Price Calculation -->
+<div class="space-y-3 mb-6 font-body-md text-body-md text-on-surface-variant">
+<div class="flex justify-between">
+<span>PKR 8,500 x 3 nights</span>
+<span>PKR 25,500</span>
+</div>
+<div class="flex justify-between">
+<span>Service Fee (5%)</span>
+<span>PKR 1,275</span>
+</div>
+<div class="flex justify-between">
+<span>Taxes</span>
+<span>PKR 2,550</span>
+</div>
+<div class="border-t border-outline-variant pt-3 flex justify-between font-headline-md text-headline-md text-on-background mt-2">
+<span>Total</span>
+<span>PKR 29,325</span>
+</div>
+</div>
+<!-- Notice & Action -->
+<div class="mb-4 flex gap-2 items-start bg-tertiary-container/10 p-3 rounded-lg border border-tertiary/20">
+<span class="material-symbols-outlined text-tertiary text-[20px] mt-0.5">info</span>
+<p class="font-body-sm text-body-sm text-on-background">
+<strong>Instant Contact:</strong> Host details and property contact information will be shared immediately upon booking confirmation.
+                        </p>
+</div>
+<button class="w-full bg-[#E27D60] hover:bg-[#c9694e] text-white font-label-md text-label-md py-4 rounded-xl transition-colors shadow-sm flex justify-center items-center gap-2">
+                        Book Now
+                        <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+<p class="text-center font-body-sm text-body-sm text-on-surface-variant mt-4">You won't be charged yet</p>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden bg-surface dark:bg-surface-dim fixed bottom-0 w-full z-50 border-t border-outline-variant dark:border-outline shadow-sm flex justify-around items-center h-16 w-full max-w-md mx-auto md:max-w-full">
+<!-- Assuming Explore is active contextually as user is browsing -->
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 cursor-pointer active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">search</span>
+<span class="font-label-sm text-label-sm">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim cursor-pointer active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-label-sm text-label-sm">Bookings</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim cursor-pointer active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-sm text-label-sm">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim cursor-pointer active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</a>
+</nav>
+</body></html>

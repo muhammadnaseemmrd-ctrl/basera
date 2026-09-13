@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { BookOpenCheck, CreditCard, Download, MessageSquare, Bookmark, Star, Navigation } from "lucide-react";
+import { AlertTriangle, BookOpenCheck, CreditCard, Download, MessageSquare, Bookmark, Star, Navigation, Search, ShieldCheck, Pencil } from "lucide-react";
 import { motion } from "framer-motion";
 import { fadeUp, stagger, transitions, useMotionSafe } from "../../utils/motion";
 import { hostels } from "../../data/mockData";
 import { useNavigate } from "react-router-dom";
 import { api, safeRequest } from "../../services/api";
 import { normalizeHostel } from "../../utils/normalize";
+import { formatDate } from "../../utils/formatters";
 import { useToastBridge } from "../../components/ui";
 import { useAuthStore } from "../../store/useAuthStore";
 import { downloadApiPdf } from "../../utils/downloadFile";
@@ -26,9 +27,9 @@ export function StudentOverview() {
   const navigate = useNavigate();
   useToastBridge(downloadMessage);
   useToastBridge(nearbyMessage);
-  const recentRows = data.recentBookings.length ? data.recentBookings : [
-    { id: "demo-1", hostelName: "Cozy Boys Hostel", stayPeriod: "Aug 2026 - Dec 2026", amount: "$1,100", status: "Confirmed" }
-  ];
+  // Only ever render real bookings fetched from the API — a new student with no
+  // bookings yet should see an empty state, never leftover demo data.
+  const recentRows = data.recentBookings;
 
   useEffect(() => {
     safeRequest(() => api.get("/dashboard/student"), fallbackStudentData).then((result) => {
@@ -81,22 +82,29 @@ export function StudentOverview() {
     <>
       <motion.div variants={motionSafe ? fadeUp : undefined} transition={motionSafe ? transitions.base : undefined} className="grid min-w-0 gap-7 xl:grid-cols-[minmax(0,1fr)_380px]">
         <section className="min-w-0 space-y-7">
-          <motion.article variants={motionSafe ? fadeUp : undefined} className="panel flex flex-col gap-4 bg-primary-50 p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm font-bold uppercase tracking-widest text-primary-800">Rent Due Reminder</p>
-              <p className="mt-2 text-slate-700">Next monthly rent is due on 01 July 2026. Pay in-app to keep escrow and dispute protection active.</p>
+          <motion.article variants={motionSafe ? fadeUp : undefined} className="flex flex-col gap-4 rounded-lg border border-error/20 bg-error-container p-5 text-on-error-container sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3">
+              <AlertTriangle size={22} className="mt-0.5 shrink-0 text-error" />
+              <div>
+                <p className="font-display text-sm font-bold uppercase tracking-widest">Rent Due Reminder</p>
+                <p className="mt-2">Next monthly rent is due on 01 July 2026. Pay in-app to keep escrow and dispute protection active.</p>
+              </div>
             </div>
-            <button type="button" onClick={() => navigate("/dashboard/student/payments")} className="btn-primary shrink-0">
+            <button
+              type="button"
+              onClick={() => navigate("/dashboard/student/payments")}
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded bg-error px-5 py-3 text-sm font-semibold text-on-error transition hover:opacity-90"
+            >
               <CreditCard size={18} /> Pay Rent Now
             </button>
           </motion.article>
 
           <motion.div variants={motionSafe ? stagger() : undefined} className="grid min-w-0 gap-7 md:grid-cols-3">
             {[
-              ["Active Booking", String(data.stats.activeBookings).padStart(2, "0"), BookOpenCheck, "blue"],
-              ["Saved Hostels", String(data.stats.savedHostels).padStart(2, "0"), Bookmark, "green"],
-              ["Total Reviews", String(data.stats.totalReviews).padStart(2, "0"), Star, "red"]
-            ].map(([label, value, Icon, tone]) => (
+              ["Active Booking", String(data.stats.activeBookings).padStart(2, "0"), BookOpenCheck, "bg-primary-container text-on-primary-container"],
+              ["Saved Hostels", String(data.stats.savedHostels).padStart(2, "0"), Bookmark, "bg-secondary-container text-on-secondary-container"],
+              ["Total Reviews", String(data.stats.totalReviews).padStart(2, "0"), Star, "bg-tertiary-container text-on-tertiary-container"]
+            ].map(([label, value, Icon, iconClass]) => (
               <motion.button
                 type="button"
                 key={label}
@@ -106,118 +114,161 @@ export function StudentOverview() {
                   if (label === "Saved Hostels") navigate("/dashboard/student/saved");
                   if (label === "Active Booking") navigate("/dashboard/student/bookings");
                 }}
-                className="panel-interactive flex min-w-0 items-center gap-4 p-6 text-left"
+                className="flex min-w-0 items-center gap-4 rounded-lg border border-outline-variant bg-surface-container-lowest p-6 text-left shadow-sm transition duration-250 ease-smooth hover:-translate-y-0.5 hover:shadow-md"
               >
-                <span className={`grid h-14 w-14 place-items-center rounded-xl ${tone === "green" ? "bg-success-50 text-success-700" : tone === "red" ? "bg-danger-50 text-danger-700" : "bg-primary-50 text-primary-800"}`}>
+                <span className={`grid h-14 w-14 shrink-0 place-items-center rounded-full ${iconClass}`}>
                   <Icon size={24} />
                 </span>
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-neutral-500">{label}</p>
-                  <p className="text-3xl font-extrabold tracking-tight">{value}</p>
+                  <p className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">{label}</p>
+                  <p className="font-display text-3xl font-extrabold tracking-tight text-on-surface">{value}</p>
                 </div>
               </motion.button>
             ))}
           </motion.div>
 
-          <motion.article variants={motionSafe ? fadeUp : undefined} transition={motionSafe ? transitions.base : undefined} className="min-w-0 overflow-hidden rounded-2xl bg-primary-700 p-6 text-white shadow-card sm:p-8">
+          <motion.article variants={motionSafe ? fadeUp : undefined} transition={motionSafe ? transitions.base : undefined} className="relative min-w-0 overflow-hidden rounded-lg border border-accent-200 bg-accent-50 p-6 sm:p-8">
             <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
               <div>
-                <span className="rounded-full bg-white/20 px-5 py-2 text-xs font-bold uppercase tracking-widest">{data.activeBooking?.status || "Current Stay"}</span>
-                <h2 className="mt-8 break-words text-3xl font-extrabold sm:text-4xl">{hostel.name}</h2>
-                <p className="mt-5 flex flex-wrap items-center gap-2 text-lg text-white/90 sm:text-xl">Block A, North Campus, Islamabad</p>
+                <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-accent-700">
+                  <ShieldCheck size={16} /> {data.activeBooking?.status || "Current Stay"}
+                </span>
+                <h2 className="mt-4 break-words font-display text-3xl font-extrabold text-on-surface sm:text-4xl">{hostel.name}</h2>
+                <p className="mt-3 flex flex-wrap items-center gap-2 text-lg text-on-surface-variant">Block A, North Campus, Islamabad</p>
               </div>
-              <img src={hostel.image} alt={hostel.name} className="h-36 w-44 rounded-lg border-4 border-white/20 object-cover" />
+              <img src={hostel.image} alt={hostel.name} className="h-36 w-44 rounded-lg border-4 border-white object-cover shadow-sm" />
             </div>
-            <div className="mt-12 grid gap-6 border-t border-white/20 pt-8 md:grid-cols-[1fr_1fr_240px] md:items-center">
+            <div className="mt-10 grid gap-6 border-t border-accent-200 pt-8 md:grid-cols-[1fr_1fr_240px] md:items-center">
               <div>
-                <p className="text-white/70">Room Type</p>
-                <p className="text-2xl font-semibold">{data.activeBooking?.roomType || "Premium Double"}</p>
+                <p className="text-sm text-on-surface-variant">Room Type</p>
+                <p className="text-2xl font-semibold text-on-surface">{data.activeBooking?.roomType || "Premium Double"}</p>
               </div>
               <div>
-                <p className="text-white/70">Expiry Date</p>
-                <p className="text-2xl font-semibold">{data.activeBooking?.expiryDate || "June 15, 2026"}</p>
+                <p className="text-sm text-on-surface-variant">Expiry Date</p>
+                <p className="text-2xl font-semibold text-on-surface">{formatDate(data.activeBooking?.expiryDate) || "15 Jun 2026"}</p>
               </div>
-              <button className="rounded-xl bg-white px-6 py-4 text-lg font-semibold text-primary-800 transition duration-250 ease-smooth hover:-translate-y-0.5 hover:shadow-float">
-                <MessageSquare className="mr-3 inline" /> Chat with Host
+              <button
+                type="button"
+                onClick={() => navigate("/dashboard/student/chat")}
+                className="inline-flex items-center justify-center gap-2 rounded bg-accent-600 px-6 py-4 text-lg font-semibold text-white shadow-sm transition duration-250 ease-smooth hover:-translate-y-0.5 hover:bg-accent-700 hover:shadow-md"
+              >
+                {/* Routes to Basera Support, not a direct host conversation -- customers are
+                    platform-mediated by design (see StudentChat.jsx's lockToSupport mode). */}
+                <MessageSquare size={20} /> Message Support
               </button>
             </div>
           </motion.article>
 
-          <section className="panel overflow-hidden">
-            <div className="flex items-center justify-between p-7">
-              <h2 className="text-2xl font-bold">Recent Bookings</h2>
-              <button type="button" onClick={() => navigate("/dashboard/student/bookings")} className="font-semibold text-primary-800">View All</button>
+          <section className="overflow-hidden rounded-lg border border-outline-variant bg-surface-container-lowest">
+            <div className="flex items-center justify-between border-b border-outline-variant bg-surface-container-low p-6">
+              <h2 className="font-display text-xl font-bold text-on-surface">Recent Bookings</h2>
+              <button type="button" onClick={() => navigate("/dashboard/student/bookings")} className="text-sm font-semibold text-primary-600">View All</button>
             </div>
-            <div className="grid gap-4 p-5 md:hidden">
-              {recentRows.map((row) => (
-                <article key={row.id || row.hostelName} className="rounded-lg border border-line bg-canvas p-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <p className="font-bold">{row.hostelName || row.hostel || "Hostel"}</p>
-                      <p className="mt-1 text-sm text-slate-700">{row.stayPeriod || row.duration || "Monthly"}</p>
-                    </div>
-                    <span className="badge bg-accent-50 text-accent-700">{row.status || "Confirmed"}</span>
-                  </div>
-                  <p className="mt-4 font-semibold text-primary-800">{row.amount || `PKR ${row.totalAmount?.toLocaleString?.("en-PK") || "0"}`}</p>
-                  <button type="button" className="btn-secondary mt-4 py-2" onClick={() => downloadInvoice(row)}>
-                    <Download size={16} /> Download Invoice
-                  </button>
-                </article>
-              ))}
-            </div>
-            <div className="hidden overflow-x-auto md:block">
-              <table className="w-full min-w-[760px] text-left">
-                <thead className="bg-primary-50 text-sm uppercase tracking-widest text-slate-700">
-                  <tr>
-                    <th className="px-7 py-5">Hostel Name</th>
-                    <th className="px-7 py-5">Stay Period</th>
-                    <th className="px-7 py-5">Amount</th>
-                    <th className="px-7 py-5">Status</th>
-                    <th className="px-7 py-5">Invoice</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-line">
+            {recentRows.length === 0 ? (
+              <div className="flex flex-col items-center gap-4 px-7 py-14 text-center">
+                <span className="grid h-14 w-14 place-items-center rounded-full bg-primary-container text-on-primary-container">
+                  <Search size={24} />
+                </span>
+                <p className="text-lg font-semibold text-on-surface">You have no bookings yet.</p>
+                <button type="button" onClick={() => navigate("/rooms")} className="btn-primary">
+                  Find a Hostel
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="grid gap-4 p-5 md:hidden">
                   {recentRows.map((row) => (
-                    <tr key={row.id || row.hostelName}>
-                      <td className="px-7 py-6">{row.hostelName || row.hostel || "Hostel"}</td>
-                      <td className="px-7 py-6">{row.stayPeriod || row.duration || "Monthly"}</td>
-                      <td className="px-7 py-6">{row.amount || `PKR ${row.totalAmount?.toLocaleString?.("en-PK") || "0"}`}</td>
-                      <td className="px-7 py-6"><span className="badge bg-accent-50 text-accent-700">{row.status || "Confirmed"}</span></td>
-                      <td className="px-7 py-6">
-                        <button type="button" className="btn-ghost" onClick={() => downloadInvoice(row)} aria-label="Download invoice">
-                          <Download size={20} />
-                        </button>
-                      </td>
-                    </tr>
+                    <article key={row.id || row.hostelName} className="rounded-lg border border-outline-variant bg-surface-container-low p-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <p className="font-bold text-on-surface">{row.hostelName || row.hostel || "Hostel"}</p>
+                          <p className="mt-1 text-sm text-on-surface-variant">{row.stayPeriod || row.duration || "Monthly"}</p>
+                        </div>
+                        <span className="inline-flex items-center rounded-full bg-tertiary-container/20 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-tertiary">{row.status || "Confirmed"}</span>
+                      </div>
+                      <p className="mt-4 font-semibold text-primary-600">{row.amount || `PKR ${row.totalAmount?.toLocaleString?.("en-PK") || "0"}`}</p>
+                      <button type="button" className="btn-secondary mt-4 py-2" onClick={() => downloadInvoice(row)}>
+                        <Download size={16} /> Download Invoice
+                      </button>
+                    </article>
                   ))}
-                </tbody>
-              </table>
-            </div>
+                </div>
+                <div className="hidden overflow-x-auto md:block">
+                  <table className="w-full min-w-[760px] text-left">
+                    <thead className="bg-surface-container-low text-xs uppercase tracking-widest text-on-surface-variant">
+                      <tr>
+                        <th className="whitespace-nowrap px-7 py-5 font-semibold">Hostel Name</th>
+                        <th className="whitespace-nowrap px-7 py-5 font-semibold">Stay Period</th>
+                        <th className="whitespace-nowrap px-7 py-5 font-semibold">Amount</th>
+                        <th className="whitespace-nowrap px-7 py-5 font-semibold">Status</th>
+                        <th className="whitespace-nowrap px-7 py-5 font-semibold">Invoice</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-outline-variant">
+                      {recentRows.map((row) => (
+                        <tr key={row.id || row.hostelName} className="text-on-surface transition-colors hover:bg-surface-container-low/60">
+                          <td className="px-7 py-6">{row.hostelName || row.hostel || "Hostel"}</td>
+                          <td className="px-7 py-6 text-on-surface-variant">{row.stayPeriod || row.duration || "Monthly"}</td>
+                          <td className="px-7 py-6">{row.amount || `PKR ${row.totalAmount?.toLocaleString?.("en-PK") || "0"}`}</td>
+                          <td className="px-7 py-6"><span className="inline-flex items-center rounded-full bg-tertiary-container/20 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-tertiary">{row.status || "Confirmed"}</span></td>
+                          <td className="px-7 py-6">
+                            <button type="button" className="btn-ghost" onClick={() => downloadInvoice(row)} aria-label="Download invoice">
+                              <Download size={20} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )}
           </section>
         </section>
 
         <div className="min-w-0 space-y-7">
-          <aside className="panel h-fit min-w-0 p-8 text-center">
-            <div className="relative mx-auto h-32 w-32 rounded-full border-4 border-primary-800 p-1">
+          <aside className="relative h-fit min-w-0 rounded-lg border border-outline-variant bg-surface-container-lowest p-8 text-center shadow-sm">
+            <button
+              type="button"
+              onClick={() => navigate("/dashboard/student/profile")}
+              className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full text-on-surface-variant transition hover:bg-surface-container-high hover:text-primary-600"
+              aria-label="Edit profile"
+            >
+              <Pencil size={16} />
+            </button>
+            <div className="relative mx-auto h-24 w-24 rounded-full border-4 border-surface-container-lowest shadow-sm">
               <img src={authUser?.avatar || user.avatar} alt={authUser?.name || user.name} className="h-full w-full rounded-full object-cover" />
-              <span className="absolute bottom-1 right-1 grid h-10 w-10 place-items-center rounded-full bg-accent-700 text-white"><ShieldMini /></span>
+              <span className="absolute -bottom-1 -right-1 grid h-8 w-8 place-items-center rounded-full border-2 border-surface-container-lowest bg-accent-600 text-white">
+                <ShieldCheck size={16} />
+              </span>
             </div>
-            <h2 className="mt-7 text-2xl font-bold">{authUser?.name || user.name}</h2>
-            <p className="mt-2 text-lg text-slate-700">Architecture Student</p>
-            <div className="mt-10 flex justify-between text-lg">
+            <h2 className="mt-5 font-display text-xl font-bold text-on-surface">{authUser?.name || user.name}</h2>
+            <p className="mt-1 text-sm text-on-surface-variant">
+              {authUser?.occupantProfile?.fieldOrSubject
+                ? `${authUser.occupantProfile.fieldOrSubject} Student`
+                : "Student"}
+            </p>
+            <div className="mt-6 h-2.5 w-full rounded-full bg-surface-container-high">
+              <div className="h-2.5 rounded-full bg-primary-600" style={{ width: "85%" }} />
+            </div>
+            <div className="mt-2 flex justify-between text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
               <span>Profile Completion</span>
-              <span>85%</span>
+              <span className="text-primary-600">85%</span>
             </div>
-            <div className="mt-3 h-3 rounded-full bg-primary-100"><div className="h-3 w-[85%] rounded-full bg-primary-800" /></div>
-            <button type="button" onClick={() => navigate("/dashboard/student/profile")} className="btn-secondary mt-7 w-full">Edit Profile</button>
+            <button type="button" onClick={() => navigate("/dashboard/student/profile")} className="btn-secondary mt-6 w-full">Edit Profile</button>
           </aside>
-          <aside className="panel h-fit min-w-0 p-6">
-            <p className="text-sm font-bold uppercase tracking-widest text-primary-800">Nearby Help</p>
-            <p className="mt-2 text-sm text-slate-700">Get live directions from your hostel to the nearest essentials.</p>
+          <aside className="h-fit min-w-0 rounded-lg border border-outline-variant bg-surface-container-lowest p-6 shadow-sm">
+            <p className="flex items-center gap-2 font-display text-sm font-bold text-on-surface"><Navigation size={16} className="text-tertiary" /> Nearby Services</p>
+            <p className="mt-2 text-sm text-on-surface-variant">Get live directions from your hostel to the nearest essentials.</p>
             <div className="mt-5 grid grid-cols-2 gap-3">
               {[["pharmacy", "Pharmacy"], ["hospital", "Hospital"], ["atm", "ATM"], ["grocery", "Grocery"]].map(([category, label]) => (
-                <button key={category} type="button" onClick={() => openNearby(category)} className="btn-secondary py-2.5 text-sm">
-                  <Navigation size={14} /> {label}
+                <button
+                  key={category}
+                  type="button"
+                  onClick={() => openNearby(category)}
+                  className="flex flex-col items-center gap-2 rounded-lg border border-outline-variant/30 bg-surface-container-low p-4 text-center text-sm font-semibold text-on-surface transition-colors hover:bg-secondary-container"
+                >
+                  <Navigation size={16} className="text-tertiary" /> {label}
                 </button>
               ))}
             </div>
@@ -232,7 +283,3 @@ const user = {
   name: "Ali Ahmed",
   avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=160&q=80"
 };
-
-function ShieldMini() {
-  return <span className="text-sm font-bold">OK</span>;
-}

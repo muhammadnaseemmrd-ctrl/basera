@@ -12,9 +12,11 @@ export function StudentChat() {
       </Helmet>
       <div className="mb-7">
         <h2 className="text-3xl font-extrabold tracking-tight">Chat</h2>
-        <p className="mt-2 text-neutral-700">Coordinate visits, availability, and booking questions with hostel managers.</p>
+        <p className="mt-2 text-neutral-700">
+          Message Basera Support about visits, availability, or booking questions — our team loops in the hostel manager for you.
+        </p>
       </div>
-      <ChatPanel title="Student Messages" />
+      <ChatPanel title="Student Messages" lockToSupport />
     </>
   );
 }

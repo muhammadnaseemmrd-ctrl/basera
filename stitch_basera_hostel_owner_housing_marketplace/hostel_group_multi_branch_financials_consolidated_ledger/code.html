@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&amp;family=Roboto+Flex:wght@400;500;600&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "surface-tint": "#006972",
+          "surface-container-lowest": "#ffffff",
+          "primary": "#00535b",
+          "surface-bright": "#fcf9f8",
+          "on-error": "#ffffff",
+          "on-tertiary-container": "#a9ece4",
+          "error-container": "#ffdad6",
+          "primary-fixed": "#9ff0fb",
+          "inverse-primary": "#82d3de",
+          "primary-fixed-dim": "#82d3de",
+          "on-tertiary-fixed-variant": "#00504b",
+          "tertiary": "#01544f",
+          "on-primary-fixed-variant": "#004f56",
+          "inverse-on-surface": "#f3f0ef",
+          "on-error-container": "#93000a",
+          "on-secondary-fixed-variant": "#414560",
+          "surface-container-high": "#eae7e7",
+          "on-secondary-fixed": "#161a32",
+          "surface-container-highest": "#e5e2e1",
+          "tertiary-fixed-dim": "#90d3cb",
+          "on-secondary-container": "#5d617d",
+          "surface-container": "#f0eded",
+          "tertiary-fixed": "#acefe7",
+          "on-surface": "#1b1c1c",
+          "outline-variant": "#bec8ca",
+          "inverse-surface": "#303030",
+          "on-background": "#1b1c1c",
+          "primary-container": "#006d77",
+          "on-tertiary-fixed": "#00201e",
+          "on-primary": "#ffffff",
+          "on-primary-fixed": "#001f23",
+          "on-surface-variant": "#3e494a",
+          "surface-variant": "#e5e2e1",
+          "secondary-fixed-dim": "#c1c4e5",
+          "on-secondary": "#ffffff",
+          "secondary-fixed": "#dee0ff",
+          "secondary-container": "#dbdeff",
+          "secondary": "#595d78",
+          "surface": "#fcf9f8",
+          "on-tertiary": "#ffffff",
+          "surface-container-low": "#f6f3f2",
+          "tertiary-container": "#286d67",
+          "background": "#fcf9f8",
+          "surface-dim": "#dcd9d9",
+          "on-primary-container": "#9becf7",
+          "error": "#ba1a1a",
+          "outline": "#6f797a"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.125rem",
+          "lg": "0.25rem",
+          "xl": "0.5rem",
+          "full": "0.75rem"
+        },
+        "spacing": {
+          "stack-lg": "32px",
+          "margin-mobile": "16px",
+          "stack-sm": "8px",
+          "stack-md": "16px",
+          "unit": "4px",
+          "margin-desktop": "32px",
+          "gutter": "24px",
+          "container-max": "1280px"
+        },
+        "fontFamily": {
+          "label-sm": [
+            "Roboto Flex"
+          ],
+          "body-lg": [
+            "Roboto Flex"
+          ],
+          "body-md": [
+            "Roboto Flex"
+          ],
+          "display-lg-mobile": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-md": [
+            "Plus Jakarta Sans"
+          ],
+          "label-md": [
+            "Roboto Flex"
+          ],
+          "display-lg": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-lg": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-lg-mobile": [
+            "Plus Jakarta Sans"
+          ],
+          "body-sm": [
+            "Roboto Flex"
+          ]
+        },
+        "fontSize": {
+          "label-sm": [
+            "12px",
+            {
+              "lineHeight": "1",
+              "letterSpacing": "0.03em",
+              "fontWeight": "600"
+            }
+          ],
+          "body-lg": [
+            "18px",
+            {
+              "lineHeight": "1.6",
+              "fontWeight": "400"
+            }
+          ],
+          "body-md": [
+            "16px",
+            {
+              "lineHeight": "1.5",
+              "fontWeight": "400"
+            }
+          ],
+          "display-lg-mobile": [
+            "32px",
+            {
+              "lineHeight": "1.2",
+              "letterSpacing": "-0.02em",
+              "fontWeight": "700"
+            }
+          ],
+          "headline-md": [
+            "20px",
+            {
+              "lineHeight": "1.4",
+              "fontWeight": "600"
+            }
+          ],
+          "label-md": [
+            "14px",
+            {
+              "lineHeight": "1",
+              "letterSpacing": "0.01em",
+              "fontWeight": "500"
+            }
+          ],
+          "display-lg": [
+            "48px",
+            {
+              "lineHeight": "1.2",
+              "letterSpacing": "-0.02em",
+              "fontWeight": "700"
+            }
+          ],
+          "headline-lg": [
+            "30px",
+            {
+              "lineHeight": "1.3",
+              "fontWeight": "600"
+            }
+          ],
+          "headline-lg-mobile": [
+            "24px",
+            {
+              "lineHeight": "1.3",
+              "fontWeight": "600"
+            }
+          ],
+          "body-sm": [
+            "14px",
+            {
+              "lineHeight": "1.5",
+              "fontWeight": "400"
+            }
+          ]
+        }
+      }
+    }
+  }</script></head><body class="bg-background font-body-md text-on-surface"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-container-lowest z-50 flex flex-col shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="p-6 pb-4 flex items-center justify-between"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center text-on-primary font-headline-lg text-headline-lg font-bold">B</div><div><div class="font-headline-md text-headline-md font-bold tracking-tight text-primary leading-none">Basera</div><span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Enterprise PMS</span></div></div><span class="material-symbols-outlined text-primary text-[20px]">verified</span></div><div class="px-6 py-3"><div class="p-2 rounded-xl bg-surface-container-low flex flex-col gap-1"><div class="flex items-center justify-between px-2 pt-1"><span class="font-label-sm text-label-sm text-on-surface-variant uppercase font-semibold">Active Role</span><span class="font-label-sm text-label-sm text-primary font-medium cursor-pointer">Switch</span></div><div class="flex items-center justify-between px-2 py-1.5 rounded-lg bg-surface-container-lowest shadow-[0_1px_4px_rgba(0,0,0,0.03)]"><div class="flex items-center gap-2 overflow-hidden"><span class="material-symbols-outlined text-[18px] text-primary">corporate_fare</span><span class="font-label-md text-label-md text-on-surface truncate font-semibold">Hostel Group Owner</span></div><span class="material-symbols-outlined text-[18px] text-on-surface-variant">unfold_more</span></div></div></div><nav class="flex-1 px-4 py-2 space-y-1 overflow-y-auto" data-active-classes="bg-primary-container text-on-primary font-semibold rounded-lg shadow-[0_1px_4px_rgba(0,0,0,0.04)]"><div class="px-3 pb-2 pt-1 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-semibold">Core Operations</div><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-all" data-path="overview" href="#"><span class="material-symbols-outlined text-[20px]">dashboard</span><span>Overview</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-all" data-path="properties-and-branches" href="#"><span class="material-symbols-outlined text-[20px]">domain</span><span>Properties &amp; Branches</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-all" data-path="bookings" href="#"><span class="material-symbols-outlined text-[20px]">hotel</span><span>Bookings</span></a><div class="px-3 pb-2 pt-4 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-semibold">Financial Architecture</div><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-all" data-path="finance-and-pnl" href="#"><span class="material-symbols-outlined text-[20px]">account_balance</span><span>Finance &amp; P&amp;L</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-all" data-path="ledger-and-escrow" href="#"><span class="material-symbols-outlined text-[20px]">receipt_long</span><span>Ledger &amp; Escrow</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-all" data-path="operating-expenses" href="#"><span class="material-symbols-outlined text-[20px]">payments</span><span>Operating Expenses</span></a><a class="flex items-center justify-between px-3 py-2.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-all" data-path="disputes" href="#"><div class="flex items-center gap-3"><span class="material-symbols-outlined text-[20px]">gavel</span><span>Disputes</span></div><span class="px-1.5 py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-semibold">2</span></a><div class="px-3 pb-2 pt-4 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-semibold">Intelligence &amp; Admin</div><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-all" data-path="analytics" href="#"><span class="material-symbols-outlined text-[20px]">insights</span><span>Analytics</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-all" data-path="system-settings" href="#"><span class="material-symbols-outlined text-[20px]">settings</span><span>System Settings</span></a></nav><div class="p-4 mt-auto bg-surface-container-low"><div class="flex items-center gap-3 p-2"><div class="w-9 h-9 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[20px]">shield_person</span></div><div class="flex-1 min-w-0"><div class="font-label-md text-label-md font-semibold text-on-surface truncate">Zubair Tariq</div><div class="font-label-sm text-label-sm text-on-surface-variant truncate">Royal Living Group</div></div><span class="material-symbols-outlined text-on-surface-variant text-[18px] cursor-pointer hover:text-on-surface">logout</span></div></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-16 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-8"><div class="flex items-center gap-4"><div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-lowest shadow-[0_1px_4px_rgba(0,0,0,0.03)] cursor-pointer"><span class="material-symbols-outlined text-primary text-[18px]">store</span><span class="font-label-md text-label-md text-on-surface font-semibold">All Branches - Royal Group of Hostels</span><span class="material-symbols-outlined text-on-surface-variant text-[18px]">expand_more</span></div><div class="flex items-center bg-surface-container-low rounded-lg p-0.5"><button class="px-2.5 py-1 rounded bg-surface-container-lowest shadow-[0_1px_2px_rgba(0,0,0,0.04)] font-label-sm text-label-sm font-semibold text-primary">PKR</button><button class="px-2.5 py-1 rounded font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface">USD</button></div></div><div class="flex items-center gap-3"><div class="flex items-center bg-surface-container-lowest px-3 py-1.5 rounded-lg shadow-[0_1px_4px_rgba(0,0,0,0.03)] gap-2"><span class="material-symbols-outlined text-on-surface-variant text-[18px]">search</span><span class="font-body-sm text-body-sm text-on-surface-variant">Search transactions, beds, residents...</span><span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant">⌘K</span></div><div class="relative p-2 rounded-lg bg-surface-container-lowest shadow-[0_1px_4px_rgba(0,0,0,0.03)] cursor-pointer text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-error"></span></div><div class="p-2 rounded-lg bg-surface-container-lowest shadow-[0_1px_4px_rgba(0,0,0,0.03)] cursor-pointer text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"><span class="material-symbols-outlined text-[20px]">help</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0 cursor-pointer shadow-[0_1px_4px_rgba(0,0,0,0.04)]"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><main class="w-full pt-16 bg-surface min-h-screen px-8 py-6"><div class="flex flex-col w-full">
+<!-- Subtle Ambient Glow -->
+<div class="relative w-full">
+<div class="absolute -top-12 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none -z-10"></div>
+<div class="absolute top-48 right-12 w-80 h-80 bg-primary-fixed/30 rounded-full blur-3xl pointer-events-none -z-10"></div>
+<!-- Top Header & Primary Command Deck -->
+<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-8">
+<div class="space-y-2">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold tracking-wide uppercase">
+<span class="w-1.5 h-1.5 rounded-full bg-surface-tint animate-pulse"></span>
+            Live Node Reconciled
+          </span>
+<span class="text-on-surface-variant font-label-sm text-label-sm">| 5 Active Franchises</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface font-bold tracking-tight">
+          Multi-Branch Operations &amp; Double-Entry Ledger
+        </h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">
+          Chain-wide financial health, branch performance comparison, and real-time ledger accounting for Royal Group of Hostels.
+        </p>
+</div>
+<!-- Action Cluster -->
+<div class="flex flex-wrap items-center gap-2.5">
+<div class="relative inline-block text-left" id="branch-dropdown-wrapper">
+<button class="flex items-center gap-2 px-3.5 py-2.5 rounded-lg bg-surface-container-lowest shadow-sm hover:bg-surface-container-low text-on-surface font-label-md text-label-md transition-colors" id="branchFilterBtn">
+<span class="material-symbols-outlined text-primary text-[18px]">domain</span>
+<span class="font-semibold">Branch Filter: All 5 Branches</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">keyboard_arrow_down</span>
+</button>
+</div>
+<button class="flex items-center gap-2 px-3.5 py-2.5 rounded-lg bg-surface-container-lowest shadow-sm hover:bg-surface-container-low text-on-surface font-label-md text-label-md transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">sim_card_download</span>
+<span>Export Ledger</span>
+</button>
+<button class="flex items-center gap-2 px-3.5 py-2.5 rounded-lg bg-surface-container-lowest shadow-sm hover:bg-surface-container-low text-on-surface font-label-md text-label-md transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">verified_user</span>
+<span>Audit Log</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-primary text-on-primary shadow-sm hover:bg-primary-container font-label-md text-label-md font-semibold transition-all">
+<span class="material-symbols-outlined text-[18px]">sync_alt</span>
+<span>Reconcile Accounts</span>
+</button>
+</div>
+</div>
+<!-- Aggregate Snapshot Strip -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+<div class="p-5 rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between relative overflow-hidden group">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Gross Booked Intake</span>
+<span class="p-2 rounded-lg bg-surface-container text-primary material-symbols-outlined text-[20px]">account_balance_wallet</span>
+</div>
+<div class="mt-4">
+<div class="font-headline-lg text-headline-lg font-bold text-on-surface">PKR 5,650,000</div>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-tertiary font-label-sm text-label-sm font-semibold flex items-center">
+<span class="material-symbols-outlined text-[14px]">arrow_upward</span> +14.2%
+            </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">vs previous 30-day</span>
+</div>
+</div>
+<div class="absolute bottom-0 left-0 right-0 h-1 bg-surface-container group-hover:bg-primary transition-all"></div>
+</div>
+<div class="p-5 rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between relative overflow-hidden group">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Group Operating Opex</span>
+<span class="p-2 rounded-lg bg-surface-container text-secondary material-symbols-outlined text-[20px]">receipt_long</span>
+</div>
+<div class="mt-4">
+<div class="font-headline-lg text-headline-lg font-bold text-on-surface">PKR 1,940,000</div>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-on-surface-variant font-label-sm text-label-sm font-semibold">34.3% burn ratio</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">(Fuel, mess, salaries)</span>
+</div>
+</div>
+<div class="absolute bottom-0 left-0 right-0 h-1 bg-surface-container group-hover:bg-secondary transition-all"></div>
+</div>
+<div class="p-5 rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between relative overflow-hidden group">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Consolidated Net Profit</span>
+<span class="p-2 rounded-lg bg-surface-container text-surface-tint material-symbols-outlined text-[20px]">trending_up</span>
+</div>
+<div class="mt-4">
+<div class="font-headline-lg text-headline-lg font-bold text-primary">PKR 3,710,000</div>
+<div class="flex items-center gap-2 mt-1">
+<span class="px-2 py-0.5 rounded bg-primary-fixed text-on-primary-fixed-variant font-label-sm text-label-sm font-semibold">Healthy Margin</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">65.7% net</span>
+</div>
+</div>
+<div class="absolute bottom-0 left-0 right-0 h-1 bg-surface-container group-hover:bg-primary transition-all"></div>
+</div>
+<div class="p-5 rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between relative overflow-hidden group">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Active Inventory Yield</span>
+<span class="p-2 rounded-lg bg-surface-container text-primary material-symbols-outlined text-[20px]">bed</span>
+</div>
+<div class="mt-4">
+<div class="font-headline-lg text-headline-lg font-bold text-on-surface">490 Total Beds</div>
+<div class="flex items-center gap-2 mt-1">
+<div class="w-24 bg-surface-container-highest rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 89.8%;"></div>
+</div>
+<span class="font-label-sm text-label-sm font-bold text-on-surface">89.8%</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">avg occ</span>
+</div>
+</div>
+<div class="absolute bottom-0 left-0 right-0 h-1 bg-surface-container group-hover:bg-tertiary transition-all"></div>
+</div>
+</div>
+<!-- Section 1: Branch Performance Matrix -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden mb-10">
+<div class="p-6 bg-surface-container-low flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div>
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-primary text-[22px]">apartment</span>
+<h2 class="font-headline-md text-headline-md text-on-surface font-bold tracking-tight">Branch Performance Matrix</h2>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">
+            Individual branch yield, operating overhead, and localized collection velocity.
+          </p>
+</div>
+<div class="flex items-center gap-3">
+<!-- Mini Performance Legend -->
+<div class="hidden sm:flex items-center gap-3 px-3 py-1.5 rounded-lg bg-surface-container-lowest text-on-surface-variant font-label-sm text-label-sm">
+<span class="inline-flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span> High Performer &gt;95%
+            </span>
+<span class="inline-flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-secondary"></span> Nominal
+            </span>
+<span class="inline-flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-error"></span> Requires Review
+            </span>
+</div>
+<button class="p-2 rounded-lg bg-surface-container-lowest text-on-surface-variant hover:text-on-surface shadow-sm">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-surface-container font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">
+<tr>
+<th class="py-3.5 px-6 font-semibold" scope="col">Branch Name</th>
+<th class="py-3.5 px-4 font-semibold text-center" scope="col">Total Beds</th>
+<th class="py-3.5 px-4 font-semibold" scope="col">Occupancy %</th>
+<th class="py-3.5 px-4 font-semibold" scope="col">Gross Revenue</th>
+<th class="py-3.5 px-4 font-semibold" scope="col">Operating Exp.</th>
+<th class="py-3.5 px-4 font-semibold" scope="col">Net Revenue</th>
+<th class="py-3.5 px-4 font-semibold" scope="col">Collection Rate</th>
+<th class="py-3.5 px-6 font-semibold text-right" scope="col">Status</th>
+</tr>
+</thead>
+<tbody class="divide-none font-body-sm text-body-sm text-on-surface">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="py-4 px-6 font-semibold">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-primary-container/10 text-primary flex items-center justify-center font-bold font-headline-md">
+                    RE
+                  </div>
+<div>
+<div class="font-semibold text-on-surface group-hover:text-primary transition-colors">Royal Executive</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">F-8/4, Islamabad</div>
+</div>
+</div>
+</td>
+<td class="py-4 px-4 text-center font-label-md text-label-md font-semibold text-on-surface">120 Beds</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-2">
+<div class="w-16 bg-surface-container-highest rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 92%;"></div>
+</div>
+<span class="font-semibold font-label-md text-label-md">92%</span>
+</div>
+</td>
+<td class="py-4 px-4 font-semibold text-on-surface">PKR 1,650,000</td>
+<td class="py-4 px-4 text-secondary font-medium">PKR 520,000</td>
+<td class="py-4 px-4 font-bold text-primary">PKR 1,130,000</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-1.5 text-tertiary font-semibold">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+<span>98%</span>
+</div>
+</td>
+<td class="py-4 px-6 text-right">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[14px]">stars</span>
+                  High Performer
+                </span>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low transition-colors group bg-surface-container-lowest/50">
+<td class="py-4 px-6 font-semibold">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-secondary-container/30 text-secondary flex items-center justify-center font-bold font-headline-md">
+                    RL
+                  </div>
+<div>
+<div class="font-semibold text-on-surface group-hover:text-primary transition-colors">Royal Girls Lodge</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">F-10/2, Islamabad</div>
+</div>
+</div>
+</td>
+<td class="py-4 px-4 text-center font-label-md text-label-md font-semibold text-on-surface">95 Beds</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-2">
+<div class="w-16 bg-surface-container-highest rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 96%;"></div>
+</div>
+<span class="font-semibold font-label-md text-label-md">96%</span>
+</div>
+</td>
+<td class="py-4 px-4 font-semibold text-on-surface">PKR 1,480,000</td>
+<td class="py-4 px-4 text-secondary font-medium">PKR 490,000</td>
+<td class="py-4 px-4 font-bold text-primary">PKR 990,000</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-1.5 text-tertiary font-semibold">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+<span>95%</span>
+</div>
+</td>
+<td class="py-4 px-6 text-right">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[14px]">stars</span>
+                  High Performer
+                </span>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="py-4 px-6 font-semibold">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high text-on-surface flex items-center justify-center font-bold font-headline-md">
+                    RC
+                  </div>
+<div>
+<div class="font-semibold text-on-surface group-hover:text-primary transition-colors">Royal Campus View</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">H-11 Near NUST</div>
+</div>
+</div>
+</td>
+<td class="py-4 px-4 text-center font-label-md text-label-md font-semibold text-on-surface">150 Beds</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-2">
+<div class="w-16 bg-surface-container-highest rounded-full h-1.5 overflow-hidden">
+<div class="bg-surface-tint h-full rounded-full" style="width: 88%;"></div>
+</div>
+<span class="font-semibold font-label-md text-label-md">88%</span>
+</div>
+</td>
+<td class="py-4 px-4 font-semibold text-on-surface">PKR 1,120,000</td>
+<td class="py-4 px-4 text-secondary font-medium">PKR 440,000</td>
+<td class="py-4 px-4 font-bold text-primary">PKR 680,000</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-1.5 text-on-surface font-semibold">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">done</span>
+<span>91%</span>
+</div>
+</td>
+<td class="py-4 px-6 text-right">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm font-semibold">
+                  Normal
+                </span>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-low transition-colors group bg-surface-container-lowest/50">
+<td class="py-4 px-6 font-semibold">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high text-on-surface flex items-center justify-center font-bold font-headline-md">
+                    RH
+                  </div>
+<div>
+<div class="font-semibold text-on-surface group-hover:text-primary transition-colors">Royal Heights</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Gulberg, Lahore</div>
+</div>
+</div>
+</td>
+<td class="py-4 px-4 text-center font-label-md text-label-md font-semibold text-on-surface">80 Beds</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-2">
+<div class="w-16 bg-surface-container-highest rounded-full h-1.5 overflow-hidden">
+<div class="bg-surface-tint h-full rounded-full" style="width: 85%;"></div>
+</div>
+<span class="font-semibold font-label-md text-label-md">85%</span>
+</div>
+</td>
+<td class="py-4 px-4 font-semibold text-on-surface">PKR 940,000</td>
+<td class="py-4 px-4 text-secondary font-medium">PKR 310,000</td>
+<td class="py-4 px-4 font-bold text-primary">PKR 630,000</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-1.5 text-on-surface font-semibold">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">done</span>
+<span>93%</span>
+</div>
+</td>
+<td class="py-4 px-6 text-right">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm font-semibold">
+                  Normal
+                </span>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="py-4 px-6 font-semibold">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-error-container text-on-error-container flex items-center justify-center font-bold font-headline-md">
+                    RA
+                  </div>
+<div>
+<div class="font-semibold text-on-surface group-hover:text-primary transition-colors">Royal Executive Annex</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Rawalpindi</div>
+</div>
+</div>
+</td>
+<td class="py-4 px-4 text-center font-label-md text-label-md font-semibold text-on-surface">45 Beds</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-2">
+<div class="w-16 bg-surface-container-highest rounded-full h-1.5 overflow-hidden">
+<div class="bg-error h-full rounded-full" style="width: 78%;"></div>
+</div>
+<span class="font-semibold font-label-md text-label-md text-error">78%</span>
+</div>
+</td>
+<td class="py-4 px-4 font-semibold text-on-surface">PKR 460,000</td>
+<td class="py-4 px-4 text-secondary font-medium">PKR 180,000</td>
+<td class="py-4 px-4 font-bold text-primary">PKR 280,000</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-1.5 text-error font-semibold">
+<span class="material-symbols-outlined text-[16px]">priority_high</span>
+<span>86%</span>
+</div>
+</td>
+<td class="py-4 px-6 text-right">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[14px]">warning</span>
+                  Needs Attention
+                </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Matrix Summary Footbar -->
+<div class="py-3 px-6 bg-surface-container-low flex flex-col sm:flex-row items-center justify-between text-on-surface-variant font-label-sm text-label-sm gap-2">
+<div>
+<span>Total Group Beds: <strong class="text-on-surface">490 Available</strong></span>
+<span class="mx-2">•</span>
+<span>Effective Consolidated Run-rate: <strong class="text-on-surface">PKR 67.8M / yr</strong></span>
+</div>
+<div class="flex items-center gap-1 text-primary cursor-pointer hover:underline">
+<span>Explore Branch-wise P&amp;L Statements</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</div>
+</div>
+</div>
+<!-- Section 2: Real-time Double-Entry Ledger Explorer -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden mb-8">
+<!-- Section Title & Narrative -->
+<div class="p-6 bg-surface-container-low flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+<div>
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-primary text-[22px]">account_balance</span>
+<h2 class="font-headline-md text-headline-md text-on-surface font-bold tracking-tight">Real-Time Double-Entry Ledger Explorer</h2>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">
+            Immutable transaction records cross-posted to Basera Escrow and Verified Bank Accounts with zero drift.
+          </p>
+</div>
+<div class="flex items-center gap-2">
+<div class="flex items-center bg-surface-container-lowest px-3 py-1.5 rounded-lg shadow-sm">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant mr-2">search</span>
+<input class="bg-transparent text-on-surface font-body-sm text-body-sm focus:outline-none w-48" placeholder="Filter ledger tx hash or ref..." type="text"/>
+</div>
+<button class="p-2 rounded-lg bg-surface-container-lowest text-on-surface-variant hover:text-on-surface shadow-sm" title="Refresh Live Stream">
+<span class="material-symbols-outlined text-[18px]">cached</span>
+</button>
+</div>
+</div>
+<!-- Filter Tabs Navigation -->
+<div class="px-6 pt-3 bg-surface-container-low flex items-center gap-2 overflow-x-auto no-scrollbar" id="ledger-tabs">
+<button class="ledger-tab active px-3.5 py-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md font-semibold whitespace-nowrap transition-all shadow-sm">
+          All Entries
+        </button>
+<button class="ledger-tab px-3.5 py-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-label-md text-label-md whitespace-nowrap transition-all">
+          Escrow Releases
+        </button>
+<button class="ledger-tab px-3.5 py-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-label-md text-label-md whitespace-nowrap transition-all">
+          Direct Bank Challans
+        </button>
+<button class="ledger-tab px-3.5 py-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-label-md text-label-md whitespace-nowrap transition-all">
+          JazzCash / EasyPaisa
+        </button>
+<button class="ledger-tab px-3.5 py-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-label-md text-label-md whitespace-nowrap transition-all">
+          Security Deposits Held
+        </button>
+<button class="ledger-tab px-3.5 py-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-label-md text-label-md whitespace-nowrap transition-all">
+          Refunds &amp; Deductions
+        </button>
+</div>
+<!-- Ledger Table -->
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-surface-container font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">
+<tr>
+<th class="py-3 px-6 font-semibold" scope="col">Tx ID</th>
+<th class="py-3 px-4 font-semibold" scope="col">Timestamp</th>
+<th class="py-3 px-6 font-semibold" scope="col">Account Description / Reference</th>
+<th class="py-3 px-4 font-semibold text-right" scope="col">Debit (PKR)</th>
+<th class="py-3 px-4 font-semibold text-right" scope="col">Credit (PKR)</th>
+<th class="py-3 px-4 font-semibold" scope="col">General Ledger Account</th>
+<th class="py-3 px-6 font-semibold text-right" scope="col">State</th>
+</tr>
+</thead>
+<tbody class="divide-none font-body-sm text-body-sm text-on-surface" id="ledger-body">
+<!-- Tx 1 -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-4 px-6 font-semibold">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface font-label-sm text-label-sm tracking-mono">TX-90481</span>
+</td>
+<td class="py-4 px-4 font-label-sm text-label-sm text-on-surface-variant whitespace-nowrap">
+                24 Oct 2026, 14:32
+              </td>
+<td class="py-4 px-6">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary shrink-0"></span>
+<span class="font-medium text-on-surface">Escrow Payout Release - Tenant Move-in verified</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm">Room 204 F-8</span>
+</div>
+</td>
+<td class="py-4 px-4 text-right font-medium text-on-surface-variant">—</td>
+<td class="py-4 px-4 text-right font-bold text-tertiary">35,000</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-primary">account_balance</span>
+<span class="font-medium">HBL Business Account</span>
+</div>
+</td>
+<td class="py-4 px-6 text-right">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[12px]">done_all</span> Settled
+                </span>
+</td>
+</tr>
+<!-- Tx 2 -->
+<tr class="hover:bg-surface-container-low transition-colors bg-surface-container-lowest/50">
+<td class="py-4 px-6 font-semibold">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface font-label-sm text-label-sm tracking-mono">TX-90480</span>
+</td>
+<td class="py-4 px-4 font-label-sm text-label-sm text-on-surface-variant whitespace-nowrap">
+                24 Oct 2026, 11:15
+              </td>
+<td class="py-4 px-6">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary shrink-0"></span>
+<span class="font-medium text-on-surface">Mess Catering &amp; Ration Supplier</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm">Al-Madina Foods</span>
+</div>
+</td>
+<td class="py-4 px-4 text-right font-bold text-error">85,000</td>
+<td class="py-4 px-4 text-right font-medium text-on-surface-variant">—</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-secondary">payments</span>
+<span class="font-medium">Petty Cash / Cash In Hand</span>
+</div>
+</td>
+<td class="py-4 px-6 text-right">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[12px]">check</span> Approved
+                </span>
+</td>
+</tr>
+<!-- Tx 3 -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-4 px-6 font-semibold">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface font-label-sm text-label-sm tracking-mono">TX-90479</span>
+</td>
+<td class="py-4 px-4 font-label-sm text-label-sm text-on-surface-variant whitespace-nowrap">
+                23 Oct 2026, 19:40
+              </td>
+<td class="py-4 px-6">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary-container shrink-0"></span>
+<span class="font-medium text-on-surface">Security Deposit Held in Escrow</span>
+<span class="px-1.5 py-0.5 rounded bg-primary-fixed text-on-primary-fixed-variant font-label-sm text-label-sm">STU-491</span>
+</div>
+</td>
+<td class="py-4 px-4 text-right font-medium text-on-surface-variant">—</td>
+<td class="py-4 px-4 text-right font-bold text-primary">25,000</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-surface-tint">lock</span>
+<span class="font-medium">Escrow Liability Vault</span>
+</div>
+</td>
+<td class="py-4 px-6 text-right">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-surface-container-highest text-primary font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[12px]">shield</span> Escrow Vault
+                </span>
+</td>
+</tr>
+<!-- Tx 4 -->
+<tr class="hover:bg-surface-container-low transition-colors bg-surface-container-lowest/50">
+<td class="py-4 px-6 font-semibold">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface font-label-sm text-label-sm tracking-mono">TX-90478</span>
+</td>
+<td class="py-4 px-4 font-label-sm text-label-sm text-on-surface-variant whitespace-nowrap">
+                23 Oct 2026, 16:05
+              </td>
+<td class="py-4 px-6">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary shrink-0"></span>
+<span class="font-medium text-on-surface">Generator Diesel Fuel Refill</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm">500L PSO Tanker</span>
+</div>
+</td>
+<td class="py-4 px-4 text-right font-bold text-error">140,000</td>
+<td class="py-4 px-4 text-right font-medium text-on-surface-variant">—</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-primary">account_balance</span>
+<span class="font-medium">Commercial Bank Account</span>
+</div>
+</td>
+<td class="py-4 px-6 text-right">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[12px]">receipt</span> Verified Receipt
+                </span>
+</td>
+</tr>
+<!-- Tx 5 -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-4 px-6 font-semibold">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface font-label-sm text-label-sm tracking-mono">TX-90477</span>
+</td>
+<td class="py-4 px-4 font-label-sm text-label-sm text-on-surface-variant whitespace-nowrap">
+                22 Oct 2026, 09:20
+              </td>
+<td class="py-4 px-6">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-surface-tint shrink-0"></span>
+<span class="font-medium text-on-surface">Platform Service Fee &amp; 7% Commission Deduction</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm">Royal Living Fleet</span>
+</div>
+</td>
+<td class="py-4 px-4 text-right font-bold text-secondary">18,200</td>
+<td class="py-4 px-4 text-right font-medium text-on-surface-variant">—</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-surface-tint">hub</span>
+<span class="font-medium">Basera Payout Deductions</span>
+</div>
+</td>
+<td class="py-4 px-6 text-right">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[12px]">verified</span> Completed
+                </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Ledger Footnotes & Cryptographic Proof Section -->
+<div class="p-6 bg-surface-container-low flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+<!-- Pagination Controls -->
+<div class="flex items-center gap-3">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Showing 1 - 5 of 1,284 entries</span>
+<div class="flex items-center gap-1">
+<button class="p-1 rounded bg-surface-container-lowest text-on-surface-variant hover:text-on-surface shadow-sm disabled:opacity-50">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<button class="px-2.5 py-1 rounded bg-primary text-on-primary font-label-sm text-label-sm font-semibold">1</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-lowest text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm">2</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-lowest text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm">3</button>
+<span class="px-1 text-on-surface-variant font-label-sm text-label-sm">...</span>
+<button class="px-2.5 py-1 rounded bg-surface-container-lowest text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm">48</button>
+<button class="p-1 rounded bg-surface-container-lowest text-on-surface-variant hover:text-on-surface shadow-sm">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Ledger Integrity & Cryptographic Seal -->
+<div class="flex items-center gap-3 bg-surface-container-lowest px-4 py-2 rounded-xl shadow-sm">
+<div class="w-8 h-8 rounded-lg bg-surface-container text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">enhanced_encryption</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm font-bold text-on-surface uppercase tracking-wider">Zero-Proof Ledger Hash:</span>
+<code class="font-label-sm text-label-sm text-primary font-semibold">0x7f48...d9b2e0</code>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Validated on SHA-256 State Tree • Synchronized with Basera Core</span>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors ml-2" title="Copy Root Hash">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Secondary Visual Strip: Real-time Liquidity & Escrow Balances -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+<!-- Escrow Vault Breakdown -->
+<div class="p-6 rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between pb-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">shield</span>
+<h3 class="font-headline-md text-headline-md font-bold text-on-surface">Escrow Deposit Reserve</h3>
+</div>
+<span class="px-2 py-0.5 rounded bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm font-semibold">100% Backed</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+            All refundable tenant guarantees remain safeguarded in segregated institutional escrow accounts until move-out verification.
+          </p>
+<div class="my-5 p-4 rounded-xl bg-surface-container-low space-y-3">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<span class="text-on-surface-variant">Active Student Deposits (420)</span>
+<span class="font-bold text-on-surface">PKR 10,500,000</span>
+</div>
+<div class="flex items-center justify-between font-label-md text-label-md">
+<span class="text-on-surface-variant">Pending Move-out Claims</span>
+<span class="font-bold text-secondary">PKR 450,000</span>
+</div>
+<div class="flex items-center justify-between font-label-md text-label-md">
+<span class="text-on-surface-variant">Disputed Withholdings</span>
+<span class="font-bold text-error">PKR 125,000</span>
+</div>
+</div>
+</div>
+<button class="w-full py-2.5 rounded-lg bg-surface-container text-primary hover:bg-surface-container-high font-label-md text-label-md font-semibold transition-colors flex items-center justify-center gap-2">
+<span>View Escrow Certificate</span>
+<span class="material-symbols-outlined text-[16px]">launch</span>
+</button>
+</div>
+<!-- Expense Burn Rate Velocity -->
+<div class="p-6 rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between pb-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[20px]">pie_chart</span>
+<h3 class="font-headline-md text-headline-md font-bold text-on-surface">Opex Allocation</h3>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">October 2026</span>
+</div>
+<div class="py-2">
+<!-- Inline SVG Pie Chart Visual -->
+<div class="flex items-center gap-6">
+<div class="relative w-28 h-28 shrink-0">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 36 36">
+<!-- Mess / Ration (42%) -->
+<circle cx="18" cy="18" fill="none" r="15.915" stroke="#00535b" stroke-dasharray="42 58" stroke-dashoffset="0" stroke-width="3.5"></circle>
+<!-- Diesel / Utilities (28%) -->
+<circle cx="18" cy="18" fill="none" r="15.915" stroke="#595d78" stroke-dasharray="28 72" stroke-dashoffset="-42" stroke-width="3.5"></circle>
+<!-- Staff Payroll (20%) -->
+<circle cx="18" cy="18" fill="none" r="15.915" stroke="#01544f" stroke-dasharray="20 80" stroke-dashoffset="-70" stroke-width="3.5"></circle>
+<!-- Maintenance & Misc (10%) -->
+<circle cx="18" cy="18" fill="none" r="15.915" stroke="#bec8ca" stroke-dasharray="10 90" stroke-dashoffset="-90" stroke-width="3.5"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+<span class="font-headline-md text-headline-md font-bold text-on-surface leading-none">1.9M</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">PKR</span>
+</div>
+</div>
+<div class="space-y-1.5 w-full">
+<div class="flex items-center justify-between text-label-sm font-label-sm">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span>Mess Catering (42%)</span>
+</div>
+<span class="font-semibold text-on-surface">814k</span>
+</div>
+<div class="flex items-center justify-between text-label-sm font-label-sm">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span>Generators/Power (28%)</span>
+</div>
+<span class="font-semibold text-on-surface">543k</span>
+</div>
+<div class="flex items-center justify-between text-label-sm font-label-sm">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span>Staff Payroll (20%)</span>
+</div>
+<span class="font-semibold text-on-surface">388k</span>
+</div>
+<div class="flex items-center justify-between text-label-sm font-label-sm">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-outline-variant"></span>
+<span>Maintenance (10%)</span>
+</div>
+<span class="font-semibold text-on-surface">195k</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="pt-4 flex items-center justify-between text-label-sm font-label-sm text-on-surface-variant">
+<span>Target burn capped at 35%</span>
+<span class="text-primary font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">trending_down</span> Within Target
+          </span>
+</div>
+</div>
+<!-- Quick Action Reconcile Panel -->
+<div class="p-6 rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between pb-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">sync</span>
+<h3 class="font-headline-md text-headline-md font-bold text-on-surface">Bank Feeds &amp; Aggregation</h3>
+</div>
+<span class="w-2.5 h-2.5 rounded-full bg-surface-tint animate-pulse"></span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+            Direct API connectivity with 1Link, HBL, and Meezan Bank switches.
+          </p>
+<div class="mt-4 space-y-2.5">
+<div class="p-3 rounded-lg bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[18px] text-primary">account_balance</span>
+<div>
+<div class="font-label-md text-label-md font-bold text-on-surface">HBL Primary (PK32-HABB)</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Auto-sync: 3 mins ago</div>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-tertiary font-bold">MATCHED</span>
+</div>
+<div class="p-3 rounded-lg bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[18px] text-secondary">smartphone</span>
+<div>
+<div class="font-label-md text-label-md font-bold text-on-surface">JazzCash Merchant Gateway</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Auto-sync: Instant webhook</div>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-tertiary font-bold">MATCHED</span>
+</div>
+</div>
+</div>
+<div class="pt-4">
+<button class="w-full py-2.5 rounded-lg bg-primary-fixed text-on-primary-fixed-variant hover:bg-primary hover:text-on-primary font-label-md text-label-md font-semibold transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">download_done</span>
+<span>Run Automated Matching Script</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  (function() {
+    // Interactive Tab Switching for Ledger Explorer
+    const tabs = document.querySelectorAll('.ledger-tab');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', function() {
+        tabs.forEach(t => {
+          t.classList.remove('bg-primary', 'text-on-primary', 'shadow-sm', 'font-semibold');
+          t.classList.add('text-on-surface-variant', 'hover:text-on-surface', 'hover:bg-surface-container');
+        });
+        this.classList.add('bg-primary', 'text-on-primary', 'shadow-sm', 'font-semibold');
+        this.classList.remove('text-on-surface-variant', 'hover:text-on-surface', 'hover:bg-surface-container');
+      });
+    });
+
+    // Branch filter button interaction micro-feedback
+    const branchBtn = document.getElementById('branchFilterBtn');
+    if (branchBtn) {
+      branchBtn.addEventListener('click', function() {
+        const currentText = this.querySelector('span:nth-child(2)');
+        if (currentText.innerText.includes('All 5 Branches')) {
+          currentText.innerText = 'Branch: Royal Executive (F-8/4)';
+        } else {
+          currentText.innerText = 'Branch Filter: All 5 Branches';
+        }
+      });
+    }
+  })();
+</script></main></div></body></html>
