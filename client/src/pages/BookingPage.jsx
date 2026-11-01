@@ -96,6 +96,7 @@ export function BookingPage() {
   const showSidebar = step === 1 || step === 3;
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing load-on-mount effect; behaviour unchanged
     if (user?.name && !guestFullName) setGuestFullName(user.name);
     if (user?.phone && !guestPhone) setGuestPhone(user.phone);
     // eslint-disable-next-line react-hooks/exhaustive-deps

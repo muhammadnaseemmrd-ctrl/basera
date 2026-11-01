@@ -38,6 +38,7 @@ export function RoommateSwipeDeck() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing load-on-mount effect; behaviour unchanged
     loadCandidates();
   }, []);
 

@@ -500,7 +500,35 @@ const isRoomInWardenBlock = async ({ roomId, wardenId }) => {
   return Boolean(block && String(block.wardenId) === String(wardenId));
 };
 
-router.get("/:id/bed-blocks", protect, authorize("host", "owner", "landlord", "admin", "warden"), async (req, res, next) => {
+// Server-side ownership guard for bed holds / offline-booking overrides (live DB only).
+// Before this, any host account could place holds on ANY room by id (role-only check) and a
+// suspended warden kept access. Now: warden → must currently run the room's block (staff
+// register aware); host → must own/manage the room's hostel (or have listed the room); admin → any.
+const guardRoomBeds = async (req, res, next) => {
+  try {
+    if (mongoose.connection.readyState !== 1) return next();
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) return res.status(404).json({ message: "Room not found." });
+    const role = canonicalRole(req.user.role);
+    if (role === "admin") return next();
+    const room = await Room.findById(req.params.id).select("hostel hostProperty blockId listedBy").lean();
+    if (!room) return res.status(404).json({ message: "Room not found." });
+    const { wardenBlocks, canManageHostel } = require("../services/hostelAccess");
+    if (role === "warden") {
+      const blocks = await wardenBlocks(req.user);
+      if (room.blockId && blocks.some((b) => String(b._id) === String(room.blockId))) return next();
+      return res.status(403).json({ message: "You are not assigned to this room's block." });
+    }
+    const userId = String(req.user._id || req.user.id);
+    if (String(room.listedBy || "") === userId) return next();
+    const hostelId = room.hostel || room.hostProperty;
+    if (hostelId && (await canManageHostel(req.user, hostelId))) return next();
+    return res.status(403).json({ message: "You do not manage this room." });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+router.get("/:id/bed-blocks", protect, authorize("host", "owner", "landlord", "admin", "warden"), guardRoomBeds, async (req, res, next) => {
   try {
     const isWarden = canonicalRole(req.user.role) === "warden";
     if (isWarden) {
@@ -522,7 +550,7 @@ router.get("/:id/bed-blocks", protect, authorize("host", "owner", "landlord", "a
   }
 });
 
-router.post("/:id/bed-blocks", protect, authorize("host", "owner", "landlord", "admin", "warden"), async (req, res, next) => {
+router.post("/:id/bed-blocks", protect, authorize("host", "owner", "landlord", "admin", "warden"), guardRoomBeds, async (req, res, next) => {
   try {
     const isWarden = canonicalRole(req.user.role) === "warden";
     if (isWarden) {
@@ -555,7 +583,7 @@ router.post("/:id/bed-blocks", protect, authorize("host", "owner", "landlord", "
   }
 });
 
-router.put("/:id/bed-blocks/:blockId", protect, authorize("host", "owner", "landlord", "admin", "warden"), async (req, res, next) => {
+router.put("/:id/bed-blocks/:blockId", protect, authorize("host", "owner", "landlord", "admin", "warden"), guardRoomBeds, async (req, res, next) => {
   try {
     const isWarden = canonicalRole(req.user.role) === "warden";
     if (isWarden) {

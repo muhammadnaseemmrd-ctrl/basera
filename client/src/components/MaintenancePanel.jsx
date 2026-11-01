@@ -33,6 +33,7 @@ export function MaintenancePanel({ title = "Maintenance Operations" }) {
 
   useEffect(() => {
     safeRequest(() => api.get("/maintenance/my"), { results: fallbackTickets }).then((result) => setTickets(result.results || fallbackTickets));
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing load-on-mount effect; behaviour unchanged
     loadCalendar(blockForm.roomId);
     loadActiveHolds(blockForm.roomId);
     // eslint-disable-next-line react-hooks/exhaustive-deps

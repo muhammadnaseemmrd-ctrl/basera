@@ -85,6 +85,7 @@ export function StaysSearchPage() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing load-on-mount effect; behaviour unchanged
     runSearch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

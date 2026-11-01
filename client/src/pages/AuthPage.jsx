@@ -54,7 +54,9 @@ export function AuthPage() {
       return;
     }
     try {
-      const { confirmPassword, ...signupPayload } = form;
+      // confirmPassword is only checked client-side; never send it
+      const signupPayload = { ...form };
+      delete signupPayload.confirmPassword;
       const user =
         mode === "login"
           ? await login({ email: form.email, password: form.password })
@@ -120,7 +122,9 @@ export function AuthPage() {
 
           {mode === "signup" && (
             <div className="mb-6 grid grid-cols-3 gap-2">
-              {["student", "host", "admin"].map((value) => (
+              {/* "admin" was offered here but the server (correctly) rejects self-signup as admin,
+                  so that button always failed; replaced by the new Parent role. */}
+              {["student", "parent", "host"].map((value) => (
                 <button key={value} onClick={() => setRole(value)} className={`rounded-md border px-3 py-3 text-sm font-semibold capitalize ${role === value ? "border-primary-700 bg-primary-50 text-primary-800" : "border-line"}`}>
                   {value === "host" ? "Host" : value}
                 </button>

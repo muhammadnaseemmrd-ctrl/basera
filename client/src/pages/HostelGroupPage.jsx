@@ -26,6 +26,7 @@ export function HostelGroupPage() {
 
   useEffect(() => {
     let ignore = false;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing load-on-mount effect; behaviour unchanged
     setLoading(true);
     safeRequest(() => api.get(`/hostel-groups/${slug}`), { group: fallbackGroup }).then((data) => {
       if (!ignore) {

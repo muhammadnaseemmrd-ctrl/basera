@@ -10,7 +10,8 @@
     "dev": "nodemon server.js",
     "start": "node server.js",
     "seed": "node data/seed.js",
-    "test": "node --check server.js && node --test"
+    "test": "node --check server.js && node --test",
+    "usecases:hostel": "node scripts/hostelOpsUseCases.js"
   },
   "keywords": [],
   "author": "",

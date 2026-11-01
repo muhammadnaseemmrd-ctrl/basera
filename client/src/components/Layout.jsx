@@ -6,7 +6,7 @@ import { transitions, useMotionSafe } from "../utils/motion";
 import { dashboardPathForRole, useAuthStore } from "../store/useAuthStore";
 import { useAppStore } from "../store/useAppStore";
 import { useLocaleStore } from "../store/useLocaleStore";
-import { Logo, LogoMark } from "./Logo";
+import { Logo } from "./Logo";
 
 const navItems = [
   { key: "navFindHousing", to: "/" },
@@ -25,7 +25,6 @@ export function Navbar({ simple = false }) {
   const logout = useAuthStore((state) => state.logout);
   const theme = useAppStore((state) => state.theme);
   const toggleTheme = useAppStore((state) => state.toggleTheme);
-  const locale = useLocaleStore((state) => state.locale);
   const toggleLocale = useLocaleStore((state) => state.toggleLocale);
   const t = useLocaleStore((state) => state.t);
   const dashboardPath = user ? dashboardPathForRole(user.role) : "/dashboard/student";

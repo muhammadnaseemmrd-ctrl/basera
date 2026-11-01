@@ -41,6 +41,10 @@ const StaysSearchPage = lazyPage(() => import("./pages/StaysSearchPage"), "Stays
 const StayDetailPage = lazyPage(() => import("./pages/StayDetailPage"), "StayDetailPage");
 const StayBookingsPage = lazyPage(() => import("./pages/StayBookingsPage"), "StayBookingsPage");
 const StayManagerPage = lazyPage(() => import("./pages/host/StayManagerPage"), "StayManagerPage");
+const HeadOfficePage = lazyPage(() => import("./pages/ops/HostelOpsConsole"), "HeadOfficePage");
+const WardenOperationsPage = lazyPage(() => import("./pages/ops/HostelOpsConsole"), "WardenOperationsPage");
+const StudentHostelLife = lazyPage(() => import("./pages/ops/StudentHostelLife"), "StudentHostelLife");
+const ParentPanelPage = lazyPage(() => import("./pages/ops/ParentPanelPage"), "ParentPanelPage");
 
 function RouteFallback() {
   return (
@@ -102,6 +106,7 @@ export default function App() {
             <Route path="community" element={<StudentCommunity />} />
             <Route path="support" element={<StudentSupport />} />
             <Route path="chat" element={<StudentChat />} />
+            <Route path="hostel" element={<StudentHostelLife />} />
             <Route path="profile" element={<StudentProfile />} />
           </Route>
           <Route
@@ -141,6 +146,30 @@ export default function App() {
             element={
               <ProtectedRoute roles={["warden", "host", "admin"]}>
                 <WardenDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/warden/operations"
+            element={
+              <ProtectedRoute roles={["warden"]}>
+                <WardenOperationsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/head-office"
+            element={
+              <ProtectedRoute roles={["host", "admin"]}>
+                <HeadOfficePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/parent-panel"
+            element={
+              <ProtectedRoute roles={["parent"]}>
+                <ParentPanelPage />
               </ProtectedRoute>
             }
           />

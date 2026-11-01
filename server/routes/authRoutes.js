@@ -34,7 +34,10 @@ const publicUser = (user) => ({
 // req.body.role with no further check, so anyone could POST role:"admin"
 // to /register and receive a fully-privileged admin token. That is a
 // critical privilege-escalation bug and is closed here.
-const PUBLIC_SIGNUP_ROLES = ["student", "host", "owner", "landlord"];
+// "parent" is safe to self-assign: it grants nothing until the account redeems an
+// invite code / share token issued by the hostel office or the student
+// (see parentPanelRoutes.js POST /claim).
+const PUBLIC_SIGNUP_ROLES = ["student", "host", "owner", "landlord", "parent"];
 const STAFF_ROLES = ["admin", "finance", "warden", "property_manager"];
 
 router.post(
@@ -229,6 +232,7 @@ router.post(
         return res.status(401).json({ message: "Invalid credentials." });
       }
 
+      if (user.isBanned) return res.status(403).json({ message: "This account has been disabled. Contact the hostel office." });
       return res.json({ user: publicUser(user), token: generateToken(user) });
     } catch (error) {
       return next(error);

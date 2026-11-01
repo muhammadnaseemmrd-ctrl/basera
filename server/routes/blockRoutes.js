@@ -40,9 +40,23 @@ router.get("/", protect, authorize("host", "admin", "warden"), async (req, res, 
 
     const query = {};
     if (req.query.hostelId) {
+      // Previously any host/warden could list ANY hostel's blocks (and warden names) by id.
+      if (role !== "admin") {
+        const { staffScope } = require("../services/hostelAccess");
+        if (!mongoose.Types.ObjectId.isValid(req.query.hostelId) || !(await staffScope(req.user, { hostelId: req.query.hostelId }))) {
+          return res.status(403).json({ message: "You do not manage this hostel." });
+        }
+      }
       query.hostelId = req.query.hostelId;
+      if (isWarden) {
+        // a warden only ever sees their own blocks, even inside their hostel
+        const { wardenBlocks } = require("../services/hostelAccess");
+        query._id = { $in: (await wardenBlocks(req.user)).map((b) => b._id) };
+      }
     } else if (isWarden) {
-      query.wardenId = req.user._id || req.user.id;
+      // staff-register aware: a suspended/terminated warden gets no blocks
+      const { wardenBlocks } = require("../services/hostelAccess");
+      query._id = { $in: (await wardenBlocks(req.user)).map((b) => b._id) };
     } else if (isScopedHost) {
       const ownedHostels = await Hostel.find({ owner: req.user._id || req.user.id }).select("_id");
       query.hostelId = { $in: ownedHostels.map((hostel) => hostel._id) };
@@ -111,6 +125,24 @@ router.put("/:id", protect, authorize("host", "admin"), async (req, res, next) =
     Object.assign(block, updates);
     await block.save();
     return res.json({ block: shapeBlock(block) });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// Per-seat map for one block: free / reserved / occupied / booked_offline / maintenance.
+// Wardens only for their own block; hostel owners/admins for blocks of hostels they manage.
+router.get("/:id/seats", protect, authorize("host", "admin", "warden"), async (req, res, next) => {
+  try {
+    if (mongoose.connection.readyState !== 1) return res.status(503).json({ message: "Database not connected.", demo: true });
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) return res.status(404).json({ message: "Block not found." });
+    const block = await Block.findById(req.params.id).lean();
+    if (!block) return res.status(404).json({ message: "Block not found." });
+    const { staffScope } = require("../services/hostelAccess");
+    const { buildSeatMap } = require("../services/seatMapService");
+    const scope = await staffScope(req.user, { hostelId: block.hostelId, blockId: block._id });
+    if (!scope) return res.status(403).json({ message: "You do not manage this block." });
+    return res.json(await buildSeatMap({ hostelId: block.hostelId, blockId: block._id }));
   } catch (error) {
     return next(error);
   }

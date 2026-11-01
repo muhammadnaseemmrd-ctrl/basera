@@ -122,7 +122,10 @@ export function LandlordDashboard() {
     >
       <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <span className="badge bg-accent-50 text-accent-700"><ShieldCheck size={14} /> {data.verificationTier || "Identity Verified"}</span>
-        <Link to="/landlord/onboarding" className="btn-primary"><Plus size={18} /> List Another Room</Link>
+        <div className="flex flex-wrap gap-3">
+          <Link to="/head-office" className="btn-secondary">Head Office: seats, fees, staff, complaints</Link>
+          <Link to="/landlord/onboarding" className="btn-primary"><Plus size={18} /> List Another Room</Link>
+        </div>
       </div>
 
 

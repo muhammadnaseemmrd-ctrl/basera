@@ -79,6 +79,12 @@ const studentTrustRoutes = require("./routes/studentTrustRoutes");
 const apiMarketplaceRoutes = require("./routes/apiMarketplaceRoutes");
 const messMenuRoutes = require("./routes/messMenuRoutes");
 const newsletterRoutes = require("./routes/newsletterRoutes");
+const headOfficeRoutes = require("./routes/headOfficeRoutes");
+const staffRoutes = require("./routes/staffRoutes");
+const feeRoutes = require("./routes/feeRoutes");
+const complaintRoutes = require("./routes/complaintRoutes");
+const noticeRoutes = require("./routes/noticeRoutes");
+const parentPanelRoutes = require("./routes/parentPanelRoutes");
 
 if (process.env.NODE_ENV === "production" && !process.env.JWT_SECRET) {
   console.error(
@@ -240,6 +246,13 @@ app.use("/api/v1/students", studentTrustRoutes);
 app.use("/api/v1/api-marketplace", apiMarketplaceRoutes);
 app.use("/api/v1/mess-menu", messMenuRoutes);
 app.use("/api/v1/newsletter", newsletterRoutes);
+// Hostel & block operations (Phase 1): live-database only, no demo fallback.
+app.use("/api/v1/head-office", headOfficeRoutes);
+app.use("/api/v1/staff", staffRoutes);
+app.use("/api/v1/fees", feeRoutes);
+app.use("/api/v1/complaints", complaintRoutes);
+app.use("/api/v1/notices", noticeRoutes);
+app.use("/api/v1/parent-panel", parentPanelRoutes);
 app.use("/api/v1", v6AliasRoutes);
 
 app.use(notFound);

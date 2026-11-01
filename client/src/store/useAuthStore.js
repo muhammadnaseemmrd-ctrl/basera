@@ -76,6 +76,7 @@ export const dashboardPathForRole = (role) => {
   if (role === "admin") return "/admin";
   if (role === "finance") return "/admin";
   if (role === "warden") return "/warden/dashboard";
+  if (role === "parent") return "/parent-panel";
   return "/dashboard/student";
 };
 

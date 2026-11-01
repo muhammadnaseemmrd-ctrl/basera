@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import { BookOpenCheck, Bookmark, Compass, CreditCard, Grid2X2, LifeBuoy, MessageSquare, Newspaper, PackageCheck, User } from "lucide-react";
+import { BookOpenCheck, Bookmark, Building2, Compass, CreditCard, Grid2X2, LifeBuoy, MessageSquare, Newspaper, PackageCheck, User } from "lucide-react";
 import { DashboardShell } from "../../components/DashboardShell";
 import { useDocumentTitle } from "../../utils/useDocumentTitle";
 import { useAuthStore } from "../../store/useAuthStore";
@@ -10,6 +10,7 @@ import { useLocaleStore } from "../../store/useLocaleStore";
 const navItemDefs = [
   { key: "dashOverview", fallbackLabel: "Overview", icon: Grid2X2, to: "/dashboard/student" },
   { key: "dashBookings", fallbackLabel: "My Bookings", icon: BookOpenCheck, to: "/dashboard/student/bookings" },
+  { key: "dashHostel", fallbackLabel: "My Hostel (fees, complaints, notices)", icon: Building2, to: "/dashboard/student/hostel" },
   { key: "dashPayments", fallbackLabel: "Payments", icon: CreditCard, to: "/dashboard/student/payments" },
   { key: "dashSaved", fallbackLabel: "Saved Hostels", icon: Bookmark, to: "/dashboard/student/saved" },
   { key: "dashExplore", fallbackLabel: "Explore & Activities", icon: Compass, to: "/dashboard/student/engage" },

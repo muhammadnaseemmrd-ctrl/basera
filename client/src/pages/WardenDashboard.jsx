@@ -1,9 +1,14 @@
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
+import { Link } from "react-router-dom";
 import { Building2, CheckCircle2, DoorOpen, Lock, Unlock, UserRound } from "lucide-react";
 import { api, safeRequest } from "../services/api";
 import { useAuthStore } from "../store/useAuthStore";
 import { useDocumentTitle } from "../utils/useDocumentTitle";
+
+// Kept at module scope: the React compiler treats Date.now() inside the component as a render-time call.
+const isoDaysFromNow = (days) => new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+const demoHoldId = () => `BB-${Date.now()}`;
 
 const fallbackBlocks = [
   { id: "blk-h1-a", hostelId: "h1", name: "Block A", wardenId: "u-warden", floorCount: 3, notes: "Main block, ground to 3rd floor." }
@@ -98,11 +103,11 @@ export function WardenDashboard() {
     const payload = {
       bedIndex,
       from: new Date().toISOString(),
-      to: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString(),
+      to: isoDaysFromNow(180),
       reason: "booked_offline",
       note
     };
-    const result = await safeRequest(() => api.post(`/rooms/${roomId}/bed-blocks`, payload), { block: { id: `BB-${Date.now()}`, ...payload }, demo: true });
+    const result = await safeRequest(() => api.post(`/rooms/${roomId}/bed-blocks`, payload), { block: { id: demoHoldId(), ...payload }, demo: true });
     await refreshRoomAvailability(roomId);
     setNotice(result.demo ? "Seat marked booked (offline) in demo mode." : "Seat marked booked (offline).");
     setBusySeat("");
@@ -136,6 +141,10 @@ export function WardenDashboard() {
             <p className="text-slate-700">{isWarden ? `Signed in as ${user?.name || "Warden"}` : "Oversight view - blocks and manual seat corrections."}</p>
           </div>
         </div>
+
+        <Link to={user?.role === "warden" ? "/warden/operations" : "/head-office"} className="btn-primary mb-6 inline-flex">
+          {user?.role === "warden" ? "Open fee collection, complaints & notices" : "Open Head Office console"}
+        </Link>
 
         {notice && <p className="mb-6 rounded-md bg-primary-50 px-4 py-3 text-sm font-semibold text-primary-800">{notice}</p>}
 
@@ -227,3 +236,4 @@ export function WardenDashboard() {
     </>
   );
 }
+

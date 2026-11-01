@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     phone: { type: String, required: true, unique: true, trim: true },
     password: { type: String, required: true, select: false },
-    role: { type: String, enum: ["student", "host", "owner", "landlord", "property_manager", "admin", "finance", "warden"], default: "student" },
+    role: { type: String, enum: ["student", "host", "owner", "landlord", "property_manager", "admin", "finance", "warden", "parent"], default: "student" },
     avatar: String,
     studentId: String,
     isVerified: { type: Boolean, default: false },

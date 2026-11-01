@@ -63,6 +63,7 @@ This repository was originally implemented from six legacy `HostelHub_*.docx` pl
 - V5 media/AI: virtual room tour URLs, panorama images, hostel photo feed API, and protected room description generator with template fallback
 - V6 AI safety behavior: student concierge, listing description generator, finance anomaly detector, dispute summarizer, review classifier, source IDs/confidence, audit logging when MongoDB is connected, and template fallback when no AI key is configured
 - V6 platform addendum: MongoDB indexes, pooled connection options, NodeCache-backed read caching, compression, scoped rate limits, Socket.io per-user/role targeting, cron job logs, host P&L/cashflow/portfolio finance, utility bill splitting, DNA score, vacancy forecast, rent negotiation, digital tenancy agreement, family portal, academic calendar intelligence, mess menu ratings, check-in verification, group booking, API marketplace, live room board, student trust score, and report-card PDFs
+- Hostel & Block operations (Phase 1, live database only): per-seat map (free / reserved / occupied / booked offline / maintenance), staff register with suspend / terminate (termination bans the login, unassigns blocks, posts a do-not-pay notice and notifies every resident + linked parent, with WhatsApp broadcast links), fee invoices and cash / bank / wallet payments with receipt PDF + QR + WhatsApp share, complaint workflow (raised → under review → in progress → fixed → resolved / reopened, head-office escalation), parent accounts linked by invite code, and a head-office overview. Spec and use cases: `docs/05-Phase1-Hostel-Block-Management.md`
 
 ## Project Structure
 
@@ -215,6 +216,15 @@ Admin:
 
 ```txt
 /admin
+```
+
+Hostel operations:
+
+```txt
+/head-office                 host/admin: overview (all hostels + per hostel), setup, seats, fees, complaints, staff, parents, notices
+/warden/operations           warden: own blocks only — seats, collect fees, complaints, parents, notices
+/dashboard/student/hostel    student: complaints, invoices + receipts, notices
+/parent-panel                parent: linked children — seat, fees, receipts, complaints, notices
 ```
 
 ## Environment Configuration
@@ -1165,7 +1175,43 @@ x-cron-secret: your-cron-secret
 
 Recommended daily schedule: run `POST /api/v1/reminders/daily` at `09:00 Asia/Karachi`. It runs 7-day reminders, 1-day reminders, overdue late-fee processing, and escrow payout release checks.
 
+## Hostel Operations API
+
+All routes below need a live MongoDB and return `503 {demo:true}` without one (no demo fallback for money flows). Every write is ownership-checked: head office = admin, the hostel owner, or the hostel group owner; a warden only acts on records in a block they currently run (a suspended/terminated staff record revokes access, and records in rooms without a block are head office only).
+
+```txt
+GET  /api/v1/head-office/overview[?hostelId=]          rollup of every managed hostel: seats, collected vs pending, complaints by status, staff, latest notices
+GET  /api/v1/head-office/hostels                       managed hostels
+GET  /api/v1/head-office/hostels/:id/seats|overview|students|rooms
+POST /api/v1/head-office/hostels/:id/rooms/bulk        create rooms (e.g. 101–120) in a block
+POST /api/v1/head-office/hostels/:id/blocks/:blockId/assign-rooms
+POST /api/v1/head-office/hostels/:id/residents         admit an offline resident into a free seat
+POST /api/v1/head-office/hostels/:id/residents/:bookingId/checkout
+GET  /api/v1/blocks/:id/seats                          seat map for one block (warden of that block or head office)
+GET|POST /api/v1/staff  ·  PUT /api/v1/staff/:id  ·  POST /api/v1/staff/:id/suspend|reinstate|terminate
+GET  /api/v1/notices/my  ·  POST /api/v1/notices  ·  POST /api/v1/notices/:id/read
+POST /api/v1/fees/invoices  ·  POST /api/v1/fees/invoices/bulk  ·  GET /api/v1/fees/invoices|payments|students|my
+POST /api/v1/fees/invoices/:id/payments                cash ⇒ receiver recorded; bank/wallet/cheque ⇒ transactionId or hosted screenshot; txn id unique per hostel
+POST /api/v1/fees/invoices/:id/void  ·  POST /api/v1/fees/payments/:id/void
+GET  /api/v1/fees/payments/:id/receipt.pdf             student, linked parent or staff of that block
+GET  /api/v1/fees/payments/:id/whatsapp                wa.me link + text with public verify URL (POST also accepted)
+GET  /api/v1/fees/verify/:receiptNo                    public, no login
+POST /api/v1/complaints  ·  GET /api/v1/complaints/my|/:id  ·  GET /api/v1/complaints?hostelId=
+POST /api/v1/complaints/:id/status                     student: resolved/reopened · warden: under_review/in_progress/fixed · head office: all staff moves + escalated + assignedTo
+POST /api/v1/parent-panel/links  ·  GET /api/v1/parent-panel/links  ·  DELETE /api/v1/parent-panel/links/:id
+POST /api/v1/parent-panel/claim                        staff invite code or the student's ParentAccess share token
+GET  /api/v1/parent-panel/children  ·  /children/:studentId/overview|fees|complaints|notices
+```
+
 ## Validation Commands
+
+Hostel operations live use cases (needs the API running against a test database, same `MONGO_URI`; creates and deletes `[QA-HOPS]` data only):
+
+```bash
+BASE_URL=http://localhost:5000 MONGO_URI=<test db> RATE_LIMIT_DISABLED=true npm run usecases:hostel --prefix server
+```
+
+(Start the API with `RATE_LIMIT_DISABLED=true` too, or the script waits out the 10/min auth limit.)
 
 Backend syntax check:
 

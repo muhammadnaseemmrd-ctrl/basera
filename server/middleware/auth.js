@@ -61,6 +61,8 @@ const protect = async (req, res, next) => {
         // account was deleted/deactivated -- never trust the stale token payload here.
         return res.status(401).json({ message: "User not found or deactivated" });
       }
+      // A terminated/banned account must stop working immediately, not at JWT expiry.
+      if (user.isBanned) return res.status(403).json({ message: "This account has been disabled." });
       req.user = user;
       return next();
     }

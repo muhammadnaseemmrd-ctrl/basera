@@ -102,7 +102,7 @@ export function HostelDetailPage() {
         reviews: normalizedReviews,
         nearby: normalizedNearby
       });
-    }).catch((error) => {
+    }).catch(() => {
       if (ignore) return;
       // A real 404 (listing removed/never existed) or any other failure both mean
       // this page should say "not found" rather than silently keep rendering the
