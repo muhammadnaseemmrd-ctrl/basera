@@ -5,6 +5,7 @@ import { api } from "../../services/api";
 import { downloadApiPdf } from "../../utils/downloadFile";
 import { ComplaintTimeline, Notice, Pill, SeatBlocks, SeatLegend, Tabs } from "./opsUi";
 import { dateShort, errMsg, money, uploadProof, useLoad } from "./opsHelpers";
+import { PoliciesTab } from "./PoliciesTab";
 
 const open = (url) => window.open(url, "_blank", "noopener,noreferrer");
 
@@ -722,8 +723,8 @@ export function HostelOpsConsole({ mode }) {
   const loadError = isHead ? hostels.error : myBlocks.error;
 
   const tabs = isHead
-    ? [["overview", "Overview"], ["setup", "Setup & residents"], ["seats", "Seats"], ["fees", "Fees & receipts"], ["complaints", "Complaints"], ["staff", "Staff"], ["parents", "Parents"], ["notices", "Notices"]]
-    : [["seats", "Seats"], ["fees", "Collect fees"], ["complaints", "Complaints"], ["parents", "Parents"], ["notices", "Notices"]];
+    ? [["overview", "Overview"], ["setup", "Setup & residents"], ["seats", "Seats"], ["fees", "Fees & receipts"], ["complaints", "Complaints"], ["staff", "Staff"], ["parents", "Parents"], ["notices", "Notices"], ["policies", "Policies"]]
+    : [["seats", "Seats"], ["fees", "Collect fees"], ["complaints", "Complaints"], ["parents", "Parents"], ["notices", "Notices"], ["policies", "Policy"]];
   const scopeBlock = isHead ? blockFilter : "";
 
   return (
@@ -773,6 +774,7 @@ export function HostelOpsConsole({ mode }) {
             {tab === "staff" && isHead ? <Staff hostelId={hostelId} blocks={blocks} /> : null}
             {tab === "parents" ? <Parents hostelId={hostelId} blockId={scopeBlock} /> : null}
             {tab === "notices" ? <Notices hostelId={hostelId} blocks={blocks} mode={mode} /> : null}
+            {tab === "policies" ? <PoliciesTab hostelId={hostelId} /> : null}
           </>
         )}
       </main>

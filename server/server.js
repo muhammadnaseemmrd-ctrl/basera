@@ -85,6 +85,8 @@ const feeRoutes = require("./routes/feeRoutes");
 const complaintRoutes = require("./routes/complaintRoutes");
 const noticeRoutes = require("./routes/noticeRoutes");
 const parentPanelRoutes = require("./routes/parentPanelRoutes");
+const policyRoutes = require("./routes/policyRoutes");
+const devRoutes = require("./routes/devRoutes");
 
 if (process.env.NODE_ENV === "production" && !process.env.JWT_SECRET) {
   console.error(
@@ -253,6 +255,9 @@ app.use("/api/v1/fees", feeRoutes);
 app.use("/api/v1/complaints", complaintRoutes);
 app.use("/api/v1/notices", noticeRoutes);
 app.use("/api/v1/parent-panel", parentPanelRoutes);
+// Phase 2 hostel SaaS
+app.use("/api/v1/policies", policyRoutes);
+app.use("/api/v1/dev", devRoutes);
 app.use("/api/v1", v6AliasRoutes);
 
 app.use(notFound);
