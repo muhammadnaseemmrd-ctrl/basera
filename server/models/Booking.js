@@ -78,6 +78,10 @@ const bookingSchema = new mongoose.Schema(
     paymentStatus: { type: String, enum: ["pending", "paid", "refunded", "failed"], default: "pending" },
     paymentRef: String,
     status: { type: String, enum: ["pending", "confirmed", "payment_pending", "active", "overdue", "cancelled", "completed", "disputed", "declined"], default: "pending" },
+    // "offline" = admitted by the hostel office (walk-in / CSV import): no commission,
+    // no escrow, no platform payout. Everything else (seat, fees, fines, leave) is identical.
+    source: { type: String, enum: ["online", "offline"], default: "online" },
+    admittedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     declineReason: String,
     cancelReason: String,
     ownerPaidOut: { type: Boolean, default: false },

@@ -4,6 +4,9 @@ const mongoose = require("mongoose");
 const notificationSchema = new mongoose.Schema(
   {
     message: String,
+    // hostel-operations events set these (see services/hostelEvents.js)
+    type: String,
+    title: String,
     read: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now }
   },
@@ -33,6 +36,21 @@ const userSchema = new mongoose.Schema(
     isVerified: { type: Boolean, default: false },
     isPhoneVerified: { type: Boolean, default: false },
     isBanned: { type: Boolean, default: false },
+    // false = a managed resident registered by the hostel office who has not claimed a
+    // login yet. Login is refused until they redeem claimCode (POST /residents/claim).
+    loginEnabled: { type: Boolean, default: true },
+    claimCode: { type: String, select: false },
+    claimCodeExpiresAt: { type: Date, select: false },
+    residentProfile: {
+      cnic: String,
+      dob: Date,
+      homeAddress: String,
+      employer: String,
+      photoUrl: String,
+      cnicDocUrl: String,
+      billingPlan: { type: String, enum: ["monthly", "semester", "custom"] },
+      guardians: [{ name: String, relation: String, phone: String, _id: false }]
+    },
     university: String,
     gender: { type: String, enum: ["male", "female", "other"] },
     city: String,
@@ -109,6 +127,8 @@ const userSchema = new mongoose.Schema(
 // be created once demo mode was off. This was invisible all session because
 // every prior test ran against the in-memory demo-mode arrays, which never
 // invoke Mongoose middleware at all. Fixed by dropping the next() calls.
+userSchema.index({ claimCode: 1 }, { sparse: true });
+
 userSchema.pre("save", async function hashPassword() {
   if (!this.isModified("password")) return;
   this.password = await bcrypt.hash(this.password, 12);

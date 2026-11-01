@@ -15,6 +15,34 @@ const feeInvoiceSchema = new mongoose.Schema(
     amount: { type: Number, required: true, min: 1 },
     paidAmount: { type: Number, default: 0, min: 0 },
     dueDate: Date,
+    // when the invoice was raised (business clock); fines never count days before this
+    issuedAt: Date,
+    // late-fee terms snapshotted from the hostel/block policy at creation (later policy
+    // changes never touch an issued invoice). finePerDay 0 = no fines (non-rent kinds).
+    finePerDay: { type: Number, default: 0, min: 0 },
+    maxFine: { type: Number, default: null },
+    graceDays: { type: Number, default: 0, min: 0 },
+    stopsWhenRentPaid: { type: Boolean, default: true },
+    // fine is kept inside the invoice and recomputed from dates (never incremented)
+    fineAccrued: { type: Number, default: 0, min: 0 },
+    fineWaived: { type: Number, default: 0, min: 0 },
+    finePaid: { type: Number, default: 0, min: 0 },
+    fineStatus: { type: String, enum: ["none", "accruing", "frozen", "waived", "paid"], default: "none" },
+    fineAsOf: Date,
+    fineFrozenAt: Date,
+    paidInFullAt: Date,
+    // explicit negative lines from hostel offers; amount itself never changes
+    discounts: [
+      {
+        offer: { type: mongoose.Schema.Types.ObjectId, ref: "HostelOffer" },
+        redemption: { type: mongoose.Schema.Types.ObjectId, ref: "OfferRedemption" },
+        name: String,
+        amountOff: { type: Number, min: 0 },
+        stackable: Boolean,
+        _id: false
+      }
+    ],
+    discountTotal: { type: Number, default: 0, min: 0 },
     status: { type: String, enum: ["unpaid", "partial", "paid", "void"], default: "unpaid" },
     voidReason: String,
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" }

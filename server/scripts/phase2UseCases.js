@@ -102,6 +102,25 @@ async function seed() {
   S.roomB1 = await mkRoom(S.hostelA, S.blockB, "B1", 3);
   S.roomB2 = await mkRoom(S.hostelA, S.blockB, "B2", 3);
   S.roomX1 = await mkRoom(S.hostelB, S.blockX, "X1", 2);
+  S.roomB3 = await mkRoom(S.hostelA, S.blockB, "B3", 3);
+  S.roomB4 = await mkRoom(S.hostelA, S.blockB, "B4", 3);
+  S.roomB5 = await mkRoom(S.hostelA, S.blockB, "B5", 3);
+
+  // two ONLINE students (marketplace bookings) to compare with offline ones
+  const mkOnline = async (name, room, bedIndex) => {
+    const st = await makeUser(name, "student");
+    const b = await Booking.create({ student: st.id, hostel: room.hostel, room: room._id, bedIndex, checkIn: K(2026, 10, 1), duration: "monthly", totalRent: 8000, totalAmount: 8000, commission: 560, ownerReceives: 7440, status: "active", source: "online", securityDeposit: 10000 });
+    await Room.updateOne({ _id: room._id }, { $inc: { availableBeds: -1 } });
+    return { ...st, bookingId: String(b._id) };
+  };
+  S.s1 = await mkOnline("Online S1 (Block A)", S.roomA2, 0);
+  S.s2 = await mkOnline("Online S2 (Block B)", S.roomB1, 0);
+  S.parent1 = await makeUser("Parent of S1", "parent");
+  S.parentO = await makeUser("Parent of O1", "parent");
+  S.parentX = await makeUser("Unlinked parent", "parent");
+  // link parent1 to S1 through the Phase 1 invite flow
+  const inv = await http("POST", "/parent-panel/links", { token: S.ownerA.token, body: { hostelId: String(S.hostelA._id), studentId: S.s1.id, parentName: "P1", parentPhone: "0301-1112223" } });
+  await http("POST", "/parent-panel/claim", { token: S.parent1.token, body: { code: inv.data.inviteCode } });
 
   // wardens via the staff API (block-scoped logins)
   const mkWarden = async (ownerToken, hostel, block, label) => {
@@ -147,7 +166,111 @@ async function clockAndPolicies() {
   check("P5c", "Policy change is audited", audited >= 1, String(audited));
 }
 
-const SECTIONS = [clockAndPolicies];
+// ---------------------------------------------------------------- offline residents
+const csvLine = (r) => [r.name, r.phone, "", "", "male", "", "QA Uni", "QA address", r.gName || "", "father", r.gPhone || "", r.room, r.bed, r.rent ?? 7000, r.dep ?? 0, "no", "2026-11-01", "monthly"].map((v) => (String(v).includes(",") ? `"${v}"` : v)).join(",");
+const CSV_HEAD = "name,phone,cnic,email,gender,dob,university,homeAddress,guardianName,guardianRelation,guardianPhone,roomNumber,bed,monthlyRent,securityDeposit,depositCollected,joinDate,billingPlan";
+
+async function offlineResidents() {
+  const hA = String(S.hostelA._id);
+  const o1Phone = phone();
+  const body = {
+    hostelId: hA,
+    name: "[QA-P2] Offline O1",
+    phone: o1Phone,
+    cnic: "35202-1234567-1",
+    dob: "2005-04-12",
+    gender: "male",
+    university: "QA University",
+    homeAddress: "House 5, Lahore",
+    guardians: [{ name: "Father of O1", relation: "father", phone: "0302-2223334" }],
+    roomId: String(S.roomA1._id),
+    bedIndex: 0,
+    monthlyRent: 8000,
+    securityDeposit: 10000,
+    depositCollected: true,
+    joinDate: "2026-11-01",
+    cnicDocUrl: "https://example.test/cnic.pdf",
+    firstInvoice: { period: "2026-11" }
+  };
+  const o1 = await http("POST", "/residents", { token: S.ownerA.token, body });
+  S.o1 = { id: o1.data?.student?.id, bookingId: o1.data?.booking?.id, phone: o1Phone, claimCode: o1.data?.claimCode, rentInvoice: o1.data?.firstInvoice?.id, guardianCode: o1.data?.guardians?.[0]?.inviteCode };
+  const bk = S.o1.bookingId ? await Booking.findById(S.o1.bookingId).lean() : null;
+  const dep = S.o1.id ? await FeeInvoice.findOne({ student: S.o1.id, kind: "security_deposit" }).lean() : null;
+  check("O1", "Head office registers offline student: occupied seat, deposit invoice+receipt, commission 0, no escrow, no login yet", o1.status === 201 && bk?.source === "offline" && bk.commission === 0 && bk.escrowStatus === "not_created" && dep?.status === "paid" && /^BSR-/.test(o1.data.deposit?.receiptNo || "") && o1.data.student.loginEnabled === false && /^[A-F0-9]{8}$/.test(S.o1.claimCode || ""), `${o1.status} ${o1.data?.message || ""}`);
+  const seats = await http("GET", `/blocks/${S.blockA._id}/seats`, { token: S.wardenA.token });
+  const seat = seats.data?.blocks?.[0]?.rooms?.find((r) => r.roomNumber === "A1")?.seats?.[0];
+  check("O1b", "Seat map shows the offline student as occupied (source offline)", seat?.status === "occupied" && seat.student?.source === "offline", JSON.stringify(seat));
+
+  const wOk = await http("POST", "/residents", { token: S.wardenA.token, body: { hostelId: hA, name: "[QA-P2] Warden-registered", phone: phone(), roomId: String(S.roomA1._id), bedIndex: 1, monthlyRent: 7500 } });
+  const wNo = await http("POST", "/residents", { token: S.wardenA.token, body: { hostelId: hA, name: "[QA-P2] Wrong block", phone: phone(), roomId: String(S.roomB2._id), bedIndex: 0, monthlyRent: 7500 } });
+  check("O2", "Warden A registers into Block A (201) but not Block B (403)", wOk.status === 201 && wNo.status === 403, `${wOk.status} ${wOk.data?.message || ""}/${wNo.status}`);
+  S.w1 = { id: wOk.data?.student?.id };
+  const xNo = await http("POST", "/residents", { token: S.ownerB.token, body: { ...body, phone: phone(), bedIndex: 1 } });
+  check("O2b", "Other hostel's owner cannot register into our hostel", xNo.status === 403, String(xNo.status));
+  const sameSeat = await http("POST", "/residents", { token: S.ownerA.token, body: { ...body, phone: phone(), name: "[QA-P2] Same seat" } });
+  const samePhone = await http("POST", "/residents", { token: S.ownerA.token, body: { ...body, roomId: String(S.roomA3._id), bedIndex: 0 } });
+  check("O3", "Same seat twice / same phone twice: 409 with a clear message", sameSeat.status === 409 && /not free/.test(sameSeat.data?.message) && samePhone.status === 409 && /already has an active/.test(samePhone.data?.message), `${sameSeat.status} ${sameSeat.data?.message} / ${samePhone.status} ${samePhone.data?.message}`);
+  const badInput = await http("POST", "/residents", { token: S.ownerA.token, body: { hostelId: hA, name: "X", phone: "1", roomId: String(S.roomA3._id), bedIndex: 0, monthlyRent: 10.5 } });
+  check("O3b", "Invalid registration input: 400 listing the problems", badInput.status === 400 && badInput.data.errors?.length >= 3, JSON.stringify(badInput.data?.errors));
+
+  // ---- CSV import: 10 rows, 2 invalid, 1 duplicate phone
+  const rows = [];
+  const phones = Array.from({ length: 9 }, () => phone());
+  const seatsCsv = [["B3", 1], ["B3", 2], ["B3", 3], ["B4", 1], ["B4", 2], ["B4", 3], ["B5", 1], ["B5", 2], ["B5", 3]];
+  for (let i = 0; i < 9; i += 1) rows.push({ name: `[QA-P2] CSV ${i + 1}`, phone: phones[i], room: seatsCsv[i][0], bed: seatsCsv[i][1], gName: i === 0 ? "Guardian CSV1" : "", gPhone: i === 0 ? "0303-3334445" : "" });
+  const broken = rows.map((r) => ({ ...r }));
+  broken[3].rent = "abc"; // invalid rent
+  broken[5].room = "ZZ9"; // room does not exist
+  const dupRow = { name: "[QA-P2] CSV dup", phone: phones[1], room: "B5", bed: 3 };
+  const csvBad = [CSV_HEAD, ...broken.map(csvLine), csvLine(dupRow)].join("\n");
+  const prev = await http("POST", "/residents/import/preview", { token: S.ownerA.token, body: { hostelId: hA, csv: csvBad } });
+  const errLines = (prev.data?.rows || []).filter((r) => r.status === "error").map((r) => r.line);
+  check("O4a", "Preview lists exactly the 2 bad rows and the 1 duplicate", prev.status === 200 && prev.data.summary.error === 2 && prev.data.summary.duplicate === 1 && errLines.join(",") === "5,7", `${prev.status} ${JSON.stringify(prev.data?.summary)} ${errLines}`);
+  const before = await Booking.countDocuments({ hostel: S.hostelA._id });
+  const commitBad = await http("POST", "/residents/import/commit", { token: S.ownerA.token, body: { hostelId: hA, csv: csvBad } });
+  check("O4b", "Committing a file with errors imports nothing", commitBad.status === 400 && (await Booking.countDocuments({ hostel: S.hostelA._id })) === before, `${commitBad.status}`);
+  const csvGood = [CSV_HEAD, ...rows.map(csvLine), csvLine(dupRow)].join("\n");
+  const commit = await http("POST", "/residents/import/commit", { token: S.ownerA.token, body: { hostelId: hA, csv: csvGood } });
+  check("O4c", "Corrected file imports all 9 valid rows, skips the duplicate", commit.status === 201 && commit.data.imported === 9 && commit.data.duplicatesSkipped === 1 && (await Booking.countDocuments({ hostel: S.hostelA._id, source: "offline" })) === 2 + 9, `${commit.status} ${commit.data?.message || ""} ${commit.data?.imported}`);
+  const again = await http("POST", "/residents/import/commit", { token: S.ownerA.token, body: { hostelId: hA, csv: csvGood } });
+  check("O4d", "Re-importing the same file reports duplicates and creates none", again.status === 201 && again.data.imported === 0 && again.data.duplicatesSkipped === 10, `${again.status} ${JSON.stringify(again.data?.summary || again.data?.message)}`);
+  const xImport = await Promise.all([
+    http("POST", "/residents/import/preview", { token: S.ownerB.token, body: { hostelId: hA, csv: csvGood } }),
+    http("POST", "/residents/import/commit", { token: S.wardenX.token, body: { hostelId: hA, csv: csvGood } })
+  ]);
+  check("O4e", "Other hostel's owner / warden cannot preview or import into our hostel", xImport.every((r) => r.status === 403), xImport.map((r) => r.status).join("/"));
+  const tmpl = await http("GET", "/residents/import/template.csv", { token: S.ownerA.token, raw: true });
+  check("O4f", "CSV template downloads", tmpl.status === 200 && (await tmpl.text()).startsWith("name,phone"), String(tmpl.status));
+  S.csv1 = (commit.data?.residents || [])[0];
+
+  // ---- invite + claim
+  const list = await http("GET", `/head-office/hostels/${hA}/students`, { token: S.ownerA.token });
+  const o1Row = (list.data?.results || []).find((r) => r.studentId === S.o1.id);
+  check("O6a", "Before claiming, the offline student is listed (source offline, no login)", o1Row?.source === "offline" && o1Row.loginEnabled === false, JSON.stringify(o1Row));
+  const o1User = await User.findById(S.o1.id).lean();
+  const preLogin = await http("POST", "/auth/login", { body: { email: o1User.email, password: "whatever123" } });
+  check("O6b", "An unclaimed resident cannot log in", [401, 403].includes(preLogin.status), String(preLogin.status));
+  const inviteX = await http("POST", `/residents/${S.o1.id}/invite`, { token: S.ownerB.token });
+  const inviteWB = await http("POST", `/residents/${S.o1.id}/invite`, { token: S.wardenB.token });
+  check("O6c", "Other owner / other block's warden cannot invite our resident", inviteX.status === 403 && inviteWB.status === 403, `${inviteX.status}/${inviteWB.status}`);
+  const invite = await http("POST", `/residents/${S.o1.id}/invite`, { token: S.wardenA.token });
+  check("O6d", "Own-block warden re-issues an invite code + WhatsApp link", invite.status === 200 && /^[A-F0-9]{8}$/.test(invite.data.code) && invite.data.whatsapp.link.startsWith("https://wa.me/92"), String(invite.status));
+  const wrongPhone = await http("POST", "/residents/claim", { body: { code: invite.data?.code, phone: "0399-0000000", password: PASSWORD } });
+  const oldCode = await http("POST", "/residents/claim", { body: { code: S.o1.claimCode, phone: S.o1.phone, password: PASSWORD } });
+  check("O6e", "Claim with the wrong phone or a superseded code fails", wrongPhone.status === 404 && oldCode.status === 404, `${wrongPhone.status}/${oldCode.status}`);
+  const claimEmail = `qa.p2.o1.${RUN}@example.test`;
+  const claim = await http("POST", "/residents/claim", { body: { code: invite.data?.code, phone: S.o1.phone, password: PASSWORD, email: claimEmail } });
+  S.o1.token = claim.data?.token;
+  const myFees = S.o1.token ? await http("GET", "/fees/my", { token: S.o1.token }) : { status: 0 };
+  check("O6f", "Claim works; history (deposit receipt + first rent invoice) is preserved", claim.status === 200 && myFees.status === 200 && myFees.data.invoices.length === 2 && myFees.data.payments.length === 1, `${claim.status} ${claim.data?.message || ""} ${myFees.data?.invoices?.length}`);
+  const relogin = await http("POST", "/auth/login", { body: { email: claimEmail, password: PASSWORD } });
+  const reuse = await http("POST", "/residents/claim", { body: { code: invite.data?.code, phone: S.o1.phone, password: PASSWORD } });
+  check("O6g", "Normal login works afterwards; the code is single-use", relogin.status === 200 && reuse.status === 404, `${relogin.status}/${reuse.status}`);
+  const g = await http("POST", "/parent-panel/claim", { token: S.parentO.token, body: { code: S.o1.guardianCode } });
+  check("O6h", "Guardian of the offline student claims the parent invite issued at admission", g.status === 200, String(g.status));
+}
+
+const SECTIONS = [clockAndPolicies, offlineResidents];
 
 async function main() {
   if (!process.env.MONGO_URI) throw new Error("MONGO_URI is required (same database the API at BASE_URL uses).");

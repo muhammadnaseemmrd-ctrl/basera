@@ -43,7 +43,7 @@ async function buildSeatMap({ hostelId, blockId = null, includeStudents = true }
       id: String(b._id),
       bedIndex: b.bedIndex,
       status: b.status,
-      student: b.student ? { id: String(b.student._id), name: b.student.name, phone: b.student.phone } : null
+      student: b.student ? { id: String(b.student._id), name: b.student.name, phone: b.student.phone, source: b.source || "online" } : null
     }));
     const roomBedBlocks = (blocksByRoom[String(room._id)] || []).map((b) => ({ id: String(b._id), bedIndex: b.bedIndex, reason: b.reason, note: b.note }));
     const seats = deriveSeatStates({

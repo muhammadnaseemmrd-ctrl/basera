@@ -173,6 +173,9 @@ export function AuthPage() {
               {loading ? "Working..." : mode === "login" ? "Login" : "Create Account"}
             </button>
           </form>
+          <p className="mt-4 text-center text-sm text-slate-700">
+            Registered by your hostel office? <Link to="/claim" className="font-semibold text-primary-800 underline">Activate your account</Link>
+          </p>
           {mode === "login" && showDemoButtons && (
             <div className="mt-6">
               <p className="mb-3 text-center text-sm font-semibold text-slate-700">Quick demo login</p>

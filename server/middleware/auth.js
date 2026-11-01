@@ -63,6 +63,7 @@ const protect = async (req, res, next) => {
       }
       // A terminated/banned account must stop working immediately, not at JWT expiry.
       if (user.isBanned) return res.status(403).json({ message: "This account has been disabled." });
+      if (user.loginEnabled === false) return res.status(403).json({ message: "This account is not activated yet." });
       req.user = user;
       return next();
     }

@@ -1,20 +1,21 @@
-const crypto = require("crypto");
 const express = require("express");
 const mongoose = require("mongoose");
 const Hostel = require("../models/Hostel");
 const Block = require("../models/Block");
 const Room = require("../models/Room");
 const Booking = require("../models/Booking");
-const BedBlock = require("../models/BedBlock");
 const User = require("../models/User");
-const ParentLink = require("../models/ParentLink");
-const { deriveSeatStates, phoneKey } = require("../services/hostelOpsRules");
 const FeeInvoice = require("../models/FeeInvoice");
 const FeePayment = require("../models/FeePayment");
 const Complaint = require("../models/Complaint");
 const StaffMember = require("../models/StaffMember");
 const Notice = require("../models/Notice");
-const { protect, authorize } = require("../middleware/auth");
+const { protect, authorize, canonicalRole } = require("../middleware/auth");
+const { recordAudit } = require("../services/auditService");
+const { validateResident } = require("../services/residentRules");
+const { admitResident, AdmitError } = require("../services/residentService");
+const { FeeError, refreshOpenInvoices, DUE_EXPR } = require("../services/feeService");
+const clock = require("../services/clock");
 const requireDb = require("../middleware/requireDb");
 const { buildSeatMap } = require("../services/seatMapService");
 const { canManageHostel, managedHostelIds, residents, isId } = require("../services/hostelAccess");
@@ -56,10 +57,13 @@ router.get("/hostels/:id/students", async (req, res, next) => {
   try {
     if (!(await guard(req, res))) return;
     const rows = await residents({ hostelId: req.params.id, blockId: req.query.blockId && isId(req.query.blockId) ? req.query.blockId : undefined });
+    await refreshOpenInvoices({ hostel: req.params.id });
     const invoices = await FeeInvoice.aggregate([
       { $match: { hostel: new mongoose.Types.ObjectId(req.params.id), status: { $in: ["unpaid", "partial"] } } },
-      { $group: { _id: "$student", due: { $sum: { $subtract: ["$amount", "$paidAmount"] } } } }
+      { $group: { _id: "$student", due: { $sum: DUE_EXPR } } }
     ]);
+    const loginUsers = await User.find({ _id: { $in: rows.filter((b) => b.student).map((b) => b.student._id) } }).select("loginEnabled").lean();
+    const loginBy = Object.fromEntries(loginUsers.map((u) => [String(u._id), u.loginEnabled !== false]));
     const due = Object.fromEntries(invoices.map((i) => [String(i._id), i.due]));
     res.json({
       results: rows
@@ -73,6 +77,8 @@ router.get("/hostels/:id/students", async (req, res, next) => {
           roomId: b.room ? String(b.room._id) : null,
           blockId: b.room?.blockId ? String(b.room.blockId) : null,
           bedIndex: b.bedIndex ?? null,
+          source: b.source || "online",
+          loginEnabled: loginBy[String(b.student._id)] ?? true,
           balanceDue: due[String(b.student._id)] || 0
         }))
     });
@@ -169,105 +175,18 @@ router.post("/hostels/:id/blocks/:blockId/assign-rooms", async (req, res, next) 
 });
 
 // Admit a resident who is already living there (or paid offline) into a specific seat.
+// Same engine as POST /api/v1/residents (offline source, commission 0, no escrow); this
+// legacy endpoint keeps creating a login by default and returns a one-time temp password.
 router.post("/hostels/:id/residents", async (req, res, next) => {
   try {
     if (!(await guard(req, res))) return;
-    const { name, phone, email, roomId, bedIndex, monthlyRent, checkIn, guardianName, guardianPhone } = req.body;
-    const bed = Number(bedIndex);
-    const rent = Number(monthlyRent);
-    if (!String(name || "").trim() || !String(phone || "").trim()) return res.status(400).json({ message: "Student name and phone are required." });
-    if (!isId(roomId) || !Number.isInteger(bed) || bed < 0) return res.status(400).json({ message: "roomId and a valid bedIndex are required." });
-    if (!Number.isInteger(rent) || rent < 0) return res.status(400).json({ message: "monthlyRent must be a whole number." });
-
-    const room = await Room.findOne({ _id: roomId, $or: [{ hostel: req.params.id }, { hostProperty: req.params.id }] });
-    if (!room) return res.status(404).json({ message: "Room not found in this hostel." });
-    if (bed >= room.totalBeds) return res.status(400).json({ message: `Room ${room.roomNumber} has only ${room.totalBeds} bed(s).` });
-
-    // Seat must be genuinely free (no live booking, no hold) — same rules the seat map uses.
-    const now = new Date();
-    const [liveBookings, holds] = await Promise.all([
-      Booking.find({ room: room._id, status: { $in: ["pending", "payment_pending", "confirmed", "active", "overdue"] } }).lean(),
-      BedBlock.find({ room: room._id, status: "active", from: { $lte: now }, to: { $gte: now } }).lean()
-    ]);
-    const seat = deriveSeatStates({ totalBeds: room.totalBeds, bookings: liveBookings.map((x) => ({ id: x._id, bedIndex: x.bedIndex, status: x.status, student: x.student })), bedBlocks: holds.map((h) => ({ id: h._id, bedIndex: h.bedIndex, reason: h.reason, note: h.note })) })[bed];
-    if (seat.status !== "free") return res.status(409).json({ message: `Seat ${bed + 1} in room ${room.roomNumber} is not free (${seat.status.replace("_", " ")}).` });
-
-    // Find or create the student login.
-    let student = await User.findOne({ $or: [{ phone: String(phone).trim() }, ...(email ? [{ email: String(email).toLowerCase().trim() }] : [])] });
-    let tempPassword = null;
-    if (student && student.role !== "student") return res.status(409).json({ message: "That phone/email belongs to a non-student account." });
-    if (!student) {
-      tempPassword = crypto.randomBytes(5).toString("hex");
-      const digits = String(phone).replace(/\D/g, "");
-      student = await User.create({
-        name: String(name).trim(),
-        phone: String(phone).trim(),
-        email: email ? String(email).toLowerCase().trim() : `${digits}@resident.basera.invalid`,
-        password: tempPassword,
-        role: "student",
-        isVerified: true,
-        emergencyContact: guardianPhone ? { name: guardianName, relationship: "guardian", phone: guardianPhone } : undefined
-      });
-    }
-    const existingStay = await Booking.exists({ student: student._id, status: { $in: ["confirmed", "active", "overdue", "pending", "payment_pending"] } });
-    if (existingStay) {
-      return res.status(409).json({ message: "This student already has an active or pending booking. Check them out first." });
-    }
-
-    // Take the bed from the marketplace atomically so it cannot also be booked online.
-    const taken = await Room.findOneAndUpdate({ _id: room._id, availableBeds: { $gt: 0 } }, { $inc: { availableBeds: -1 } }, { new: true });
-    if (!taken) {
-      if (tempPassword) await User.deleteOne({ _id: student._id }); // don't leave an orphan login behind
-      return res.status(409).json({ message: "The room already shows no free beds online. Fix the room's bed count first." });
-    }
-    if (taken.availableBeds === 0) await Room.updateOne({ _id: room._id }, { status: "FULL" });
-
-    let booking;
-    try {
-      booking = await Booking.create({
-        student: student._id,
-        hostel: req.params.id,
-        room: room._id,
-        bedIndex: bed,
-        checkIn: checkIn ? new Date(checkIn) : now,
-        moveInDate: checkIn ? new Date(checkIn) : now,
-        duration: "monthly",
-        bookingType: "MONTHLY",
-        totalRent: rent,
-        totalAmount: rent,
-        commission: 0,
-        ownerReceives: rent,
-        securityDeposit: 0,
-        paymentMethod: "cash",
-        paymentStatus: "paid",
-        status: "active",
-        specialRequests: "Admitted by hostel office (offline resident)."
-      });
-    } catch (err) {
-      // roll back the bed (and the login we just made) if the stay could not be saved
-      await Room.updateOne({ _id: room._id }, { $inc: { availableBeds: 1 }, status: "ACTIVE" });
-      if (tempPassword) await User.deleteOne({ _id: student._id });
-      throw err;
-    }
-
-    let guardian = null;
-    if (guardianPhone && phoneKey(guardianPhone).length >= 10) {
-      const code = crypto.randomBytes(4).toString("hex").toUpperCase();
-      try {
-        await ParentLink.create({ student: student._id, hostel: req.params.id, parentName: guardianName, parentPhone: guardianPhone, phoneKey: phoneKey(guardianPhone), status: "pending", inviteCode: code, inviteExpiresAt: new Date(Date.now() + 14 * 86400000), createdBy: req.user._id, source: "staff" });
-        guardian = { inviteCode: code };
-      } catch (err) {
-        if (err.code !== 11000) throw err;
-      }
-    }
-    res.status(201).json({
-      booking: { id: String(booking._id), room: room.roomNumber, bed: bed + 1 },
-      student: { id: String(student._id), name: student.name, phone: student.phone, email: tempPassword ? student.email : undefined },
-      // shown once, so the office can hand it to the student; the student should change it
-      tempPassword,
-      guardian
-    });
+    const { value, errors } = validateResident({ ...req.body, guardians: req.body.guardianPhone ? [{ name: req.body.guardianName, relation: "guardian", phone: req.body.guardianPhone }] : [] });
+    if (errors.length) return res.status(400).json({ message: errors[0], errors });
+    const { result } = await admitResident({ hostelId: req.params.id, value, actor: req.user, actorRole: canonicalRole(req.user.role), authorizeRoom: async () => true, loginByDefault: req.body.login !== false });
+    await recordAudit(req, { action: "resident.admitted", entityType: "Booking", entityId: result.booking.id, metadata: { hostelId: req.params.id, source: "offline" } }).catch(() => {});
+    res.status(201).json(result);
   } catch (error) {
+    if (error instanceof AdmitError || error instanceof FeeError) return res.status(error.code).json({ message: error.message });
     next(error);
   }
 });
@@ -294,13 +213,15 @@ router.post("/hostels/:id/residents/:bookingId/checkout", async (req, res, next)
 /** Seats, fee collection vs pending, complaints by status, staff and latest notices for one hostel. */
 async function hostelOverview(id) {
   const hostelId = new mongoose.Types.ObjectId(String(id));
-  const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  const { y, m } = clock.karachiParts(clock.now());
+  const monthStart = clock.karachiDate(y, m, 1);
+  await refreshOpenInvoices({ hostel: hostelId });
 
   const [seatMap, invoiceAgg, collectedMonth, complaintAgg, staffAgg, notices, residentRows] = await Promise.all([
     buildSeatMap({ hostelId: id, includeStudents: false }),
     FeeInvoice.aggregate([
       { $match: { hostel: hostelId, status: { $ne: "void" } } },
-      { $group: { _id: null, billed: { $sum: "$amount" }, collected: { $sum: "$paidAmount" }, unpaid: { $sum: { $cond: [{ $eq: ["$status", "unpaid"] }, 1, 0] } }, partial: { $sum: { $cond: [{ $eq: ["$status", "partial"] }, 1, 0] } }, paid: { $sum: { $cond: [{ $eq: ["$status", "paid"] }, 1, 0] } } } }
+      { $group: { _id: null, billed: { $sum: { $add: [{ $subtract: ["$amount", { $ifNull: ["$discountTotal", 0] }] }, { $subtract: [{ $ifNull: ["$fineAccrued", 0] }, { $ifNull: ["$fineWaived", 0] }] }] } }, collected: { $sum: { $add: ["$paidAmount", { $ifNull: ["$finePaid", 0] }] } }, outstanding: { $sum: DUE_EXPR }, discounts: { $sum: { $ifNull: ["$discountTotal", 0] } }, finesCharged: { $sum: { $ifNull: ["$fineAccrued", 0] } }, finesWaived: { $sum: { $ifNull: ["$fineWaived", 0] } }, unpaid: { $sum: { $cond: [{ $eq: ["$status", "unpaid"] }, 1, 0] } }, partial: { $sum: { $cond: [{ $eq: ["$status", "partial"] }, 1, 0] } }, paid: { $sum: { $cond: [{ $eq: ["$status", "paid"] }, 1, 0] } } } }
     ]),
     FeePayment.aggregate([{ $match: { hostel: hostelId, status: "confirmed", paidAt: { $gte: monthStart } } }, { $group: { _id: "$method", total: { $sum: "$amount" }, n: { $sum: 1 } } }]),
     Complaint.aggregate([{ $match: { hostel: hostelId } }, { $group: { _id: "$status", n: { $sum: 1 } } }]),
@@ -309,8 +230,8 @@ async function hostelOverview(id) {
     residents({ hostelId: id })
   ]);
 
-  const inv = invoiceAgg[0] || { billed: 0, collected: 0, unpaid: 0, partial: 0, paid: 0 };
-  const stale = new Date(Date.now() - 3 * 86400000);
+  const inv = invoiceAgg[0] || { billed: 0, collected: 0, outstanding: 0, discounts: 0, finesCharged: 0, finesWaived: 0, unpaid: 0, partial: 0, paid: 0 };
+  const stale = clock.addDays(clock.now(), -3);
   const overdueComplaints = await Complaint.countDocuments({ hostel: hostelId, status: { $in: ["raised", "under_review", "in_progress", "reopened", "escalated"] }, createdAt: { $lt: stale } });
   const toMap = (rows) => Object.fromEntries(rows.map((r) => [r._id, r.n]));
 
@@ -321,7 +242,9 @@ async function hostelOverview(id) {
     fees: {
       billed: inv.billed,
       collected: inv.collected,
-      outstanding: inv.billed - inv.collected,
+      outstanding: inv.outstanding,
+      discounts: inv.discounts,
+      fines: { charged: inv.finesCharged, waived: inv.finesWaived },
       invoices: { unpaid: inv.unpaid, partial: inv.partial, paid: inv.paid },
       collectedThisMonth: Object.fromEntries(collectedMonth.map((c) => [c._id, c.total])),
       collectedThisMonthTotal: collectedMonth.reduce((s, c) => s + c.total, 0)

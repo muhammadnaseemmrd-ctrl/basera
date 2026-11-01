@@ -87,6 +87,7 @@ const noticeRoutes = require("./routes/noticeRoutes");
 const parentPanelRoutes = require("./routes/parentPanelRoutes");
 const policyRoutes = require("./routes/policyRoutes");
 const devRoutes = require("./routes/devRoutes");
+const residentRoutes = require("./routes/residentRoutes");
 
 if (process.env.NODE_ENV === "production" && !process.env.JWT_SECRET) {
   console.error(
@@ -258,6 +259,7 @@ app.use("/api/v1/parent-panel", parentPanelRoutes);
 // Phase 2 hostel SaaS
 app.use("/api/v1/policies", policyRoutes);
 app.use("/api/v1/dev", devRoutes);
+app.use("/api/v1/residents", residentRoutes);
 app.use("/api/v1", v6AliasRoutes);
 
 app.use(notFound);

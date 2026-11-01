@@ -115,6 +115,13 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
+  // used after a managed resident claims their login (POST /residents/claim)
+  adoptSession: ({ token, user }) => {
+    localStorage.setItem("basera_token", token);
+    localStorage.setItem("basera_user", JSON.stringify(user));
+    set({ user, token, loading: false, error: "" });
+  },
+
   register: async (payload) => {
     set({ loading: true, error: "" });
     try {

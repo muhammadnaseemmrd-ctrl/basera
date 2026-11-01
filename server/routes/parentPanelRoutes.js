@@ -13,6 +13,7 @@ const Notice = require("../models/Notice");
 const { protect, authorize } = require("../middleware/auth");
 const requireDb = require("../middleware/requireDb");
 const { recordAudit } = require("../services/auditService");
+const { present, refreshOpenInvoices } = require("../services/feeService");
 const { phoneKey, toWhatsAppNumber } = require("../services/hostelOpsRules");
 const { staffScope, recordScope, wardenBlocks, residents, currentStay, parentStudentIds, isId, uid } = require("../services/hostelAccess");
 
@@ -174,15 +175,20 @@ async function requireOwnChild(req, res, next) {
 }
 
 async function childFees(studentId) {
+  await refreshOpenInvoices({ student: studentId });
   const [invoices, payments] = await Promise.all([
     FeeInvoice.find({ student: studentId, status: { $ne: "void" } }).sort({ dueDate: 1 }).lean(),
     FeePayment.find({ student: studentId, status: "confirmed" }).sort({ paidAt: -1 }).limit(50).lean()
   ]);
+  const views = invoices.map((i) => present(i));
   return {
-    billed: invoices.reduce((s, i) => s + i.amount, 0),
-    paid: invoices.reduce((s, i) => s + i.paidAmount, 0),
-    due: invoices.reduce((s, i) => s + (i.amount - i.paidAmount), 0),
-    invoices: invoices.map((i) => ({ id: String(i._id), title: i.title, period: i.period, amount: i.amount, paidAmount: i.paidAmount, balance: i.amount - i.paidAmount, status: i.status, dueDate: i.dueDate })),
+    billed: views.reduce((s, i) => s + i.amount, 0),
+    discounts: views.reduce((s, i) => s + i.discountTotal, 0),
+    fines: views.reduce((s, i) => s + i.fineAccrued - i.fineWaived, 0),
+    paid: views.reduce((s, i) => s + i.paidAmount + i.finePaid, 0),
+    due: views.reduce((s, i) => s + i.totalDue, 0),
+    // read-only view; fines/discount lines shown exactly as the student sees them
+    invoices: views.map((i) => ({ id: i.id, title: i.title, period: i.period, kind: i.kind, amount: i.amount, discountTotal: i.discountTotal, discounts: (i.discounts || []).map((d) => ({ name: d.name, amountOff: d.amountOff })), paidAmount: i.paidAmount, fineAccrued: i.fineAccrued, fineWaived: i.fineWaived, finePaid: i.finePaid, fineDue: i.fineDue, fineStatus: i.fineStatus, rentDue: i.rentDue, balance: i.totalDue, payTomorrow: i.payTomorrow, status: i.status, dueDate: i.dueDate })),
     // no screenshot links or staff phone numbers — receipt number + who signed is enough
     receipts: payments.map((p) => ({ id: String(p._id), receiptNo: p.receiptNo, amount: p.amount, method: p.method, paidAt: p.paidAt, receivedByName: p.receivedByName }))
   };

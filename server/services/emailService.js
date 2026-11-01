@@ -25,7 +25,17 @@ const branded = ({ subject, preview, body, ctaText, ctaUrl }) => {
   return { subject, preview, html, text };
 };
 
+const escHtml = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
 const templates = {
+  // generic hostel-operations event (fees, fines, leave, waivers, visitors...)
+  HOSTEL_EVENT: ({ title = "Hostel update", message = "", link } = {}) => branded({
+    subject: title,
+    preview: message,
+    body: `<p>${escHtml(message)}</p>`,
+    ctaText: "Open Basera",
+    ctaUrl: link || `${appUrl}/dashboard/student/hostel`
+  }),
   "E-01": ({ studentName = "Student" } = {}) => branded({
     subject: "Welcome to Basera - Verify Your Email",
     preview: "Your account is ready. Verify your email to start booking verified accommodation.",

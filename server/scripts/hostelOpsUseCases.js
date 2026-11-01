@@ -155,7 +155,7 @@ async function main() {
   check("UC8b", "Warden cannot read Block B seat map", wardenBlockB.status === 403, String(wardenBlockB.status));
 
   // ---------- fees ----------
-  const inv = await http("POST", "/fees/invoices", { token: ownerAT, body: { hostelId: String(hostelA._id), studentId: s1.id, title: "November rent", amount: 8000, kind: "rent", period: "2026-11", dueDate: "2026-11-10" } });
+  const inv = await http("POST", "/fees/invoices", { token: ownerAT, body: { hostelId: String(hostelA._id), studentId: s1.id, title: "November rent", amount: 8000, kind: "rent", period: "2026-11", dueDate: new Date(Date.now() + 10 * 86400000).toISOString().slice(0, 10) } });
   check("UC4a", "Owner raises an 8,000 rent invoice for Ali", inv.status === 201, `${inv.status} ${inv.data?.message || ""}`);
   const invoiceId = inv.data?.invoice?.id;
   const dup = await http("POST", "/fees/invoices", { token: ownerAT, body: { hostelId: String(hostelA._id), studentId: s1.id, title: "November rent", amount: 8000, kind: "rent", period: "2026-11" } });

@@ -233,6 +233,8 @@ router.post(
       }
 
       if (user.isBanned) return res.status(403).json({ message: "This account has been disabled. Contact the hostel office." });
+      // managed resident registered by the hostel office who hasn't claimed a login yet
+      if (user.loginEnabled === false) return res.status(403).json({ message: "This account is not activated yet. Use the invite code from your hostel office to set it up." });
       return res.json({ user: publicUser(user), token: generateToken(user) });
     } catch (error) {
       return next(error);

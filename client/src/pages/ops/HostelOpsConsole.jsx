@@ -6,6 +6,7 @@ import { downloadApiPdf } from "../../utils/downloadFile";
 import { ComplaintTimeline, Notice, Pill, SeatBlocks, SeatLegend, Tabs } from "./opsUi";
 import { dateShort, errMsg, money, uploadProof, useLoad } from "./opsHelpers";
 import { PoliciesTab } from "./PoliciesTab";
+import { ResidentsTab } from "./ResidentsTab";
 
 const open = (url) => window.open(url, "_blank", "noopener,noreferrer");
 
@@ -723,8 +724,8 @@ export function HostelOpsConsole({ mode }) {
   const loadError = isHead ? hostels.error : myBlocks.error;
 
   const tabs = isHead
-    ? [["overview", "Overview"], ["setup", "Setup & residents"], ["seats", "Seats"], ["fees", "Fees & receipts"], ["complaints", "Complaints"], ["staff", "Staff"], ["parents", "Parents"], ["notices", "Notices"], ["policies", "Policies"]]
-    : [["seats", "Seats"], ["fees", "Collect fees"], ["complaints", "Complaints"], ["parents", "Parents"], ["notices", "Notices"], ["policies", "Policy"]];
+    ? [["overview", "Overview"], ["setup", "Setup"], ["residents", "Residents"], ["seats", "Seats"], ["fees", "Fees & receipts"], ["complaints", "Complaints"], ["staff", "Staff"], ["parents", "Parents"], ["notices", "Notices"], ["policies", "Policies"]]
+    : [["seats", "Seats"], ["residents", "Register students"], ["fees", "Collect fees"], ["complaints", "Complaints"], ["parents", "Parents"], ["notices", "Notices"], ["policies", "Policy"]];
   const scopeBlock = isHead ? blockFilter : "";
 
   return (
@@ -755,7 +756,7 @@ export function HostelOpsConsole({ mode }) {
         ) : (
           <>
             <Tabs tabs={tabs} value={tab} onChange={setTab} />
-            {isHead && ["fees", "complaints", "parents"].includes(tab) && blocks.length > 1 ? (
+            {isHead && ["fees", "complaints", "parents", "residents"].includes(tab) && blocks.length > 1 ? (
               <select className="input mb-4 max-w-xs" value={blockFilter} onChange={(e) => setBlockFilter(e.target.value)} aria-label="Block filter">
                 <option value="">All blocks</option>
                 {blocks.map((b) => <option key={b.id || b._id} value={b.id || b._id}>{b.name}</option>)}
@@ -775,6 +776,7 @@ export function HostelOpsConsole({ mode }) {
             {tab === "parents" ? <Parents hostelId={hostelId} blockId={scopeBlock} /> : null}
             {tab === "notices" ? <Notices hostelId={hostelId} blocks={blocks} mode={mode} /> : null}
             {tab === "policies" ? <PoliciesTab hostelId={hostelId} /> : null}
+            {tab === "residents" ? <ResidentsTab hostelId={hostelId} blockId={scopeBlock} mode={mode} /> : null}
           </>
         )}
       </main>

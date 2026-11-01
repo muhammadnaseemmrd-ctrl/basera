@@ -7,17 +7,15 @@ const FeePayment = require("../models/FeePayment");
 const Hostel = require("../models/Hostel");
 const Block = require("../models/Block");
 const User = require("../models/User");
-const Counter = require("../models/Counter");
+const clock = require("../services/clock");
+const { FeeError, present, refreshInvoice, refreshOpenInvoices, createInvoice, recordPayment, reversePaymentOnInvoice, DUE_EXPR } = require("../services/feeService");
+const { reserveAutoOffers, reverseRedemptionsForPayment, eligibleOffersFor } = require("../services/offerService");
+const { emitInvoiceIssued, emitPaymentReceived } = require("../services/hostelEvents");
 const { protect, authorize, canonicalRole } = require("../middleware/auth");
 const requireDb = require("../middleware/requireDb");
 const { recordAudit } = require("../services/auditService");
-const {
-  validateFeePayment,
-  formatReceiptNo,
-  invoiceStatus,
-  buildReceiptWhatsApp
-} = require("../services/hostelOpsRules");
-const { canManageHostel, staffScope, recordScope, wardenBlocks, residents, parentStudentIds, isId, uid } = require("../services/hostelAccess");
+const { buildReceiptWhatsApp } = require("../services/hostelOpsRules");
+const { canManageHostel, staffScope, recordScope, wardenBlocks, residents, parentStudentIds, blockInHostel, isId, uid } = require("../services/hostelAccess");
 
 const router = express.Router();
 
@@ -89,33 +87,16 @@ async function stayForBilling(req, hostelId, studentId) {
 router.post("/invoices", authorize("host", "admin", "warden"), async (req, res, next) => {
   try {
     const { hostelId, studentId, title, amount, kind = "rent", period, dueDate } = req.body;
-    const amt = Number(amount);
     if (!isId(hostelId) || !isId(studentId)) return res.status(400).json({ message: "hostelId and studentId are required." });
-    if (!title || !Number.isInteger(amt) || amt <= 0) return res.status(400).json({ message: "A title and a positive whole-number amount are required." });
+    if (!title || !Number.isInteger(amount) || amount <= 0) return res.status(400).json({ message: "A title and a positive whole-number amount are required." });
     const found = await stayForBilling(req, hostelId, studentId);
     if (found.error) return res.status(found.error.code).json({ message: found.error.message });
-    try {
-      const invoice = await FeeInvoice.create({
-        hostel: hostelId,
-        block: found.blockId,
-        room: found.row.room?._id,
-        bedIndex: found.row.bedIndex,
-        student: studentId,
-        booking: found.row._id,
-        title,
-        kind,
-        period,
-        amount: amt,
-        dueDate: dueDate ? new Date(dueDate) : undefined,
-        createdBy: uid(req.user)
-      });
-      await audit(req, { action: "fee.invoice.created", entityType: "FeeInvoice", entityId: invoice._id, metadata: { amount: amt, kind, period } });
-      return res.status(201).json({ invoice: shape(invoice) });
-    } catch (error) {
-      if (error.code === 11000) return res.status(409).json({ message: "This student already has an invoice of that kind for that period." });
-      throw error;
-    }
+    const invoice = await createInvoice({ hostel: hostelId, block: found.blockId, room: found.row.room?._id, bedIndex: found.row.bedIndex, student: studentId, booking: found.row._id, title, kind, period, amount, dueDate, createdBy: uid(req.user) });
+    await audit(req, { action: "fee.invoice.created", entityType: "FeeInvoice", entityId: invoice._id, metadata: { amount, kind, period, finePerDay: invoice.finePerDay, dueDate: invoice.dueDate } });
+    await emitInvoiceIssued(invoice);
+    return res.status(201).json({ invoice: present(invoice) });
   } catch (error) {
+    if (error instanceof FeeError) return res.status(error.code).json({ message: error.message });
     return next(error);
   }
 });
@@ -124,61 +105,57 @@ router.post("/invoices", authorize("host", "admin", "warden"), async (req, res, 
 router.post("/invoices/bulk", authorize("host", "admin"), async (req, res, next) => {
   try {
     const { hostelId, blockId, title, amount, kind = "rent", period, dueDate } = req.body;
-    const amt = Number(amount);
     if (!isId(hostelId) || !(await canManageHostel(req.user, hostelId))) return res.status(403).json({ message: "You do not manage this hostel." });
-    if (!title || !Number.isInteger(amt) || amt <= 0) return res.status(400).json({ message: "A title and a positive whole-number amount are required." });
+    if (!title || !Number.isInteger(amount) || amount <= 0) return res.status(400).json({ message: "A title and a positive whole-number amount are required." });
     if (!period) return res.status(400).json({ message: "period (e.g. 2026-11) is required for bulk billing to prevent double charging." });
+    if (blockId && !(await blockInHostel(blockId, hostelId))) return res.status(400).json({ message: "That block does not belong to this hostel." });
     const rows = (await residents({ hostelId, blockId: blockId && isId(blockId) ? blockId : undefined })).filter((r) => r.student);
     let created = 0;
     let skipped = 0;
     for (const row of rows) {
       try {
-        await FeeInvoice.create({
-          hostel: hostelId,
-          block: row.room?.blockId || null,
-          room: row.room?._id,
-          bedIndex: row.bedIndex,
-          student: row.student._id,
-          booking: row._id,
-          title,
-          kind,
-          period,
-          amount: amt,
-          dueDate: dueDate ? new Date(dueDate) : undefined,
-          createdBy: uid(req.user)
-        });
+        const invoice = await createInvoice({ hostel: hostelId, block: row.room?.blockId || null, room: row.room?._id, bedIndex: row.bedIndex, student: row.student._id, booking: row._id, title, kind, period, amount, dueDate, createdBy: uid(req.user) });
+        await emitInvoiceIssued(invoice);
         created += 1;
       } catch (error) {
-        if (error.code === 11000) skipped += 1;
+        if (error instanceof FeeError && error.code === 409) skipped += 1;
         else throw error;
       }
     }
-    await audit(req, { action: "fee.invoice.bulk", entityType: "Hostel", entityId: hostelId, metadata: { created, skipped, amount: amt, period } });
+    await audit(req, { action: "fee.invoice.bulk", entityType: "Hostel", entityId: hostelId, metadata: { created, skipped, amount, period } });
     return res.status(201).json({ created, skipped, residents: rows.length });
   } catch (error) {
+    if (error instanceof FeeError) return res.status(error.code).json({ message: error.message });
     return next(error);
   }
 });
+
+/** Hostel query for a staff list, narrowed to a warden's own blocks. Returns null when forbidden. */
+async function staffListQuery(req, hostelId, blockId) {
+  const scope = await staffScope(req.user, { hostelId, blockId: blockId && isId(blockId) ? blockId : undefined });
+  if (!scope) return null;
+  const query = { hostel: hostelId };
+  if (scope === "warden") {
+    const own = (await wardenBlocks(req.user)).filter((b) => String(b.hostelId) === String(hostelId)).map((b) => b._id);
+    if (blockId && isId(blockId) && !own.some((b) => String(b) === String(blockId))) return null;
+    query.block = blockId && isId(blockId) ? blockId : { $in: own };
+  } else if (blockId && isId(blockId)) {
+    query.block = blockId;
+  }
+  return query;
+}
 
 router.get("/invoices", authorize("host", "admin", "warden"), async (req, res, next) => {
   try {
     const { hostelId, blockId, status, studentId } = req.query;
     if (!isId(hostelId)) return res.status(400).json({ message: "hostelId is required." });
-    const scope = await staffScope(req.user, { hostelId, blockId: blockId && isId(blockId) ? blockId : undefined });
-    if (!scope) return res.status(403).json({ message: "No access to this hostel/block." });
-    const query = { hostel: hostelId };
-    if (scope === "warden") {
-      // wardens only ever see their own blocks
-      const own = (await wardenBlocks(req.user)).filter((b) => String(b.hostelId) === String(hostelId)).map((b) => b._id);
-      query.block = blockId && isId(blockId) ? blockId : { $in: own };
-      if (blockId && !own.some((b) => String(b) === String(blockId))) return res.status(403).json({ message: "Not your block." });
-    } else if (blockId && isId(blockId)) {
-      query.block = blockId;
-    }
-    if (status) query.status = status;
+    const query = await staffListQuery(req, hostelId, blockId);
+    if (!query) return res.status(403).json({ message: "No access to this hostel/block." });
     if (studentId && isId(studentId)) query.student = studentId;
+    await refreshOpenInvoices(query);
+    if (status) query.status = status;
     const results = await FeeInvoice.find(query).populate("student", "name phone").sort({ dueDate: 1, createdAt: -1 }).limit(500).lean();
-    return res.json({ results: results.map((i) => ({ ...i, id: String(i._id), balance: i.amount - i.paidAmount })) });
+    return res.json({ results: results.map((i) => present(i)) });
   } catch (error) {
     return next(error);
   }
@@ -196,11 +173,15 @@ router.get("/students", authorize("host", "admin", "warden"), async (req, res, n
       const own = new Set((await wardenBlocks(req.user)).filter((b) => String(b.hostelId) === String(hostelId)).map((b) => String(b._id)));
       rows = rows.filter((r) => r.room?.blockId && own.has(String(r.room.blockId)));
     }
+    const studentIds = rows.map((r) => r.student._id);
+    await refreshOpenInvoices({ hostel: hostelId, student: { $in: studentIds } });
     const due = await FeeInvoice.aggregate([
-      { $match: { hostel: new mongoose.Types.ObjectId(hostelId), student: { $in: rows.map((r) => r.student._id) }, status: { $in: ["unpaid", "partial"] } } },
-      { $group: { _id: "$student", due: { $sum: { $subtract: ["$amount", "$paidAmount"] } } } }
+      { $match: { hostel: new mongoose.Types.ObjectId(hostelId), student: { $in: studentIds }, status: { $in: ["unpaid", "partial"] } } },
+      { $group: { _id: "$student", due: { $sum: DUE_EXPR } } }
     ]);
     const dueBy = Object.fromEntries(due.map((d) => [String(d._id), d.due]));
+    const users = await User.find({ _id: { $in: studentIds } }).select("loginEnabled").lean();
+    const loginBy = Object.fromEntries(users.map((u) => [String(u._id), u.loginEnabled !== false]));
     return res.json({
       results: rows.map((r) => ({
         studentId: String(r.student._id),
@@ -209,6 +190,8 @@ router.get("/students", authorize("host", "admin", "warden"), async (req, res, n
         roomNumber: r.room?.roomNumber,
         blockId: r.room?.blockId ? String(r.room.blockId) : null,
         bedIndex: r.bedIndex ?? null,
+        source: r.source || "online",
+        loginEnabled: loginBy[String(r.student._id)] ?? true,
         balanceDue: dueBy[String(r.student._id)] || 0
       }))
     });
@@ -223,10 +206,32 @@ router.post("/invoices/:id/void", authorize("host", "admin"), async (req, res, n
     if (!invoice) return res.status(404).json({ message: "Invoice not found." });
     if (!(await canManageHostel(req.user, invoice.hostel))) return res.status(403).json({ message: "You do not manage this hostel." });
     if (!String(req.body.reason || "").trim()) return res.status(400).json({ message: "A reason is required." });
-    const updated = await FeeInvoice.findOneAndUpdate({ _id: invoice._id, paidAmount: 0, status: { $ne: "void" } }, { status: "void", voidReason: req.body.reason }, { new: true });
+    const updated = await FeeInvoice.findOneAndUpdate({ _id: invoice._id, paidAmount: 0, finePaid: 0, status: { $ne: "void" } }, { status: "void", voidReason: req.body.reason }, { new: true });
     if (!updated) return res.status(409).json({ message: "Only unpaid invoices can be voided. Void the payments first." });
     await audit(req, { action: "fee.invoice.voided", entityType: "FeeInvoice", entityId: invoice._id, metadata: { reason: req.body.reason } });
-    return res.json({ invoice: shape(updated) });
+    return res.json({ invoice: present(updated) });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+/** Who may see an invoice: its student, a linked parent, or staff of that block. */
+async function invoiceAccess(req, invoice) {
+  const studentId = String(invoice.student?._id || invoice.student);
+  if (studentId === uid(req.user)) return "student";
+  if (canonicalRole(req.user.role) === "parent") return (await parentStudentIds(req.user)).includes(studentId) ? "parent" : null;
+  return recordScope(req.user, { hostelId: invoice.hostel, blockId: invoice.block });
+}
+
+// Exact amount to clear everything today, and tomorrow (fine may grow overnight).
+router.get("/invoices/:id/quote", async (req, res, next) => {
+  try {
+    let invoice = isId(req.params.id) ? await FeeInvoice.findById(req.params.id) : null;
+    if (!invoice) return res.status(404).json({ message: "Invoice not found." });
+    if (!(await invoiceAccess(req, invoice))) return res.status(403).json({ message: "No access to this invoice." });
+    invoice = await refreshInvoice(invoice);
+    const offers = await eligibleOffersFor(invoice).catch(() => []);
+    return res.json({ invoice: present(invoice), eligibleOffers: offers });
   } catch (error) {
     return next(error);
   }
@@ -235,72 +240,32 @@ router.post("/invoices/:id/void", authorize("host", "admin"), async (req, res, n
 // ---------- payments ----------
 
 router.post("/invoices/:id/payments", authorize("host", "admin", "warden"), async (req, res, next) => {
-  let payment = null;
   try {
     const invoice = isId(req.params.id) ? await FeeInvoice.findById(req.params.id) : null;
     if (!invoice) return res.status(404).json({ message: "Invoice not found." });
     const scope = await recordScope(req.user, { hostelId: invoice.hostel, blockId: invoice.block });
     if (!scope) return res.status(403).json({ message: "You cannot collect fees for this block." });
-    if (invoice.status === "void") return res.status(409).json({ message: "This invoice is void." });
 
     const { amount, method, transactionId, screenshotUrl, bankName, note, paidAt } = req.body;
-    const problem = validateFeePayment({
+    const { payment, invoice: updated } = await recordPayment({
+      invoiceId: invoice._id,
+      actor: req.user,
+      actorRole: canonicalRole(req.user.role),
       amount,
       method,
       transactionId,
       screenshotUrl,
-      receivedBy: uid(req.user),
-      balance: invoice.amount - invoice.paidAmount
+      bankName,
+      note,
+      paidAt,
+      beforeAllocate: (inv) => reserveAutoOffers(inv, { amount: Number(amount), actor: req.user })
     });
-    if (problem) return res.status(400).json({ message: problem });
-    const amt = Number(amount);
-
-    const seq = await Counter.next(`receipt-${new Date().getFullYear()}`);
-    const receiptNo = formatReceiptNo(new Date().getFullYear(), seq);
-
-    // 1) Insert the receipt first: the partial unique index (hostel + transactionId) rejects reused bank IDs.
-    try {
-      payment = await FeePayment.create({
-        invoice: invoice._id,
-        hostel: invoice.hostel,
-        block: invoice.block,
-        student: invoice.student,
-        amount: amt,
-        method,
-        bankName,
-        transactionId: transactionId ? String(transactionId).trim() : undefined,
-        screenshotUrl,
-        receivedBy: uid(req.user),
-        receivedByName: req.user.name,
-        receivedByRole: canonicalRole(req.user.role),
-        receiptNo,
-        note,
-        paidAt: paidAt ? new Date(paidAt) : new Date()
-      });
-    } catch (error) {
-      if (error.code === 11000) return res.status(409).json({ message: "That transaction ID has already been used for another receipt." });
-      throw error;
-    }
-
-    // 2) Atomically move the balance; the guard filter stops two concurrent payments from overpaying.
-    const updated = await FeeInvoice.findOneAndUpdate(
-      { _id: invoice._id, status: { $ne: "void" }, $expr: { $gte: [{ $subtract: ["$amount", "$paidAmount"] }, amt] } },
-      [
-        { $set: { paidAmount: { $add: ["$paidAmount", amt] } } },
-        { $set: { status: { $cond: [{ $gte: ["$paidAmount", "$amount"] }, "paid", "partial"] } } }
-      ],
-      // Mongoose 9 refuses array (pipeline) updates unless this is set explicitly.
-      { new: true, updatePipeline: true }
-    );
-    if (!updated) {
-      await FeePayment.deleteOne({ _id: payment._id });
-      return res.status(409).json({ message: "Balance changed while recording — refresh and try again." });
-    }
-
-    await audit(req, { action: "fee.payment.recorded", entityType: "FeePayment", entityId: payment._id, metadata: { amount: amt, method, receiptNo, invoice: String(invoice._id) } });
-    return res.status(201).json({ payment: shape(payment), invoice: shape(updated), balance: updated.amount - updated.paidAmount, receiptNo });
+    const view = present(updated);
+    await audit(req, { action: "fee.payment.recorded", entityType: "FeePayment", entityId: payment._id, metadata: { amount: payment.amount, method, receiptNo: payment.receiptNo, invoice: String(invoice._id), rentPortion: payment.rentPortion, finePortion: payment.finePortion, discount: payment.discountApplied } });
+    await emitPaymentReceived(payment, view);
+    return res.status(201).json({ payment: shape(payment), invoice: view, balance: view.totalDue, receiptNo: payment.receiptNo });
   } catch (error) {
-    if (payment) await FeePayment.deleteOne({ _id: payment._id }).catch(() => {});
+    if (error instanceof FeeError) return res.status(error.code).json({ message: error.message });
     return next(error);
   }
 });
@@ -313,20 +278,14 @@ router.post("/payments/:id/void", authorize("host", "admin"), async (req, res, n
     if (!String(req.body.reason || "").trim()) return res.status(400).json({ message: "A reason is required." });
     const voided = await FeePayment.findOneAndUpdate(
       { _id: payment._id, status: "confirmed" },
-      { status: "void", voidReason: req.body.reason, voidedBy: uid(req.user), voidedAt: new Date() },
+      { status: "void", voidReason: req.body.reason, voidedBy: uid(req.user), voidedAt: clock.now() },
       { new: true }
     );
     if (!voided) return res.status(409).json({ message: "Payment is already void." });
-    const invoice = await FeeInvoice.findOneAndUpdate(
-      { _id: payment.invoice },
-      [
-        { $set: { paidAmount: { $max: [0, { $subtract: ["$paidAmount", payment.amount] }] } } },
-        { $set: { status: { $cond: [{ $eq: ["$status", "void"] }, "void", { $cond: [{ $lte: ["$paidAmount", 0] }, "unpaid", { $cond: [{ $gte: ["$paidAmount", "$amount"] }, "paid", "partial"] }] }] } } }
-      ],
-      { new: true, updatePipeline: true }
-    );
-    await audit(req, { action: "fee.payment.voided", entityType: "FeePayment", entityId: payment._id, metadata: { reason: req.body.reason, receiptNo: payment.receiptNo } });
-    return res.json({ payment: shape(voided), invoice: invoice ? shape(invoice) : null });
+    const invoice = await reversePaymentOnInvoice(voided);
+    const reversed = await reverseRedemptionsForPayment(voided, { actor: req.user, reason: `Payment ${voided.receiptNo} voided: ${req.body.reason}` });
+    await audit(req, { action: "fee.payment.voided", entityType: "FeePayment", entityId: payment._id, metadata: { reason: req.body.reason, receiptNo: payment.receiptNo, redemptionsReversed: reversed } });
+    return res.json({ payment: shape(voided), invoice: invoice ? present(invoice) : null, redemptionsReversed: reversed });
   } catch (error) {
     return next(error);
   }
@@ -336,16 +295,8 @@ router.get("/payments", authorize("host", "admin", "warden"), async (req, res, n
   try {
     const { hostelId, blockId } = req.query;
     if (!isId(hostelId)) return res.status(400).json({ message: "hostelId is required." });
-    const scope = await staffScope(req.user, { hostelId, blockId: blockId && isId(blockId) ? blockId : undefined });
-    if (!scope) return res.status(403).json({ message: "No access to this hostel/block." });
-    const query = { hostel: hostelId };
-    if (scope === "warden") {
-      const own = (await wardenBlocks(req.user)).filter((b) => String(b.hostelId) === String(hostelId)).map((b) => b._id);
-      if (blockId && isId(blockId) && !own.some((b) => String(b) === String(blockId))) return res.status(403).json({ message: "Not your block." });
-      query.block = blockId && isId(blockId) ? blockId : { $in: own };
-    } else if (blockId && isId(blockId)) {
-      query.block = blockId;
-    }
+    const query = await staffListQuery(req, hostelId, blockId);
+    if (!query) return res.status(403).json({ message: "No access to this hostel/block." });
     const results = await FeePayment.find(query).populate("student", "name").sort({ createdAt: -1 }).limit(200).lean();
     return res.json({ results: results.map((p) => ({ ...p, id: String(p._id) })) });
   } catch (error) {
@@ -353,15 +304,22 @@ router.get("/payments", authorize("host", "admin", "warden"), async (req, res, n
   }
 });
 
-// Student: own invoices + receipts
+// Student: own invoices + receipts (fines refreshed as of today)
 router.get("/my", async (req, res, next) => {
   try {
+    await refreshOpenInvoices({ student: uid(req.user) });
     const invoices = await FeeInvoice.find({ student: uid(req.user), status: { $ne: "void" } }).sort({ dueDate: 1 }).lean();
     const payments = await FeePayment.find({ student: uid(req.user), status: "confirmed" }).sort({ paidAt: -1 }).limit(100).lean();
-    const due = invoices.reduce((s, i) => s + (i.amount - i.paidAmount), 0);
+    const views = invoices.map((i) => present(i));
     return res.json({
-      totals: { billed: invoices.reduce((s, i) => s + i.amount, 0), paid: invoices.reduce((s, i) => s + i.paidAmount, 0), due },
-      invoices: invoices.map((i) => ({ ...i, id: String(i._id), balance: i.amount - i.paidAmount })),
+      totals: {
+        billed: views.reduce((s, i) => s + i.amount, 0),
+        discounts: views.reduce((s, i) => s + i.discountTotal, 0),
+        fines: views.reduce((s, i) => s + i.fineAccrued - i.fineWaived, 0),
+        paid: views.reduce((s, i) => s + i.paidAmount + i.finePaid, 0),
+        due: views.reduce((s, i) => s + i.totalDue, 0)
+      },
+      invoices: views,
       payments: payments.map((p) => ({ ...p, id: String(p._id), screenshotUrl: undefined }))
     });
   } catch (error) {
@@ -384,14 +342,15 @@ async function paymentAccess(req, payment) {
 
 router.get("/payments/:id/receipt.pdf", async (req, res, next) => {
   try {
-    const payment = isId(req.params.id) ? await FeePayment.findById(req.params.id).populate("student", "name").populate("invoice", "title period amount paidAmount") : null;
+    const payment = isId(req.params.id) ? await FeePayment.findById(req.params.id).populate("student", "name").populate("invoice") : null;
     if (!payment) return res.status(404).json({ message: "Receipt not found." });
     if (!(await paymentAccess(req, payment))) return res.status(403).json({ message: "No access to this receipt." });
 
     const [hostel, block] = await Promise.all([Hostel.findById(payment.hostel).select("name address city contactPhone").lean(), payment.block ? Block.findById(payment.block).select("name").lean() : null]);
     const url = verifyUrl(req, payment.receiptNo);
     const qr = Buffer.from((await QRCode.toDataURL(url, { margin: 1, width: 160 })).split(",")[1], "base64");
-    const balance = payment.invoice ? payment.invoice.amount - payment.invoice.paidAmount : 0;
+    const invView = payment.invoice ? present(payment.invoice) : null;
+    const balance = invView ? invView.totalDue : 0;
 
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `inline; filename="${payment.receiptNo}.pdf"`);
@@ -411,6 +370,9 @@ router.get("/payments/:id/receipt.pdf", async (req, res, next) => {
       ["Block", block?.name || "-"],
       ["For", [payment.invoice?.title, payment.invoice?.period].filter(Boolean).join(" · ")],
       ["Amount received", money(payment.amount)],
+      ...(payment.finePortion ? [["  of which rent", money(payment.rentPortion)], ["  of which late fine", money(payment.finePortion)]] : []),
+      ...(invView?.discounts || []).map((d) => [`Discount: ${d.name}`, `-${money(d.amountOff)}`]),
+      ...(invView && invView.fineWaived ? [["Fine waived", `-${money(invView.fineWaived)}`]] : []),
       ["Method", String(payment.method).replace(/_/g, " ")],
       ["Transaction ID", payment.transactionId || (payment.method === "cash" ? "Cash" : "See attached screenshot")],
       ["Received by", payment.receivedByName || "-"],
@@ -448,11 +410,11 @@ async function receiptWhatsApp(req, res, next) {
       hostelName: hostel?.name,
       receiptNo: payment.receiptNo,
       amount: payment.amount,
-      balance: invoice ? invoice.amount - invoice.paidAmount : 0,
+      balance: invoice ? present(invoice).totalDue : 0,
       verifyUrl: verifyUrl(req, payment.receiptNo)
     });
     if (!whatsapp.number) return res.status(422).json({ message: "The student has no valid phone number on file." });
-    await FeePayment.updateOne({ _id: payment._id }, { whatsappSharedAt: new Date() });
+    await FeePayment.updateOne({ _id: payment._id }, { whatsappSharedAt: clock.now() });
     return res.json({ ...whatsapp, receiptNo: payment.receiptNo });
   } catch (error) {
     return next(error);

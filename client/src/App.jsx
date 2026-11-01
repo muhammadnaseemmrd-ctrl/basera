@@ -31,6 +31,7 @@ const LandlordDashboard = lazyPage(() => import("./pages/LandlordDashboard"), "L
 const ListerOnboardingPage = lazyPage(() => import("./pages/ListerOnboardingPage"), "ListerOnboardingPage");
 const AdminDashboard = lazyPage(() => import("./pages/AdminDashboard"), "AdminDashboard");
 const AuthPage = lazyPage(() => import("./pages/AuthPage"), "AuthPage");
+const ClaimAccountPage = lazyPage(() => import("./pages/ClaimAccountPage"), "ClaimAccountPage");
 const StaticPage = lazyPage(() => import("./pages/StaticPage"), "StaticPage");
 const AboutPage = lazyPage(() => import("./pages/AboutPage"), "AboutPage");
 const ReceiptVerifyPage = lazyPage(() => import("./pages/ReceiptVerifyPage"), "ReceiptVerifyPage");
@@ -82,6 +83,7 @@ export default function App() {
             <Route path="/stays" element={<StaysSearchPage />} />
             <Route path="/stays/:id" element={<StayDetailPage />} />
             <Route path="/login" element={<AuthPage />} />
+            <Route path="/claim" element={<ClaimAccountPage />} />
             <Route path="/landlord/onboarding" element={<ListerOnboardingPage />} />
             <Route path="/verify/:receiptId" element={<ReceiptVerifyPage />} />
             <Route path="/parent/:token" element={<ParentPortalPage />} />

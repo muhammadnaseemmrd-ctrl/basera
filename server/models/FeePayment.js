@@ -7,6 +7,12 @@ const feePaymentSchema = new mongoose.Schema(
     block: { type: mongoose.Schema.Types.ObjectId, ref: "Block", default: null },
     student: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     amount: { type: Number, required: true, min: 1 },
+    // how this payment was split (policy feeAllocation at payment time)
+    rentPortion: { type: Number, default: 0, min: 0 },
+    finePortion: { type: Number, default: 0, min: 0 },
+    // discount granted at payment time (e.g. early payment), shown on the receipt
+    discountApplied: { type: Number, default: 0, min: 0 },
+    redemptions: [{ type: mongoose.Schema.Types.ObjectId, ref: "OfferRedemption" }],
     method: { type: String, enum: ["cash", "bank_transfer", "jazzcash", "easypaisa", "cheque"], required: true },
     bankName: String,
     transactionId: { type: String, trim: true },
