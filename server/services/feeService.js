@@ -6,7 +6,7 @@ const Counter = require("../models/Counter");
 const clock = require("./clock");
 const { effectivePolicy } = require("./policyService");
 const { validateFeePayment, formatReceiptNo } = require("./hostelOpsRules");
-const { computeFine, invoiceTotals, invoiceStatusFor, fineStatusFor, allocatePayment } = require("./policyRules");
+const { computeFine, invoiceTotals, invoiceStatusFor, fineStatusFor, allocatePayment, checkWaiverAmount } = require("./policyRules");
 
 class FeeError extends Error {
   constructor(code, message) {
@@ -234,6 +234,37 @@ async function reversePaymentOnInvoice(payment) {
   );
 }
 
+/**
+ * Waive part or all of an invoice's unpaid fine. Never more than is waivable *now*
+ * (accrued − waived − paid, after a fresh recompute). With `freeze`, accrual stops today.
+ * Guarded by the exact fine figures read, so two approvals can't both land.
+ */
+async function applyWaiver({ invoiceId, amount, freeze = false }) {
+  let invoice = await FeeInvoice.findById(invoiceId);
+  if (!invoice) throw new FeeError(404, "Invoice not found.");
+  if (invoice.status === "void") throw new FeeError(409, "This invoice is void.");
+  invoice = await refreshInvoice(invoice);
+  const verdict = checkWaiverAmount({ requested: amount, fineAccrued: invoice.fineAccrued, fineWaived: invoice.fineWaived, finePaid: invoice.finePaid });
+  if (!verdict.ok) throw new FeeError(verdict.code, verdict.message);
+  const now = clock.now();
+  const after = { ...invoice.toObject(), fineWaived: (invoice.fineWaived || 0) + verdict.amount, fineFrozenAt: freeze ? now : invoice.fineFrozenAt };
+  const p = project(after, now);
+  const $set = { status: p.status, fineStatus: p.fineStatus, fineAsOf: now };
+  if (freeze && !invoice.fineFrozenAt) $set.fineFrozenAt = now;
+  const updated = await FeeInvoice.findOneAndUpdate(
+    { _id: invoice._id, status: { $ne: "void" }, fineAccrued: invoice.fineAccrued, fineWaived: invoice.fineWaived || 0, finePaid: invoice.finePaid || 0 },
+    { $inc: { fineWaived: verdict.amount }, $set },
+    { new: true }
+  );
+  if (!updated) throw new FeeError(409, "The fine changed while waiving — refresh and try again.");
+  return { invoice: updated, amount: verdict.amount };
+}
+
+/** Undo a waiver (used only to roll back a decision that could not be recorded). */
+async function revertWaiver(invoiceId, amount) {
+  return FeeInvoice.updateOne({ _id: invoiceId, fineWaived: { $gte: amount } }, { $inc: { fineWaived: -amount } });
+}
+
 /** Mongo expression: outstanding = rent left + fine left (uses stored, refreshed values). */
 const DUE_EXPR = {
   $add: [
@@ -242,4 +273,4 @@ const DUE_EXPR = {
   ]
 };
 
-module.exports = { FeeError, fineAsOf, project, present, refreshInvoice, refreshOpenInvoices, createInvoice, recordPayment, reversePaymentOnInvoice, DUE_EXPR };
+module.exports = { FeeError, fineAsOf, project, present, refreshInvoice, refreshOpenInvoices, createInvoice, recordPayment, reversePaymentOnInvoice, applyWaiver, revertWaiver, DUE_EXPR };

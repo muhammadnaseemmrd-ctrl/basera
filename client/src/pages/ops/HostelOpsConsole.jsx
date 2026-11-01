@@ -3,10 +3,11 @@ import { Helmet } from "react-helmet-async";
 import { Building2, ShieldAlert } from "lucide-react";
 import { api } from "../../services/api";
 import { downloadApiPdf } from "../../utils/downloadFile";
-import { ComplaintTimeline, Notice, Pill, SeatBlocks, SeatLegend, Tabs } from "./opsUi";
+import { ComplaintTimeline, InvoiceBreakdown, Notice, Pill, SeatBlocks, SeatLegend, Tabs } from "./opsUi";
 import { dateShort, errMsg, money, uploadProof, useLoad } from "./opsHelpers";
 import { PoliciesTab } from "./PoliciesTab";
 import { ResidentsTab } from "./ResidentsTab";
+import { WaiversTab } from "./WaiversTab";
 
 const open = (url) => window.open(url, "_blank", "noopener,noreferrer");
 
@@ -252,6 +253,25 @@ function Fees({ hostelId, blockId, mode }) {
       reloadAll();
     } catch (error) { setMsg({ tone: "error", text: errMsg(error) }); }
   };
+  const waive = async (i) => {
+    const amount = window.prompt(`Waive how much of the PKR ${i.fineDue} fine? (number or "all")`, "all");
+    if (!amount) return;
+    const reason = window.prompt("Reason (required, shown to the student):");
+    if (!reason) return;
+    try {
+      await api.post(`/fees/invoices/${i.id}/waive`, { amount: amount === "all" ? "all" : Number(amount), reason });
+      setMsg({ tone: "ok", text: "Fine waived." });
+      reloadAll();
+    } catch (error) { setMsg({ tone: "error", text: errMsg(error) }); }
+  };
+  const requestOnBehalf = async (i) => {
+    const reason = window.prompt(`Why should the PKR ${i.fineDue} fine be waived? (sent to head office, flagged as filed by you)`);
+    if (!reason) return;
+    try {
+      await api.post("/fees/waivers", { invoiceId: i.id, amount: "all", reason });
+      setMsg({ tone: "ok", text: "Waiver request sent to head office." });
+    } catch (error) { setMsg({ tone: "error", text: errMsg(error) }); }
+  };
   const voidPayment = async (p) => {
     const reason = window.prompt(`Void receipt ${p.receiptNo}? Enter the reason:`);
     if (!reason) return;
@@ -300,8 +320,11 @@ function Fees({ hostelId, blockId, mode }) {
               <article key={i.id} className="rounded-lg border border-line p-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="font-semibold">{i.student?.name} <span className="font-normal text-slate-600">· {i.title}{i.period ? ` (${i.period})` : ""}</span></p>
-                  <p className="text-sm"><Pill value={i.status} /> {money(i.paidAmount)} / {money(i.amount)}{i.balance > 0 ? <b className="ml-2">Due {money(i.balance)}</b> : null}</p>
+                  <p className="text-sm"><Pill value={i.status} /> {i.fineAccrued ? <span className="ml-1 rounded-full bg-[#FEE2E2] px-2 py-0.5 text-xs font-bold text-[#991B1B]">fine {i.fineStatus}</span> : null}{i.balance > 0 ? <b className="ml-2">Due {money(i.balance)}</b> : null}</p>
                 </div>
+                <InvoiceBreakdown invoice={i} />
+                {mode === "head_office" && i.fineDue > 0 ? <button type="button" onClick={() => waive(i)} className="mt-2 mr-2 text-xs font-semibold text-primary-800 underline">Waive fine</button> : null}
+                {mode === "warden" && i.fineDue > 0 ? <button type="button" onClick={() => requestOnBehalf(i)} className="mt-2 mr-2 text-xs font-semibold text-primary-800 underline">Request waiver for student</button> : null}
                 {i.balance > 0 && i.status !== "void" ? (
                   collecting === i.id
                     ? <CollectForm invoice={i} onDone={(d) => { setCollecting(""); setLast(d); reloadAll(); }} />
@@ -724,8 +747,8 @@ export function HostelOpsConsole({ mode }) {
   const loadError = isHead ? hostels.error : myBlocks.error;
 
   const tabs = isHead
-    ? [["overview", "Overview"], ["setup", "Setup"], ["residents", "Residents"], ["seats", "Seats"], ["fees", "Fees & receipts"], ["complaints", "Complaints"], ["staff", "Staff"], ["parents", "Parents"], ["notices", "Notices"], ["policies", "Policies"]]
-    : [["seats", "Seats"], ["residents", "Register students"], ["fees", "Collect fees"], ["complaints", "Complaints"], ["parents", "Parents"], ["notices", "Notices"], ["policies", "Policy"]];
+    ? [["overview", "Overview"], ["setup", "Setup"], ["residents", "Residents"], ["seats", "Seats"], ["fees", "Fees & receipts"], ["complaints", "Complaints"], ["staff", "Staff"], ["parents", "Parents"], ["notices", "Notices"], ["waivers", "Waivers"], ["policies", "Policies"]]
+    : [["seats", "Seats"], ["residents", "Register students"], ["fees", "Collect fees"], ["complaints", "Complaints"], ["parents", "Parents"], ["notices", "Notices"], ["waivers", "Waivers"], ["policies", "Policy"]];
   const scopeBlock = isHead ? blockFilter : "";
 
   return (
@@ -776,6 +799,7 @@ export function HostelOpsConsole({ mode }) {
             {tab === "parents" ? <Parents hostelId={hostelId} blockId={scopeBlock} /> : null}
             {tab === "notices" ? <Notices hostelId={hostelId} blocks={blocks} mode={mode} /> : null}
             {tab === "policies" ? <PoliciesTab hostelId={hostelId} /> : null}
+            {tab === "waivers" ? <WaiversTab hostelId={hostelId} mode={mode} /> : null}
             {tab === "residents" ? <ResidentsTab hostelId={hostelId} blockId={scopeBlock} mode={mode} /> : null}
           </>
         )}

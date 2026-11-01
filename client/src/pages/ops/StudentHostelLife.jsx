@@ -2,14 +2,28 @@ import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { api } from "../../services/api";
 import { downloadApiPdf } from "../../utils/downloadFile";
-import { ComplaintTimeline, Notice, Pill } from "./opsUi";
+import { ComplaintTimeline, InvoiceBreakdown, Notice, Pill } from "./opsUi";
 import { dateShort, errMsg, money, uploadProof, useLoad } from "./opsHelpers";
 
 const CATEGORIES = ["plumbing", "electricity", "cleaning", "food", "wifi", "security", "furniture", "staff_conduct", "payment", "other"];
 
 function Fees() {
-  const { data, loading, error } = useLoad("/fees/my");
+  const { data, loading, error, reload } = useLoad("/fees/my");
+  const waivers = useLoad("/fees/waivers/my");
   const [msg, setMsg] = useState("");
+  const [ok, setOk] = useState("");
+  const requestWaiver = async (i) => {
+    const reason = window.prompt(`Why should the PKR ${i.fineDue} late fine be waived? Head office decides.`);
+    if (!reason) return;
+    try {
+      await api.post("/fees/waivers", { invoiceId: i.id, amount: "all", reason });
+      setOk("Waiver request sent. You'll be notified of the decision.");
+      waivers.reload();
+    } catch (e) { setMsg(errMsg(e)); }
+  };
+  const cancelWaiver = async (w) => {
+    try { await api.post(`/fees/waivers/${w.id}/cancel`); waivers.reload(); reload(); } catch (e) { setMsg(errMsg(e)); }
+  };
   const pdf = async (p) => {
     try { await downloadApiPdf({ api, endpoint: `/fees/payments/${p.id}/receipt.pdf`, filename: `${p.receiptNo}.pdf` }); } catch (e) { setMsg(errMsg(e)); }
   };
@@ -18,11 +32,29 @@ function Fees() {
   return (
     <section className="panel p-5">
       <h2 className="mb-1 text-xl font-bold">Hostel fees</h2>
-      <p className="mb-4 text-sm text-slate-700">Billed {money(data.totals.billed)} · Paid {money(data.totals.paid)} · <b>Due {money(data.totals.due)}</b></p>
+      <p className="mb-4 text-sm text-slate-700">Billed {money(data.totals.billed)}{data.totals.fines ? ` · Fines ${money(data.totals.fines)}` : ""}{data.totals.discounts ? ` · You saved ${money(data.totals.discounts)}` : ""} · Paid {money(data.totals.paid)} · <b>Due {money(data.totals.due)}</b></p>
       <Notice tone="error">{msg}</Notice>
+      <Notice tone="ok">{ok}</Notice>
       {!data.invoices.length ? <p className="text-slate-700">No hostel invoices yet.</p> : (
-        <ul className="grid gap-2">{data.invoices.map((i) => <li key={i.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-line p-3 text-sm"><span>{i.title}{i.period ? ` (${i.period})` : ""}{i.dueDate ? ` · due ${dateShort(i.dueDate)}` : ""}</span><span><Pill value={i.status} /> {money(i.paidAmount)} / {money(i.amount)}</span></li>)}</ul>
+        <ul className="grid gap-2">
+          {data.invoices.map((i) => {
+            const pending = (waivers.data?.results || []).find((w) => String(w.invoice?._id || w.invoice) === i.id && w.status === "pending");
+            return (
+              <li key={i.id} className="rounded-md border border-line p-3 text-sm">
+                <div className="flex flex-wrap items-center justify-between gap-2"><span className="font-semibold">{i.title}{i.period ? ` (${i.period})` : ""}</span><Pill value={i.status} /></div>
+                <InvoiceBreakdown invoice={i} />
+                {i.fineDue > 0 && !pending ? <button type="button" onClick={() => requestWaiver(i)} className="btn-secondary mt-2 px-3 py-1 text-xs">Request fine waiver</button> : null}
+                {pending ? <p className="mt-2 text-xs">Waiver request pending · <button type="button" className="font-semibold underline" onClick={() => cancelWaiver(pending)}>cancel</button></p> : null}
+              </li>
+            );
+          })}
+        </ul>
       )}
+      {(waivers.data?.results || []).some((w) => w.status !== "pending") ? (
+        <ul className="mt-3 grid gap-1 text-xs text-slate-700">
+          {waivers.data.results.filter((w) => w.status !== "pending").map((w) => <li key={w.id}>Waiver for {w.invoice?.title}: <b>{w.status}</b>{w.approvedAmount ? ` (${money(w.approvedAmount)})` : ""}{w.decisionNote ? ` — ${w.decisionNote}` : ""}</li>)}
+        </ul>
+      ) : null}
       <h3 className="mb-2 mt-6 text-lg font-bold">My receipts</h3>
       {!data.payments.length ? <p className="text-slate-700">No receipts yet.</p> : (
         <ul className="grid gap-2">{data.payments.map((p) => <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-line p-3 text-sm"><span className="font-mono text-xs">{p.receiptNo}</span><span>{money(p.amount)} · {p.method.replace("_", " ")} · {dateShort(p.paidAt)}</span><button type="button" className="btn-secondary px-3 py-1 text-xs" onClick={() => pdf(p)}>Download PDF</button></li>)}</ul>

@@ -5,7 +5,7 @@ import { HeartHandshake } from "lucide-react";
 import { api } from "../../services/api";
 import { useAuthStore } from "../../store/useAuthStore";
 import { downloadApiPdf } from "../../utils/downloadFile";
-import { ComplaintTimeline, Notice, Pill } from "./opsUi";
+import { ComplaintTimeline, InvoiceBreakdown, Notice, Pill } from "./opsUi";
 import { dateShort, errMsg, money, useLoad } from "./opsHelpers";
 
 function ChildView({ studentId }) {
@@ -41,8 +41,15 @@ function ChildView({ studentId }) {
 
       <section className="panel p-5">
         <h2 className="mb-1 text-xl font-bold">Fees</h2>
-        <p className="mb-3 text-sm">Billed {money(fees.billed)} · Paid {money(fees.paid)} · <b>Due {money(fees.due)}</b></p>
-        <ul className="grid gap-2">{fees.invoices.map((i) => <li key={i.id} className="flex flex-wrap justify-between gap-2 rounded-md border border-line p-3 text-sm"><span>{i.title}{i.period ? ` (${i.period})` : ""}{i.dueDate ? ` · due ${dateShort(i.dueDate)}` : ""}</span><span><Pill value={i.status} /> {money(i.paidAmount)} / {money(i.amount)}</span></li>)}</ul>
+        <p className="mb-3 text-sm">Billed {money(fees.billed)}{fees.fines ? ` · Fines ${money(fees.fines)}` : ""}{fees.discounts ? ` · Discounts −${money(fees.discounts)}` : ""} · Paid {money(fees.paid)} · <b>Due {money(fees.due)}</b></p>
+        <ul className="grid gap-2">
+          {fees.invoices.map((i) => (
+            <li key={i.id} className="rounded-md border border-line p-3 text-sm">
+              <div className="flex flex-wrap justify-between gap-2"><span className="font-semibold">{i.title}{i.period ? ` (${i.period})` : ""}</span><Pill value={i.status} /></div>
+              <InvoiceBreakdown invoice={{ ...i, totalDue: i.balance, payToday: i.balance }} />
+            </li>
+          ))}
+        </ul>
         <h3 className="mb-2 mt-5 font-bold">Receipts</h3>
         {!fees.receipts.length ? <p className="text-sm text-slate-700">No receipts yet.</p> : (
           <ul className="grid gap-2">{fees.receipts.map((r) => <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-line p-3 text-sm"><span className="font-mono text-xs">{r.receiptNo}</span><span>{money(r.amount)} · {r.method.replace("_", " ")} · {dateShort(r.paidAt)} · by {r.receivedByName}</span><button type="button" className="btn-secondary px-3 py-1 text-xs" onClick={() => pdf(r)}>PDF</button></li>)}</ul>

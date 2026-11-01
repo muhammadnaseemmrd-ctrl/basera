@@ -8,9 +8,9 @@ const Hostel = require("../models/Hostel");
 const Block = require("../models/Block");
 const User = require("../models/User");
 const clock = require("../services/clock");
-const { FeeError, present, refreshInvoice, refreshOpenInvoices, createInvoice, recordPayment, reversePaymentOnInvoice, DUE_EXPR } = require("../services/feeService");
+const { FeeError, present, refreshInvoice, refreshOpenInvoices, createInvoice, recordPayment, reversePaymentOnInvoice, applyWaiver, DUE_EXPR } = require("../services/feeService");
 const { reserveAutoOffers, reverseRedemptionsForPayment, eligibleOffersFor } = require("../services/offerService");
-const { emitInvoiceIssued, emitPaymentReceived } = require("../services/hostelEvents");
+const { emitInvoiceIssued, emitPaymentReceived, emitToFamily } = require("../services/hostelEvents");
 const { protect, authorize, canonicalRole } = require("../middleware/auth");
 const requireDb = require("../middleware/requireDb");
 const { recordAudit } = require("../services/auditService");
@@ -233,6 +233,25 @@ router.get("/invoices/:id/quote", async (req, res, next) => {
     const offers = await eligibleOffersFor(invoice).catch(() => []);
     return res.json({ invoice: present(invoice), eligibleOffers: offers });
   } catch (error) {
+    return next(error);
+  }
+});
+
+// Head office waives a fine without a request (reason mandatory, audited).
+router.post("/invoices/:id/waive", authorize("host", "admin", "warden"), async (req, res, next) => {
+  try {
+    const invoice = isId(req.params.id) ? await FeeInvoice.findById(req.params.id) : null;
+    if (!invoice) return res.status(404).json({ message: "Invoice not found." });
+    if (!(await canManageHostel(req.user, invoice.hostel))) return res.status(403).json({ message: "Only the head office can waive fines." });
+    const reason = String(req.body.reason || "").trim();
+    if (!reason) return res.status(400).json({ message: "A reason is required." });
+    const amount = req.body.amount === undefined || req.body.amount === "all" ? "all" : Number(req.body.amount);
+    const { invoice: updated, amount: waived } = await applyWaiver({ invoiceId: invoice._id, amount, freeze: Boolean(req.body.freeze) });
+    await audit(req, { action: "fee.fine.waived", entityType: "FeeInvoice", entityId: invoice._id, metadata: { amount: waived, freeze: Boolean(req.body.freeze), reason, proactive: true } });
+    await emitToFamily({ student: invoice.student, hostel: invoice.hostel, type: "fine_waived", title: "Fine waived", message: `PKR ${waived} of the fine on "${invoice.title}" was waived by the hostel office. ${reason}` });
+    return res.json({ invoice: present(updated), waived });
+  } catch (error) {
+    if (error instanceof FeeError) return res.status(error.code).json({ message: error.message });
     return next(error);
   }
 });

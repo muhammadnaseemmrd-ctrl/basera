@@ -1,4 +1,4 @@
-import { dateShort, SEAT_LABEL, SEAT_STYLE } from "./opsHelpers";
+import { dateShort, money, SEAT_LABEL, SEAT_STYLE } from "./opsHelpers";
 
 export function Tabs({ tabs, value, onChange }) {
   return (
@@ -115,3 +115,27 @@ export function ComplaintTimeline({ items = [] }) {
   );
 }
 
+
+/** Rent − discounts + fine − waived − paid = due, exactly as the server computes it. */
+export function InvoiceBreakdown({ invoice: i }) {
+  if (!i) return null;
+  const fineLabel = { accruing: "growing daily", frozen: "frozen", waived: "waived", paid: "paid" }[i.fineStatus];
+  return (
+    <div className="mt-2 grid gap-0.5 text-xs text-slate-700">
+      <p>Rent {money(i.amount)}{i.dueDate ? ` · due ${dateShort(i.dueDate)}` : ""}</p>
+      {(i.discounts || []).map((d, k) => <p key={k} className="text-accent-700">{d.name}: −{money(d.amountOff)}</p>)}
+      {i.fineAccrued ? (
+        <p className="font-semibold text-[#991B1B]">
+          Late fine {money(i.fineAccrued)}{fineLabel ? ` (${fineLabel}${i.fineStatus === "accruing" && i.finePerDay ? `, PKR ${i.finePerDay}/day` : ""})` : ""}
+          {i.fineWaived ? <span className="text-accent-700"> · waived −{money(i.fineWaived)}</span> : null}
+        </p>
+      ) : null}
+      {i.paidAmount || i.finePaid ? <p>Paid {money((i.paidAmount || 0) + (i.finePaid || 0))}</p> : null}
+      {i.status !== "void" && i.totalDue > 0 ? (
+        <p className="font-bold text-slate-900">
+          To clear today: {money(i.payToday ?? i.totalDue)}{i.payTomorrow > (i.payToday ?? i.totalDue) ? <span className="font-normal text-slate-600"> · tomorrow {money(i.payTomorrow)}</span> : null}
+        </p>
+      ) : null}
+    </div>
+  );
+}

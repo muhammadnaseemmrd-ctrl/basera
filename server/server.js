@@ -88,6 +88,8 @@ const parentPanelRoutes = require("./routes/parentPanelRoutes");
 const policyRoutes = require("./routes/policyRoutes");
 const devRoutes = require("./routes/devRoutes");
 const residentRoutes = require("./routes/residentRoutes");
+const waiverRoutes = require("./routes/waiverRoutes");
+const jobRoutes = require("./routes/jobRoutes");
 
 if (process.env.NODE_ENV === "production" && !process.env.JWT_SECRET) {
   console.error(
@@ -252,6 +254,7 @@ app.use("/api/v1/newsletter", newsletterRoutes);
 // Hostel & block operations (Phase 1): live-database only, no demo fallback.
 app.use("/api/v1/head-office", headOfficeRoutes);
 app.use("/api/v1/staff", staffRoutes);
+app.use("/api/v1/fees/waivers", waiverRoutes);
 app.use("/api/v1/fees", feeRoutes);
 app.use("/api/v1/complaints", complaintRoutes);
 app.use("/api/v1/notices", noticeRoutes);
@@ -260,6 +263,7 @@ app.use("/api/v1/parent-panel", parentPanelRoutes);
 app.use("/api/v1/policies", policyRoutes);
 app.use("/api/v1/dev", devRoutes);
 app.use("/api/v1/residents", residentRoutes);
+app.use("/api/v1/jobs", jobRoutes);
 app.use("/api/v1", v6AliasRoutes);
 
 app.use(notFound);
