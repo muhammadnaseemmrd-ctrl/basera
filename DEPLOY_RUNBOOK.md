@@ -1,5 +1,13 @@
 # Basera — Deploy Runbook
 
+> **Current setup (updated November 1, 2026) — supersedes the Railway/Netlify sections below.**
+> - **Frontend:** Vercel project `basera` → https://basera-cyan.vercel.app (production branch `main`). Env: `VITE_API_URL=https://basera-api-teal.vercel.app/api/v1`, `VITE_SITE_URL=https://basera-cyan.vercel.app`.
+> - **API:** Vercel project `basera-api` (root directory `server`, serverless; see README "Backend On Vercel") → https://basera-api-teal.vercel.app/api/v1/health. Env: `NODE_ENV`, `MONGO_URI`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `CLIENT_URL`, `PUBLIC_APP_URL`, `CRON_SECRET`, `COMMISSION_RATE_DEFAULT` (values in Vercel only).
+> - **Database:** MongoDB Atlas `cluster0.x0ztelo.mongodb.net`, database `basera`.
+> - The Railway service `basera-api-production.up.railway.app` no longer exists ("Application not found"). Both projects auto-deploy on every push to `main`.
+> - Not on serverless yet: Socket.io real-time chat, and a scheduler for `POST /api/v1/jobs/daily` (add Vercel Cron or an external caller with `x-cron-secret`).
+> - Security: the database password written further down in this file is committed to GitHub — rotate it in Atlas.
+
 *Prepared August 22, 2026*
 
 This documents exactly what's already provisioned under your accounts, and the remaining manual steps. Everything below was created via your connected Railway, MongoDB Atlas, and Netlify accounts. Nothing was deployed live yet — the code with all of today's changes lives only in this local project folder, and pushing it to a Git host + triggering the actual build both require a working shell, which was unavailable this session (see the summary at the end).
