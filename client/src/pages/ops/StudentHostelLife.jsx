@@ -160,6 +160,66 @@ function Notices() {
   );
 }
 
+function Leave() {
+  const policy = useLoad("/leave/policy");
+  const mine = useLoad("/leave/my");
+  const [date, setDate] = useState("");
+  const [reason, setReason] = useState("");
+  const [msg, setMsg] = useState({ tone: "info", text: "" });
+  const open = (mine.data?.results || []).find((n) => ["submitted", "approved"].includes(n.status));
+  const p = policy.data;
+  const daysGiven = p && date ? Math.round((new Date(`${date}T00:00:00+05:00`) - new Date(`${p.today}T00:00:00+05:00`)) / 86400000) : null;
+  const short = p && daysGiven !== null && daysGiven < p.policyDays;
+  const submit = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post("/leave", { intendedLeaveDate: date, reason });
+      setMsg({ tone: "ok", text: "Notice submitted. The hostel office will confirm it." });
+      setDate("");
+      setReason("");
+      mine.reload();
+    } catch (error) {
+      setMsg({ tone: "error", text: errMsg(error) });
+    }
+  };
+  const withdraw = async () => {
+    try {
+      await api.post(`/leave/${open.id}/withdraw`);
+      mine.reload();
+    } catch (error) {
+      setMsg({ tone: "error", text: errMsg(error) });
+    }
+  };
+  if (policy.error) return null; // no active stay
+  if (!p) return null;
+  return (
+    <section className="panel p-5">
+      <h2 className="mb-1 text-xl font-bold">Leave hostel</h2>
+      <p className="mb-3 text-sm text-slate-700">This hostel needs <b>{p.policyDays} days&apos; notice</b>. Earliest leave date without penalty: <b>{p.earliestCompliantDate}</b>.</p>
+      <Notice tone={msg.tone}>{msg.text}</Notice>
+      {open ? (
+        <div className="rounded-md border border-line p-3 text-sm">
+          <p>Notice for <b>{open.intendedLeaveDay}</b> · <Pill value={open.status === "submitted" ? "pending" : "active"} /> {open.status === "approved" ? "approved" : "waiting for the office"}</p>
+          <p className="text-slate-700">{open.noticeDaysGiven} days&apos; notice given{open.shortBy ? ` — ${open.shortBy} day(s) short` : ""}.{open.decisionNote ? ` Note: ${open.decisionNote}` : ""}</p>
+          {open.status === "submitted" ? <button type="button" onClick={withdraw} className="btn-secondary mt-2 px-3 py-1 text-xs">Withdraw notice</button> : null}
+        </div>
+      ) : (
+        <form onSubmit={submit} className="grid gap-3 sm:grid-cols-[12rem_1fr_auto] sm:items-end">
+          <label className="grid gap-1 text-sm font-semibold">Leave date<input className="input" type="date" required min={p.today} value={date} onChange={(e) => setDate(e.target.value)} /></label>
+          <label className="grid gap-1 text-sm font-semibold">Reason (optional)<input className="input" value={reason} onChange={(e) => setReason(e.target.value)} /></label>
+          <button type="submit" className="btn-primary">Give notice</button>
+          {short ? (
+            <p role="alert" className="rounded-md bg-[#FEF3C7] p-2 text-sm font-semibold text-[#92400E] sm:col-span-3">
+              That is only {daysGiven} days&apos; notice ({p.policyDays - daysGiven} short).{" "}
+              {p.shortNoticeAction === "block" ? "The hostel will not accept it — choose a later date." : p.shortNoticeAction === "allow_with_charge" ? `A short-notice charge of PKR ${p.shortNoticeChargeIfShort} will be added.` : "It will be accepted but flagged for the office."}
+            </p>
+          ) : null}
+        </form>
+      )}
+    </section>
+  );
+}
+
 export function StudentHostelLife() {
   return (
     <>
@@ -167,6 +227,7 @@ export function StudentHostelLife() {
       <div className="grid gap-6">
         <Notices />
         <Fees />
+        <Leave />
         <Complaints />
       </div>
     </>

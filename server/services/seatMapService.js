@@ -2,7 +2,9 @@ const Room = require("../models/Room");
 const Block = require("../models/Block");
 const Booking = require("../models/Booking");
 const BedBlock = require("../models/BedBlock");
-const { deriveSeatStates, summarizeSeats } = require("./hostelOpsRules");
+const LeaveNotice = require("../models/LeaveNotice");
+const clock = require("./clock");
+const { deriveSeatStates, summarizeSeats, applyLeaving } = require("./hostelOpsRules");
 
 const LIVE = ["pending", "payment_pending", "confirmed", "active", "overdue"];
 
@@ -17,7 +19,7 @@ async function buildSeatMap({ hostelId, blockId = null, includeStudents = true }
   const rooms = await Room.find(roomQuery).sort({ roomNumber: 1 }).lean();
   const blocks = await Block.find({ hostelId }).populate("wardenId", "name phone").lean();
   const roomIds = rooms.map((r) => r._id);
-  const now = new Date();
+  const now = clock.now();
 
   const [bookings, bedBlocks] = await Promise.all([
     Booking.find({ room: { $in: roomIds }, status: { $in: LIVE } })
@@ -33,6 +35,8 @@ async function buildSeatMap({ hostelId, blockId = null, includeStudents = true }
       return acc;
     }, {});
   const bookingsByRoom = byRoom(bookings, "room");
+  const leaving = await LeaveNotice.find({ booking: { $in: bookings.map((b) => b._id) }, status: "approved" }).select("booking intendedLeaveDate").lean();
+  const leavingByBooking = Object.fromEntries(leaving.map((n) => [String(n.booking), clock.dayKey(n.intendedLeaveDate)]));
   const blocksByRoom = byRoom(bedBlocks, "room");
 
   const blockMap = new Map(blocks.map((b) => [String(b._id), { id: String(b._id), name: b.name, warden: b.wardenId ? { id: String(b.wardenId._id), name: b.wardenId.name } : null, floorCount: b.floorCount, rooms: [] }]));
@@ -46,14 +50,17 @@ async function buildSeatMap({ hostelId, blockId = null, includeStudents = true }
       student: b.student ? { id: String(b.student._id), name: b.student.name, phone: b.student.phone, source: b.source || "online" } : null
     }));
     const roomBedBlocks = (blocksByRoom[String(room._id)] || []).map((b) => ({ id: String(b._id), bedIndex: b.bedIndex, reason: b.reason, note: b.note }));
-    const seats = deriveSeatStates({
-      totalBeds: room.totalBeds,
-      bookings: roomBookings.map((b) => ({ ...b, student: b.student })),
-      bedBlocks: roomBedBlocks
-    }).map((seat) => ({
+    const seats = applyLeaving(
+      deriveSeatStates({
+        totalBeds: room.totalBeds,
+        bookings: roomBookings.map((b) => ({ ...b, student: b.student })),
+        bedBlocks: roomBedBlocks
+      }),
+      leavingByBooking
+    ).map((seat) => ({
       ...seat,
       studentId: undefined,
-      student: seat.status === "occupied" || seat.status === "reserved" ? roomBookings.find((b) => b.id === String(seat.bookingId))?.student || null : null
+      student: ["occupied", "reserved", "leaving"].includes(seat.status) ? roomBookings.find((b) => b.id === String(seat.bookingId))?.student || null : null
     }));
     const entry = { id: String(room._id), roomNumber: room.roomNumber, floor: room.floor ?? room.floorNumber ?? null, totalBeds: room.totalBeds, pricePerBed: room.pricePerBed, seats, summary: summarizeSeats(seats) };
     const target = room.blockId ? blockMap.get(String(room.blockId)) : unassigned;

@@ -13,7 +13,8 @@ const feePaymentSchema = new mongoose.Schema(
     // discount granted at payment time (e.g. early payment), shown on the receipt
     discountApplied: { type: Number, default: 0, min: 0 },
     redemptions: [{ type: mongoose.Schema.Types.ObjectId, ref: "OfferRedemption" }],
-    method: { type: String, enum: ["cash", "bank_transfer", "jazzcash", "easypaisa", "cheque"], required: true },
+    // "deposit_adjustment" is internal-only: dues settled from the held deposit at checkout
+    method: { type: String, enum: ["cash", "bank_transfer", "jazzcash", "easypaisa", "cheque", "deposit_adjustment"], required: true },
     bankName: String,
     transactionId: { type: String, trim: true },
     screenshotUrl: String,

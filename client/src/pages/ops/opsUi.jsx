@@ -67,7 +67,7 @@ export function SeatBlocks({ blocks }) {
                   {room.seats.map((seat) => (
                     <div key={seat.bedIndex} title={seat.student?.name || seat.note || SEAT_LABEL[seat.status]} className={`min-w-[7.5rem] rounded-md border px-2.5 py-1.5 text-xs ${SEAT_STYLE[seat.status]}`}>
                       <p className="font-bold">Seat {seat.bedIndex + 1}</p>
-                      <p>{SEAT_LABEL[seat.status]}</p>
+                      <p>{SEAT_LABEL[seat.status]}{seat.status === "leaving" && seat.leavingOn ? ` on ${seat.leavingOn}` : ""}</p>
                       {seat.student?.name ? <p className="truncate font-semibold">{seat.student.name}</p> : null}
                       {seat.conflict ? <p className="font-bold text-[#991B1B]">Double-booked!</p> : null}
                     </div>

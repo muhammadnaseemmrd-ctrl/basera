@@ -114,7 +114,7 @@ router.post("/:id/recommend", authorize("warden", "host", "admin"), async (req, 
     const updated = await FineWaiverRequest.findOneAndUpdate(
       { _id: request._id, status: "pending" },
       { $push: { recommendations: { by: uid(req.user), byName: req.user.name, note: String(req.body.note).slice(0, 500), at: clock.now() } } },
-      { new: true }
+      { returnDocument: "after" }
     );
     if (!updated) return res.status(409).json({ message: "This request is no longer pending." });
     await audit(req, { action: "fee.waiver.recommended", entityType: "FineWaiverRequest", entityId: request._id, metadata: { note: req.body.note } });
@@ -140,7 +140,7 @@ router.post("/:id/decide", authorize("host", "admin", "warden"), async (req, res
     if (!["approve", "reject"].includes(decision)) return res.status(400).json({ message: 'decision must be "approve" or "reject".' });
 
     if (decision === "reject") {
-      const rejected = await FineWaiverRequest.findOneAndUpdate({ _id: request._id, status: "pending" }, { status: "rejected", decidedBy: uid(req.user), decidedAt: clock.now(), decisionNote: note }, { new: true });
+      const rejected = await FineWaiverRequest.findOneAndUpdate({ _id: request._id, status: "pending" }, { status: "rejected", decidedBy: uid(req.user), decidedAt: clock.now(), decisionNote: note }, { returnDocument: "after" });
       if (!rejected) return res.status(409).json({ message: "This request has already been decided or cancelled." });
       const invoice = await FeeInvoice.findById(request.invoice).lean();
       await audit(req, { action: "fee.waiver.rejected", entityType: "FineWaiverRequest", entityId: request._id, metadata: { note } });
@@ -149,7 +149,7 @@ router.post("/:id/decide", authorize("host", "admin", "warden"), async (req, res
     }
 
     const amount = parseAmount(req.body.amount ?? (request.requestAll ? "all" : request.requestedAmount));
-    const claimed = await FineWaiverRequest.findOneAndUpdate({ _id: request._id, status: "pending" }, { status: "approved", decidedBy: uid(req.user), decidedAt: clock.now(), decisionNote: note, freeze: Boolean(req.body.freeze) }, { new: true });
+    const claimed = await FineWaiverRequest.findOneAndUpdate({ _id: request._id, status: "pending" }, { status: "approved", decidedBy: uid(req.user), decidedAt: clock.now(), decisionNote: note, freeze: Boolean(req.body.freeze) }, { returnDocument: "after" });
     if (!claimed) return res.status(409).json({ message: "This request has already been decided or cancelled." });
     let applied;
     try {
@@ -159,7 +159,7 @@ router.post("/:id/decide", authorize("host", "admin", "warden"), async (req, res
       throw error;
     }
     const full = request.requestAll ? amount === "all" : applied.amount >= (request.requestedAmount || 0);
-    const final = await FineWaiverRequest.findOneAndUpdate({ _id: request._id, status: "approved" }, { status: full ? "approved" : "partial", approvedAmount: applied.amount }, { new: true });
+    const final = await FineWaiverRequest.findOneAndUpdate({ _id: request._id, status: "approved" }, { status: full ? "approved" : "partial", approvedAmount: applied.amount }, { returnDocument: "after" });
     if (!final) {
       await revertWaiver(request.invoice, applied.amount);
       return res.status(409).json({ message: "This request changed while deciding — refresh and try again." });
@@ -178,7 +178,7 @@ router.post("/:id/cancel", async (req, res, next) => {
     if (!request) return res.status(404).json({ message: "Request not found." });
     const mine = String(request.student) === uid(req.user) || String(request.submittedBy) === uid(req.user);
     if (!mine) return res.status(403).json({ message: "Only the person who asked can cancel this request." });
-    const cancelled = await FineWaiverRequest.findOneAndUpdate({ _id: request._id, status: "pending" }, { status: "cancelled" }, { new: true });
+    const cancelled = await FineWaiverRequest.findOneAndUpdate({ _id: request._id, status: "pending" }, { status: "cancelled" }, { returnDocument: "after" });
     if (!cancelled) return res.status(409).json({ message: "Only a pending request can be cancelled." });
     await audit(req, { action: "fee.waiver.cancelled", entityType: "FineWaiverRequest", entityId: request._id });
     return res.json({ request: shape(cancelled) });

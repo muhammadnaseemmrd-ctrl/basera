@@ -39,6 +39,13 @@ function ChildView({ studentId }) {
         ) : <p className="text-slate-700">No active stay.</p>}
       </section>
 
+      {data.leave ? (
+        <section className="rounded-lg border border-[#0E7490] bg-[#ECFEFF] p-5">
+          <h2 className="text-lg font-bold text-[#155E75]">Leave notice</h2>
+          <p className="mt-1 text-sm">{data.student.name} plans to leave on <b>{dateShort(data.leave.intendedLeaveDate)}</b> ({data.leave.noticeDaysGiven} days&apos; notice; policy {data.leave.policyDays}) — {data.leave.status === "approved" ? "approved by the hostel" : "waiting for the hostel to confirm"}.{data.leave.decisionNote ? ` Note: ${data.leave.decisionNote}` : ""}</p>
+        </section>
+      ) : null}
+
       <section className="panel p-5">
         <h2 className="mb-1 text-xl font-bold">Fees</h2>
         <p className="mb-3 text-sm">Billed {money(fees.billed)}{fees.fines ? ` · Fines ${money(fees.fines)}` : ""}{fees.discounts ? ` · Discounts −${money(fees.discounts)}` : ""} · Paid {money(fees.paid)} · <b>Due {money(fees.due)}</b></p>

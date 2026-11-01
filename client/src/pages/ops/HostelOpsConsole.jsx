@@ -8,6 +8,7 @@ import { dateShort, errMsg, money, uploadProof, useLoad } from "./opsHelpers";
 import { PoliciesTab } from "./PoliciesTab";
 import { ResidentsTab } from "./ResidentsTab";
 import { WaiversTab } from "./WaiversTab";
+import { LeaveTab } from "./LeaveTab";
 
 const open = (url) => window.open(url, "_blank", "noopener,noreferrer");
 
@@ -634,9 +635,26 @@ function Setup({ hostelId, blocks, reloadBlocks }) {
       setAdmit({ ...admit, name: "", phone: "", email: "", guardianName: "", guardianPhone: "" }); rooms.reload(); students.reload();
     } catch (err) { bad(err); }
   };
-  const checkout = async (s) => {
-    if (!window.confirm(`Check out ${s.name}? Their seat becomes free.`)) return;
-    try { const { data } = await api.post(`/head-office/hostels/${hostelId}/residents/${s.bookingId}/checkout`); ok(data.outstandingBalance ? `Checked out. Outstanding balance: ${money(data.outstandingBalance)}.` : "Checked out."); students.reload(); rooms.reload(); } catch (err) { bad(err); }
+  const checkout = async (s, early = false) => {
+    if (!early && !window.confirm(`Check out ${s.name}? Their seat becomes free.`)) return undefined;
+    const raw = early ? s.damagesRaw : window.prompt('Damage deductions from the deposit, e.g. "Broken chair: 1500; Lost key: 500" (leave empty for none):', "");
+    if (raw === null) return undefined;
+    const damages = String(raw || "").split(";").map((x) => x.trim()).filter(Boolean).map((x) => {
+      const [label, amount] = x.split(":");
+      return { label: (label || "Damage").trim(), amount: Number(String(amount || "").trim()) };
+    });
+    try {
+      const { data } = await api.post(`/head-office/hostels/${hostelId}/residents/${s.bookingId}/checkout`, { damages, early });
+      const st = data.settlement;
+      ok(`Checked out. Deposit ${money(st.deposit)} − dues ${money(st.duesTotal)} − damages ${money(st.damagesTotal)} = ${st.refund ? `refund ${money(st.refund)}` : st.payable ? `still payable ${money(st.payable)}` : "nothing to settle"}.`);
+      students.reload();
+      rooms.reload();
+    } catch (err) {
+      const message = err?.response?.data?.message || "";
+      if (!early && /leave date/.test(message) && window.confirm(`${message}\n\nCheck out early anyway?`)) return checkout({ ...s, damagesRaw: raw }, true);
+      bad(err);
+    }
+    return undefined;
   };
   const blockName = (id) => blocks.find((b) => (b.id || b._id) === String(id))?.name || "—";
 
@@ -747,8 +765,8 @@ export function HostelOpsConsole({ mode }) {
   const loadError = isHead ? hostels.error : myBlocks.error;
 
   const tabs = isHead
-    ? [["overview", "Overview"], ["setup", "Setup"], ["residents", "Residents"], ["seats", "Seats"], ["fees", "Fees & receipts"], ["complaints", "Complaints"], ["staff", "Staff"], ["parents", "Parents"], ["notices", "Notices"], ["waivers", "Waivers"], ["policies", "Policies"]]
-    : [["seats", "Seats"], ["residents", "Register students"], ["fees", "Collect fees"], ["complaints", "Complaints"], ["parents", "Parents"], ["notices", "Notices"], ["waivers", "Waivers"], ["policies", "Policy"]];
+    ? [["overview", "Overview"], ["setup", "Setup"], ["residents", "Residents"], ["seats", "Seats"], ["fees", "Fees & receipts"], ["complaints", "Complaints"], ["staff", "Staff"], ["parents", "Parents"], ["notices", "Notices"], ["waivers", "Waivers"], ["leave", "Leave requests"], ["policies", "Policies"]]
+    : [["seats", "Seats"], ["residents", "Register students"], ["fees", "Collect fees"], ["complaints", "Complaints"], ["parents", "Parents"], ["notices", "Notices"], ["waivers", "Waivers"], ["leave", "Leave requests"], ["policies", "Policy"]];
   const scopeBlock = isHead ? blockFilter : "";
 
   return (
@@ -779,7 +797,7 @@ export function HostelOpsConsole({ mode }) {
         ) : (
           <>
             <Tabs tabs={tabs} value={tab} onChange={setTab} />
-            {isHead && ["fees", "complaints", "parents", "residents"].includes(tab) && blocks.length > 1 ? (
+            {isHead && ["fees", "complaints", "parents", "residents", "leave"].includes(tab) && blocks.length > 1 ? (
               <select className="input mb-4 max-w-xs" value={blockFilter} onChange={(e) => setBlockFilter(e.target.value)} aria-label="Block filter">
                 <option value="">All blocks</option>
                 {blocks.map((b) => <option key={b.id || b._id} value={b.id || b._id}>{b.name}</option>)}
@@ -800,6 +818,7 @@ export function HostelOpsConsole({ mode }) {
             {tab === "notices" ? <Notices hostelId={hostelId} blocks={blocks} mode={mode} /> : null}
             {tab === "policies" ? <PoliciesTab hostelId={hostelId} /> : null}
             {tab === "waivers" ? <WaiversTab hostelId={hostelId} mode={mode} /> : null}
+            {tab === "leave" ? <LeaveTab hostelId={hostelId} blockId={scopeBlock} /> : null}
             {tab === "residents" ? <ResidentsTab hostelId={hostelId} blockId={scopeBlock} mode={mode} /> : null}
           </>
         )}

@@ -69,7 +69,7 @@ async function refreshInvoice(inv, asOf = clock.now()) {
   const updated = await FeeInvoice.findOneAndUpdate(
     { _id: inv._id, fineAccrued: inv.fineAccrued || 0, status: inv.status },
     { $set: { fineAccrued: p.fineAccrued, status: p.status, fineStatus: p.fineStatus, fineAsOf: asOf } },
-    { new: true }
+    { returnDocument: "after" }
   );
   return updated || (await FeeInvoice.findById(inv._id));
 }
@@ -132,7 +132,7 @@ async function createInvoice({ hostel, block = null, room, bedIndex, student, bo
  * amounts read, so concurrent payments or a void in between make this one 409).
  * `beforeAllocate(invoice, totals)` may return { discount, redemptions } (early-payment offers).
  */
-async function recordPayment({ invoiceId, actor, actorRole, amount, method, transactionId, screenshotUrl, bankName, note, paidAt, beforeAllocate }) {
+async function recordPayment({ invoiceId, actor, actorRole, amount, method, transactionId, screenshotUrl, bankName, note, paidAt, beforeAllocate, internal = false }) {
   let invoice = await FeeInvoice.findById(invoiceId);
   if (!invoice) throw new FeeError(404, "Invoice not found.");
   if (invoice.status === "void") throw new FeeError(409, "This invoice is void.");
@@ -142,7 +142,10 @@ async function recordPayment({ invoiceId, actor, actorRole, amount, method, tran
   if (beforeAllocate) discount = (await beforeAllocate(invoice)) || discount;
   const totalsBefore = invoiceTotals({ ...invoice.toObject(), discountTotal: (invoice.discountTotal || 0) + discount.amount });
 
-  const problem = validateFeePayment({ amount, method, transactionId, screenshotUrl, receivedBy: String(actor._id || actor.id), balance: totalsBefore.totalDue });
+  // internal deposit adjustments skip the cash/bank proof rules (no money changes hands)
+  const problem = internal && method === "deposit_adjustment"
+    ? Number.isInteger(amount) && amount > 0 && amount <= totalsBefore.totalDue ? null : "Invalid deposit adjustment."
+    : validateFeePayment({ amount, method, transactionId, screenshotUrl, receivedBy: String(actor._id || actor.id), balance: totalsBefore.totalDue });
   if (problem) {
     if (discount.release) await discount.release();
     throw new FeeError(400, problem);
@@ -199,7 +202,7 @@ async function recordPayment({ invoiceId, actor, actorRole, amount, method, tran
   const updated = await FeeInvoice.findOneAndUpdate(
     { _id: invoice._id, status: { $ne: "void" }, paidAmount: invoice.paidAmount, finePaid: invoice.finePaid || 0, discountTotal: invoice.discountTotal || 0, fineWaived: invoice.fineWaived || 0 },
     update,
-    { new: true }
+    { returnDocument: "after" }
   );
   if (!updated) {
     await FeePayment.deleteOne({ _id: payment._id });
@@ -230,7 +233,7 @@ async function reversePaymentOnInvoice(payment) {
     {
       $set: { paidAmount: after.paidAmount, finePaid: after.finePaid, discountTotal: after.discountTotal, discounts: keptDiscounts, paidInFullAt: after.paidInFullAt || null, status: inv.status === "void" ? "void" : p.status, fineStatus: p.fineStatus, fineAccrued: p.fineAccrued }
     },
-    { new: true }
+    { returnDocument: "after" }
   );
 }
 
@@ -254,7 +257,7 @@ async function applyWaiver({ invoiceId, amount, freeze = false }) {
   const updated = await FeeInvoice.findOneAndUpdate(
     { _id: invoice._id, status: { $ne: "void" }, fineAccrued: invoice.fineAccrued, fineWaived: invoice.fineWaived || 0, finePaid: invoice.finePaid || 0 },
     { $inc: { fineWaived: verdict.amount }, $set },
-    { new: true }
+    { returnDocument: "after" }
   );
   if (!updated) throw new FeeError(409, "The fine changed while waiving — refresh and try again.");
   return { invoice: updated, amount: verdict.amount };

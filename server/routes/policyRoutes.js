@@ -100,7 +100,7 @@ router.put("/:hostelId", async (req, res, next) => {
     const before = await HostelPolicy.findOne({ hostel: hostelId }).lean();
     const update = { $set, $setOnInsert: { hostel: hostelId } };
     if (Object.keys($unset).length) update.$unset = $unset;
-    const policy = await HostelPolicy.findOneAndUpdate({ hostel: hostelId }, update, { new: true, upsert: true, runValidators: true }).lean();
+    const policy = await HostelPolicy.findOneAndUpdate({ hostel: hostelId }, update, { returnDocument: "after", upsert: true, runValidators: true }).lean();
     await audit(req, { action: "policy.updated", entityType: "HostelPolicy", entityId: policy._id, metadata: { hostelId, before: before || null, after: policy, reason: req.body.reason || null } });
     const blocks = await Block.find({ hostelId }).select("name").sort({ name: 1 }).lean();
     return res.json({ editable: true, policy, ...view(policy, blocks) });

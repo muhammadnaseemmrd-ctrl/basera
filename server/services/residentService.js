@@ -121,7 +121,7 @@ async function admitResident({ hostelId, value: v, actor, actorRole, authorizeRo
     }
 
     // take the bed off the marketplace atomically so it can't also be booked online
-    const taken = await Room.findOneAndUpdate({ _id: room._id, availableBeds: { $gt: 0 } }, { $inc: { availableBeds: -1 } }, { new: true });
+    const taken = await Room.findOneAndUpdate({ _id: room._id, availableBeds: { $gt: 0 } }, { $inc: { availableBeds: -1 } }, { returnDocument: "after" });
     if (!taken) throw new AdmitError(409, `Room ${room.roomNumber} shows no free beds online. Fix the room's bed count first.`);
     undo.push(() => Room.updateOne({ _id: room._id }, { $inc: { availableBeds: 1 }, status: "ACTIVE" }));
     if (taken.availableBeds === 0) await Room.updateOne({ _id: room._id }, { status: "FULL" });
@@ -267,7 +267,7 @@ const strip = (preview) => ({ summary: preview.summary, rows: preview.rows.map((
 /** New one-time claim code for a managed resident (staff action). */
 async function issueClaimCode(studentId) {
   const code = code8();
-  const user = await User.findOneAndUpdate({ _id: studentId, role: "student" }, { claimCode: code, claimCodeExpiresAt: clock.addDays(clock.now(), INVITE_DAYS) }, { new: true });
+  const user = await User.findOneAndUpdate({ _id: studentId, role: "student" }, { claimCode: code, claimCodeExpiresAt: clock.addDays(clock.now(), INVITE_DAYS) }, { returnDocument: "after" });
   return user ? { code, user } : null;
 }
 

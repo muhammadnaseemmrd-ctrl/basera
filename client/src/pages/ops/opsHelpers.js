@@ -35,10 +35,11 @@ export const SEAT_STYLE = {
   free: "border-accent-700 bg-accent-50 text-accent-800",
   reserved: "border-[#B45309] bg-[#FEF3C7] text-[#92400E]",
   occupied: "border-primary-700 bg-primary-50 text-primary-900",
+  leaving: "border-[#0E7490] bg-[#ECFEFF] text-[#155E75]",
   booked_offline: "border-[#6D28D9] bg-[#EDE9FE] text-[#5B21B6]",
   maintenance: "border-[#C81E1E] bg-[#FEE2E2] text-[#991B1B]"
 };
-export const SEAT_LABEL = { free: "Free", reserved: "Reserved", occupied: "Occupied", booked_offline: "Booked (offline)", maintenance: "Maintenance" };
+export const SEAT_LABEL = { free: "Free", reserved: "Reserved", occupied: "Occupied", leaving: "Leaving", booked_offline: "Booked (offline)", maintenance: "Maintenance" };
 
 /** Uploads a proof screenshot; resolves to a hosted URL or throws. */
 export async function uploadProof(file) {

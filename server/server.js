@@ -90,6 +90,7 @@ const devRoutes = require("./routes/devRoutes");
 const residentRoutes = require("./routes/residentRoutes");
 const waiverRoutes = require("./routes/waiverRoutes");
 const jobRoutes = require("./routes/jobRoutes");
+const leaveRoutes = require("./routes/leaveRoutes");
 
 if (process.env.NODE_ENV === "production" && !process.env.JWT_SECRET) {
   console.error(
@@ -145,6 +146,12 @@ app.use(compression());
 app.use("/api/v1/payments/stripe/webhook", express.raw({ type: "application/json" }));
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true }));
+// Express 5 leaves req.body undefined for body-less requests; routes read req.body.x freely,
+// so default it to {} rather than 500 on e.g. a POST /checkout with no payload.
+app.use((req, res, next) => {
+  if (req.body === undefined) req.body = {};
+  next();
+});
 app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 app.use("/api/v1/auth", authLimiter);
 app.use("/api/v1/payments", paymentLimiter);
@@ -264,6 +271,7 @@ app.use("/api/v1/policies", policyRoutes);
 app.use("/api/v1/dev", devRoutes);
 app.use("/api/v1/residents", residentRoutes);
 app.use("/api/v1/jobs", jobRoutes);
+app.use("/api/v1/leave", leaveRoutes);
 app.use("/api/v1", v6AliasRoutes);
 
 app.use(notFound);

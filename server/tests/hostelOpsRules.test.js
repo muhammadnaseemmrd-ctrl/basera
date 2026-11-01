@@ -229,3 +229,15 @@ test("hostel-wide notice omits the block and optional reason/phone", () => {
   assert.doesNotMatch(n.title, /\(/);
   assert.doesNotMatch(n.message, /Reason on record/);
 });
+
+test("leaving: an approved leave marks the occupied seat leaving, still counted in occupancy", () => {
+  const { applyLeaving } = require("../services/hostelOpsRules");
+  const seats = deriveSeatStates({ totalBeds: 2, bookings: [{ id: "b1", bedIndex: 0, status: "active" }], bedBlocks: [] });
+  const marked = applyLeaving(seats, { b1: "2026-12-16" });
+  assert.equal(marked[0].status, "leaving");
+  assert.equal(marked[0].availableFrom, "2026-12-16");
+  assert.equal(marked[1].status, "free");
+  const sum = summarizeSeats(marked);
+  assert.equal(sum.leaving, 1);
+  assert.equal(sum.occupancyPct, 50);
+});

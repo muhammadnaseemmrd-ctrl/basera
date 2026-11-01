@@ -59,12 +59,22 @@ function deriveSeatStates({ totalBeds, bookings = [], bedBlocks = [] }) {
 }
 
 function summarizeSeats(seats) {
-  const out = { total: seats.length, free: 0, reserved: 0, occupied: 0, booked_offline: 0, maintenance: 0 };
+  // "leaving" = occupied with an approved leave notice; still counts as occupied until the date
+  const out = { total: seats.length, free: 0, reserved: 0, occupied: 0, leaving: 0, booked_offline: 0, maintenance: 0 };
   seats.forEach((s) => {
-    out[s.status] += 1;
+    out[s.status] = (out[s.status] || 0) + 1;
   });
-  out.occupancyPct = out.total ? Math.round(((out.occupied + out.booked_offline) / out.total) * 100) : 0;
+  out.occupancyPct = out.total ? Math.round(((out.occupied + out.leaving + out.booked_offline) / out.total) * 100) : 0;
   return out;
+}
+
+/** Mark occupied seats whose booking has an approved leave notice as "leaving on <date>". */
+function applyLeaving(seats, leavingByBooking) {
+  return seats.map((seat) => {
+    const date = seat.bookingId ? leavingByBooking[String(seat.bookingId)] : null;
+    if (!date || seat.status !== "occupied") return seat;
+    return { ...seat, status: "leaving", leavingOn: date, availableFrom: date };
+  });
 }
 
 // ---------- Fees ----------
@@ -197,6 +207,7 @@ function buildTerminationNotice({ staffName, staffRole, hostelName, blockName, t
 module.exports = {
   deriveSeatStates,
   summarizeSeats,
+  applyLeaving,
   FEE_METHODS,
   PROOF_REQUIRED,
   validateFeePayment,

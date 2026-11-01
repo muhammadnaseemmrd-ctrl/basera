@@ -16,6 +16,7 @@ const { validateResident } = require("../services/residentRules");
 const { admitResident, AdmitError } = require("../services/residentService");
 const { FeeError, refreshOpenInvoices, DUE_EXPR } = require("../services/feeService");
 const clock = require("../services/clock");
+const { checkout } = require("../services/leaveService");
 const requireDb = require("../middleware/requireDb");
 const { buildSeatMap } = require("../services/seatMapService");
 const { canManageHostel, managedHostelIds, residents, isId } = require("../services/hostelAccess");
@@ -191,21 +192,17 @@ router.post("/hostels/:id/residents", async (req, res, next) => {
   }
 });
 
-// Check a resident out: frees the seat and returns the bed to the marketplace.
+// Check a resident out: unpaid rent blocks it; deposit − dues − damages is settled and
+// stored; the seat is freed and the bed returns to the marketplace (see leaveService).
 router.post("/hostels/:id/residents/:bookingId/checkout", async (req, res, next) => {
   try {
     if (!(await guard(req, res))) return;
     if (!isId(req.params.bookingId)) return res.status(404).json({ message: "Booking not found." });
-    const booking = await Booking.findOneAndUpdate(
-      { _id: req.params.bookingId, hostel: req.params.id, status: { $in: ["confirmed", "active", "overdue"] } },
-      { status: "completed", checkOut: new Date(), moveOutDate: new Date() },
-      { new: true }
-    );
-    if (!booking) return res.status(409).json({ message: "No active stay with that id in this hostel." });
-    await Room.updateOne({ _id: booking.room }, { $inc: { availableBeds: 1 }, status: "ACTIVE" });
-    const owing = await FeeInvoice.aggregate([{ $match: { student: booking.student, hostel: booking.hostel, status: { $in: ["unpaid", "partial"] } } }, { $group: { _id: null, due: { $sum: { $subtract: ["$amount", "$paidAmount"] } } } }]);
-    res.json({ checkedOut: true, outstandingBalance: owing[0]?.due || 0 });
+    const out = await checkout({ hostelId: req.params.id, bookingId: req.params.bookingId, actor: req.user, actorRole: canonicalRole(req.user.role), damages: req.body.damages, early: req.body.early === true });
+    await recordAudit(req, { action: "resident.checked_out", entityType: "Booking", entityId: req.params.bookingId, metadata: { settlement: out.settlement } }).catch(() => {});
+    res.json(out);
   } catch (error) {
+    if (error instanceof FeeError) return res.status(error.code).json({ message: error.message, dues: error.dues });
     next(error);
   }
 });

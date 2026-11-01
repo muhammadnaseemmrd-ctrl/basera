@@ -32,6 +32,7 @@ const FeePayment = require("../models/FeePayment");
 const ParentLink = require("../models/ParentLink");
 const HostelPolicy = require("../models/HostelPolicy");
 const AuditLog = require("../models/AuditLog");
+const LeaveNotice = require("../models/LeaveNotice");
 
 const results = [];
 const created = { users: [], hostels: [], blocks: [], rooms: [] };
@@ -414,7 +415,122 @@ async function finesAndWaivers() {
   check("W12", "Other owner cannot read the fines report or waiver queue", repX.status === 403 && (await http("GET", `/fees/waivers?hostelId=${hA}`, { token: S.wardenX.token })).status === 403, String(repX.status));
 }
 
-const SECTIONS = [clockAndPolicies, offlineResidents, finesAndWaivers];
+// ---------------------------------------------------------------- leave notice
+const dayStr = (d) => clock.dayKey(d);
+async function leaveNotices() {
+  const hA = String(S.hostelA._id);
+  await setToday(midday(2026, 11, 20));
+  const today = K(2026, 11, 20);
+  const plus = (n) => dayStr(clock.addDays(today, n));
+  const setPolicy = (body) => http("PUT", `/policies/${hA}`, { token: S.ownerA.token, body });
+
+  // offline O2 with a login and a FUTURE join date (for the "before join date" rule + L13)
+  const o2 = await http("POST", "/residents", { token: S.ownerA.token, body: { hostelId: hA, name: "[QA-P2] Offline O2", phone: phone(), roomId: String(S.roomA3._id), bedIndex: 1, monthlyRent: 7000, joinDate: "2026-12-10", login: true } });
+  const o2Login = await http("POST", "/auth/login", { body: { email: o2.data?.student?.email, password: o2.data?.tempPassword } });
+  S.o2 = { id: o2.data?.student?.id, token: o2Login.data?.token, bookingId: o2.data?.booking?.id };
+
+  const pol = await http("GET", "/leave/policy", { token: S.s1.token });
+  check("L0", "Student sees their policy: 45 days, earliest compliant date", pol.status === 200 && pol.data.policyDays === 45 && pol.data.earliestCompliantDate === plus(45), JSON.stringify(pol.data).slice(0, 160));
+  const past = await http("POST", "/leave", { token: S.s1.token, body: { intendedLeaveDate: "2026-11-19", reason: "x" } });
+  const beforeJoin = await http("POST", "/leave", { token: S.o2.token, body: { intendedLeaveDate: "2026-12-05", reason: "x" } });
+  check("L4", "Past date and date before join date are rejected (400)", past.status === 400 && beforeJoin.status === 400 && /join date/.test(beforeJoin.data?.message), `${past.status}/${beforeJoin.status}`);
+
+  await setPolicy({ leaveNotice: { shortNoticeAction: "block" } });
+  const blocked = await http("POST", "/leave", { token: S.s1.token, body: { intendedLeaveDate: plus(44), reason: "Short" } });
+  check("L2a", "44 days under 'block': refused and the earliest allowed date is shown", blocked.status === 422 && blocked.data.earliestCompliantDate === plus(45), `${blocked.status} ${blocked.data?.earliestCompliantDate}`);
+  await setPolicy({ leaveNotice: { shortNoticeAction: "allow_with_charge", shortNoticeChargeDays: 3 } });
+  const charged = await http("POST", "/leave", { token: S.s1.token, body: { intendedLeaveDate: plus(44), reason: "Short" } });
+  const chargeInv = charged.data?.notice?.shortNoticeCharge?.invoice ? await FeeInvoice.findById(charged.data.notice.shortNoticeCharge.invoice).lean() : null;
+  check("L2b", "44 days under 'charge': accepted + flagged; charge = 3 × 8,000/30 = 800 on a labelled invoice", charged.status === 201 && charged.data.notice.flagged && charged.data.notice.shortBy === 1 && chargeInv?.amount === 800 && /Short-notice charge/.test(chargeInv.title), `${charged.status} ${charged.data?.message || ""} ${chargeInv?.amount}`);
+  const wd = await http("POST", `/leave/${charged.data?.notice?.id}/withdraw`, { token: S.s1.token });
+  const seatsAfterWd = await http("GET", `/blocks/${S.blockA._id}/seats`, { token: S.wardenA.token });
+  const s1Seat = () => seatsAfterWd.data?.blocks?.[0]?.rooms?.find((r) => r.roomNumber === "A2")?.seats?.[0];
+  check("L6", "Withdraw before approval: withdrawn, charge voided, seat unchanged (occupied)", wd.status === 200 && wd.data.notice.status === "withdrawn" && (await FeeInvoice.findById(chargeInv?._id).lean())?.status === "void" && s1Seat()?.status === "occupied", `${wd.status} ${s1Seat()?.status}`);
+  await setPolicy({ leaveNotice: { shortNoticeAction: "allow_flag_only", shortNoticeChargeDays: 0 } });
+  const flagged = await http("POST", "/leave", { token: S.s1.token, body: { intendedLeaveDate: plus(44), reason: "Short" } });
+  check("L2c", "44 days under 'flag only': accepted, flagged, no charge", flagged.status === 201 && flagged.data.notice.flagged && !flagged.data.notice.shortNoticeCharge?.invoice, String(flagged.status));
+  await http("POST", `/leave/${flagged.data?.notice?.id}/withdraw`, { token: S.s1.token });
+
+  const ok = await http("POST", "/leave", { token: S.s1.token, body: { intendedLeaveDate: plus(45), reason: "Graduating" } });
+  S.s1Notice = ok.data?.notice?.id;
+  S.s1LeaveDay = plus(45);
+  check("L1", "Exactly 45 days ahead: compliant, submitted", ok.status === 201 && ok.data.notice.status === "submitted" && ok.data.notice.shortBy === 0 && !ok.data.notice.flagged && ok.data.notice.noticeDaysGiven === 45, `${ok.status} ${ok.data?.message || ""}`);
+  const second = await http("POST", "/leave", { token: S.s1.token, body: { intendedLeaveDate: plus(60), reason: "again" } });
+  check("L5", "Second open notice for the same stay → 409", second.status === 409, String(second.status));
+  const b16 = await http("POST", "/leave", { token: S.s2.token, body: { intendedLeaveDate: plus(16), reason: "Moving" } });
+  S.s2Notice = b16.data?.notice?.id;
+  check("L3", "Block B (15-day override) student, 16 days ahead: compliant", b16.status === 201 && b16.data.notice.policyDays === 15 && !b16.data.notice.flagged, `${b16.status} ${b16.data?.notice?.policyDays}`);
+
+  await setPolicy({ leaveNotice: { days: 60 } });
+  const snap = await LeaveNotice.findById(S.s1Notice).lean();
+  check("L9", "Changing policy after submission doesn't alter the snapshot (still 45)", snap.policyDays === 45 && snap.shortBy === 0, String(snap.policyDays));
+  await setPolicy({ leaveNotice: { days: 45 } });
+
+  const decWB = await http("POST", `/leave/${S.s1Notice}/decide`, { token: S.wardenB.token, body: { decision: "approve" } });
+  const decWA = await http("POST", `/leave/${S.s1Notice}/decide`, { token: S.wardenA.token, body: { decision: "approve" } });
+  const decX = await http("POST", `/leave/${S.s1Notice}/decide`, { token: S.ownerB.token, body: { decision: "approve" } });
+  const listX = await http("GET", `/leave?hostelId=${hA}`, { token: S.wardenX.token });
+  const otherWithdraw = await http("POST", `/leave/${S.s1Notice}/withdraw`, { token: S.o1.token });
+  check("L8", "Other block's warden, own warden (no permission), other owner → 403; other student can't withdraw", [decWB, decWA, decX, listX, otherWithdraw].every((r) => r.status === 403), [decWB, decWA, decX, listX, otherWithdraw].map((r) => r.status).join("/"));
+  const appr = await http("POST", `/leave/${S.s1Notice}/decide`, { token: S.ownerA.token, body: { decision: "approve", note: "Good luck" } });
+  const seats = await http("GET", `/head-office/hostels/${hA}/seats?blockId=${S.blockA._id}`, { token: S.ownerA.token });
+  const seat = seats.data?.blocks?.[0]?.rooms?.find((r) => r.roomNumber === "A2")?.seats?.[0];
+  const pov = await http("GET", `/parent-panel/children/${S.s1.id}/overview`, { token: S.parent1.token });
+  check("L7", "Head office approves: seat 'leaving', still counted occupied, available from the date; parent sees it read-only", appr.status === 200 && seat?.status === "leaving" && seat.availableFrom === S.s1LeaveDay && seats.data.summary.leaving === 1 && pov.data?.leave?.status === "approved", `${appr.status} ${seat?.status} ${seat?.availableFrom} ${pov.data?.leave?.status}`);
+  const twice = await http("POST", `/leave/${S.s1Notice}/decide`, { token: S.ownerA.token, body: { decision: "reject", note: "x" } });
+  check("L7b", "Deciding twice → 409", twice.status === 409, String(twice.status));
+  await setPolicy({ leaveNotice: { wardenCanApprove: true } });
+  const wbOk = await http("POST", `/leave/${S.s2Notice}/decide`, { token: S.wardenB.token, body: { decision: "reject", note: "Pay November first" } });
+  check("L8b", "With wardenCanApprove on, the block's own warden can decide (reject needs a note)", wbOk.status === 200 && wbOk.data.notice.status === "rejected", String(wbOk.status));
+  await setPolicy({ reset: ["leaveNotice.wardenCanApprove"] });
+
+  // L13 (offline O2, identical endpoints)
+  const o2n = await http("POST", "/leave", { token: S.o2.token, body: { intendedLeaveDate: plus(50), reason: "Job" } });
+  const o2a = await http("POST", `/leave/${o2n.data?.notice?.id}/decide`, { token: S.ownerA.token, body: { decision: "approve" } });
+  check("L13", "Offline student gives notice and gets it approved through the same flow", o2n.status === 201 && o2a.status === 200, `${o2n.status}/${o2a.status}`);
+
+  // L12: reminders 7 days and 1 day before (deduped)
+  const leaveDate = clock.parseDay(S.s1LeaveDay);
+  const at = (n) => new Date(clock.addDays(leaveDate, -n).getTime() + 12 * 3600000);
+  await setToday(at(7));
+  await http("POST", "/jobs/daily", { token: S.admin.token });
+  await http("POST", "/jobs/daily", { token: S.admin.token });
+  await setToday(at(1));
+  await http("POST", "/jobs/daily", { token: S.admin.token });
+  // the warden also gets O2's reminder (same block) — count only the ones about S1's date
+  const aboutS1 = async (id, type) => ((await User.findById(id).select("notifications").lean())?.notifications || []).filter((n) => n.type === type && n.message.includes(S.s1LeaveDay)).length;
+  const r7 = await Promise.all([S.s1.id, S.parent1.id, S.wardenA.id].map((id) => aboutS1(id, "leave_reminder7")));
+  const r1 = await notifCount(S.s1.id, "leave_reminder1");
+  check("L12", "7-day and 1-day reminders reach student, parent and warden once each", r7.every((n) => n === 1) && r1 === 1, `${r7} / ${r1}`);
+
+  // L10: checkout blocked by unpaid rent (O1 still owes rent)
+  const blockedOut = await http("POST", `/head-office/hostels/${hA}/residents/${S.o1.bookingId}/checkout`, { token: S.ownerA.token, body: {} });
+  check("L10", "Checkout with unpaid rent is blocked with the list of dues", blockedOut.status === 409 && blockedOut.data.dues?.[0]?.rentDue === 5000, `${blockedOut.status} ${JSON.stringify(blockedOut.data?.dues)}`);
+  const early = await http("POST", `/head-office/hostels/${hA}/residents/${S.s1.bookingId}/checkout`, { token: S.ownerA.token, body: {} });
+  check("L10b", "Checkout before the approved leave date is refused", early.status === 409 && /leave date/.test(early.data?.message), `${early.status} ${early.data?.message}`);
+
+  // L11: on the leave date
+  await setToday(new Date(leaveDate.getTime() + 12 * 3600000));
+  const xOut = await http("POST", `/head-office/hostels/${hA}/residents/${S.s1.bookingId}/checkout`, { token: S.ownerB.token, body: {} });
+  const before = (await Room.findById(S.roomA2._id).lean()).availableBeds;
+  const out = await http("POST", `/head-office/hostels/${hA}/residents/${S.s1.bookingId}/checkout`, { token: S.ownerA.token, body: { damages: [{ label: "Broken chair", amount: 1500 }] } });
+  const st = out.data?.settlement || {};
+  const noticeDone = await LeaveNotice.findById(S.s1Notice).lean();
+  const afterBeds = (await Room.findById(S.roomA2._id).lean()).availableBeds;
+  check("L11a", "S1 checkout: deposit 10,000 − dues 0 − damage 1,500 = refund 8,500; notice completed; bed back", xOut.status === 403 && out.status === 200 && st.deposit === 10000 && st.duesTotal === 0 && st.damagesTotal === 1500 && st.refund === 8500 && noticeDone.status === "completed" && afterBeds === before + 1, `${xOut.status}/${out.status} ${JSON.stringify(st).slice(0, 160)}`);
+  const outTwice = await http("POST", `/head-office/hostels/${hA}/residents/${S.s1.bookingId}/checkout`, { token: S.ownerA.token, body: {} });
+  check("L11b", "Checking out twice → 409, no double refund", outTwice.status === 409, String(outTwice.status));
+  // O1 (offline): pay the rent, leaving the frozen fine; checkout settles the fine from the deposit
+  const o1q = await quote(S.o1.rentInvoice, S.ownerA.token);
+  await http("POST", `/fees/invoices/${S.o1.rentInvoice}/payments`, { token: S.ownerA.token, body: { amount: o1q.rentDue, method: "cash" } });
+  const o1After = await quote(S.o1.rentInvoice, S.ownerA.token);
+  const o1Out = await http("POST", `/head-office/hostels/${hA}/residents/${S.o1.bookingId}/checkout`, { token: S.ownerA.token, body: { damages: [{ label: "Lost key", amount: 1000 }] } });
+  const o1st = o1Out.data?.settlement || {};
+  const o1Final = await quote(S.o1.rentInvoice, S.ownerA.token);
+  check("L11c", "Offline O1: deposit 10,000 − fine dues − 1,000 damage settled exactly; fine cleared by a deposit adjustment receipt", o1Out.status === 200 && o1st.duesTotal === o1After.fineDue && o1st.refund === 10000 - o1After.fineDue - 1000 && o1Final.totalDue === 0 && o1Out.data.adjustments.length === 1, `${o1Out.status} ${o1Out.data?.message || ""} fine ${o1After.fineDue} ${JSON.stringify(o1st).slice(0, 140)}`);
+}
+
+const SECTIONS = [clockAndPolicies, offlineResidents, finesAndWaivers, leaveNotices];
 
 async function main() {
   if (!process.env.MONGO_URI) throw new Error("MONGO_URI is required (same database the API at BASE_URL uses).");

@@ -10,6 +10,7 @@ const FeeInvoice = require("../models/FeeInvoice");
 const FeePayment = require("../models/FeePayment");
 const Complaint = require("../models/Complaint");
 const Notice = require("../models/Notice");
+const LeaveNotice = require("../models/LeaveNotice");
 const { protect, authorize } = require("../middleware/auth");
 const requireDb = require("../middleware/requireDb");
 const { recordAudit } = require("../services/auditService");
@@ -220,8 +221,10 @@ router.get("/children/:studentId/overview", authorize("parent"), requireOwnChild
   try {
     const { studentId } = req.params;
     const [student, stay, fees, complaints] = await Promise.all([User.findById(studentId).select("name university").lean(), currentStay(studentId), childFees(studentId), childComplaints(studentId)]);
-    const [seat, notices] = await Promise.all([childSeat(stay), childNotices(stay)]);
-    return res.json({ student: { id: String(studentId), name: student?.name, university: student?.university }, seat, fees, complaints, notices });
+    const [seat, notices, leave] = await Promise.all([childSeat(stay), childNotices(stay), stay ? LeaveNotice.findOne({ booking: stay.booking._id, status: { $in: ["submitted", "approved"] } }).lean() : null]);
+    // read-only view of an open leave notice
+    const leaveView = leave ? { status: leave.status, intendedLeaveDate: leave.intendedLeaveDate, noticeDaysGiven: leave.noticeDaysGiven, policyDays: leave.policyDays, shortBy: leave.shortBy, decisionNote: leave.decisionNote } : null;
+    return res.json({ student: { id: String(studentId), name: student?.name, university: student?.university }, seat, fees, complaints, notices, leave: leaveView });
   } catch (error) {
     return next(error);
   }
