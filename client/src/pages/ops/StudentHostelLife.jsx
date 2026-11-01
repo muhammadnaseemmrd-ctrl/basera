@@ -39,7 +39,7 @@ function Fees() {
   if (loading) return <p>Loading fees…</p>;
   if (error) return <Notice tone="error">{error}</Notice>;
   return (
-    <section className="panel p-5">
+    <section className="panel min-w-0 p-5">
       <h2 className="mb-1 text-xl font-bold">Hostel fees</h2>
       <p className="mb-4 text-sm text-slate-700">Billed {money(data.totals.billed)}{data.totals.fines ? ` · Fines ${money(data.totals.fines)}` : ""}{data.totals.discounts ? ` · You saved ${money(data.totals.discounts)}` : ""} · Paid {money(data.totals.paid)} · <b>Due {money(data.totals.due)}</b></p>
       <Notice tone="error">{msg}</Notice>
@@ -113,7 +113,7 @@ function Complaints() {
   };
 
   return (
-    <section className="panel p-5">
+    <section className="panel min-w-0 p-5">
       <h2 className="mb-3 text-xl font-bold">Complaints</h2>
       <Notice tone={msg.tone}>{msg.text}</Notice>
       <form onSubmit={submit} className="mb-6 grid gap-3 sm:grid-cols-2">
@@ -153,7 +153,7 @@ function Notices() {
   const { data, loading, error, reload } = useLoad("/notices/my");
   const read = async (n) => { if (!n.read) { await api.post(`/notices/${n.id}/read`).catch(() => {}); reload(); } };
   return (
-    <section className="panel p-5">
+    <section className="panel min-w-0 p-5">
       <h2 className="mb-3 text-xl font-bold">Hostel notices {data?.unread ? <span className="ml-2 rounded-full bg-[#C81E1E] px-2 py-0.5 text-xs text-white">{data.unread} new</span> : null}</h2>
       {loading ? <p>Loading…</p> : error ? <Notice tone="error">{error}</Notice> : !data.results.length ? <p className="text-slate-700">No notices.</p> : (
         <ul className="grid gap-3">
@@ -175,7 +175,7 @@ function Offers() {
   if (loading || error || !data) return null;
   if (!data.results.length && !data.savings.total) return null;
   return (
-    <section className="panel p-5">
+    <section className="panel min-w-0 p-5">
       <h2 className="mb-1 text-xl font-bold">Offers for you</h2>
       {data.savings.total ? <p className="mb-3 text-sm text-accent-700">You have saved <b>{money(data.savings.total)}</b> with hostel offers.</p> : null}
       <ul className="grid gap-2 text-sm">
@@ -225,7 +225,7 @@ function Leave() {
   if (policy.error) return null; // no active stay
   if (!p) return null;
   return (
-    <section className="panel p-5">
+    <section className="panel min-w-0 p-5">
       <h2 className="mb-1 text-xl font-bold">Leave hostel</h2>
       <p className="mb-3 text-sm text-slate-700">This hostel needs <b>{p.policyDays} days&apos; notice</b>. Earliest leave date without penalty: <b>{p.earliestCompliantDate}</b>.</p>
       <Notice tone={msg.tone}>{msg.text}</Notice>
@@ -271,7 +271,7 @@ function Visitors() {
     try { await api.post(`/visitors/${v.id}/cancel`); reload(); } catch (error) { setMsg({ tone: "error", text: errMsg(error) }); }
   };
   return (
-    <section className="panel p-5">
+    <section className="panel min-w-0 p-5">
       <h2 className="mb-3 text-xl font-bold">Visitors</h2>
       <Notice tone={msg.tone}>{msg.text}</Notice>
       <form onSubmit={submit} className="grid gap-3 sm:grid-cols-3">
@@ -311,7 +311,7 @@ function Transfer() {
     }
   };
   return (
-    <section className="panel p-5">
+    <section className="panel min-w-0 p-5">
       <h2 className="mb-3 text-xl font-bold">Change room</h2>
       <Notice tone={msg.tone}>{msg.text}</Notice>
       {open ? <p className="text-sm">Request to move to room {open.toRoom?.roomNumber}, seat {open.toBed + 1} is waiting for the office.</p> : (

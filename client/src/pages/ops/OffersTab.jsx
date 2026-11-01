@@ -90,7 +90,7 @@ export function OffersTab({ hostelId, blocks, mode }) {
     <div className="grid gap-6">
       <Notice tone={msg.tone}>{msg.text}</Notice>
       {isHead ? (
-        <form onSubmit={create} className="panel grid gap-3 p-5">
+        <form onSubmit={create} className="panel min-w-0 grid gap-3 p-5">
           <h3 className="text-lg font-bold">New offer</h3>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {input("Name *", "name", { required: true })}
@@ -144,7 +144,7 @@ export function OffersTab({ hostelId, blocks, mode }) {
       ) : null}
 
       {isHead && pending.data?.results?.length ? (
-        <section className="panel p-5">
+        <section className="panel min-w-0 p-5">
           <h3 className="mb-2 text-lg font-bold">Waiting for approval</h3>
           <ul className="grid gap-2 text-sm">
             {pending.data.results.map((r) => (
@@ -160,7 +160,7 @@ export function OffersTab({ hostelId, blocks, mode }) {
         </section>
       ) : null}
 
-      <section className="panel p-5">
+      <section className="panel min-w-0 p-5">
         <h3 className="mb-3 text-lg font-bold">Offers</h3>
         {offers.loading ? <p>Loading…</p> : offers.error ? <Notice tone="error">{offers.error}</Notice> : !offers.data.results.length ? <p className="text-sm text-slate-700">No offers yet.</p> : (
           <div className="grid gap-3">

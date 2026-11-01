@@ -2,6 +2,7 @@
 // online students end up as the same thing: a User(role student) + a Booking on a seat.
 // The only differences are Booking.source="offline", commission 0 and no escrow.
 const crypto = require("crypto");
+const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const Room = require("../models/Room");
 const Booking = require("../models/Booking");
@@ -102,11 +103,10 @@ async function admitResident({ hostelId, value: v, actor, actorRole, authorizeRo
       const digits = String(v.phone).replace(/\D/g, "");
       tempPassword = wantsLogin ? crypto.randomBytes(5).toString("hex") : null;
       claimCode = wantsLogin ? null : code8();
-      student = await User.create({
+      const doc = {
         name: v.name,
         phone: v.phone,
         email: v.email || `${digits}@resident.basera.invalid`,
-        password: tempPassword || crypto.randomBytes(24).toString("hex"),
         role: "student",
         isVerified: true,
         loginEnabled: wantsLogin,
@@ -116,7 +116,17 @@ async function admitResident({ hostelId, value: v, actor, actorRole, authorizeRo
         university: v.university,
         emergencyContact: v.emergencyContact,
         residentProfile: { cnic: v.cnic, dob: v.dob || undefined, homeAddress: v.homeAddress, employer: v.employer, photoUrl: v.photoUrl, cnicDocUrl: v.cnicDocUrl, billingPlan: v.billingPlan, guardians: v.guardians }
-      });
+      };
+      if (wantsLogin) {
+        // a real login: the normal save hook hashes the temp password at full cost
+        student = await User.create({ ...doc, password: tempPassword });
+      } else {
+        // No login yet: the password is a random secret nobody knows (login is refused until the
+        // claim sets a real one, which is hashed normally). Hashing it at cost 12 took ~1 s per
+        // resident and made a 300-row CSV import run for minutes, so store a cheap hash of the
+        // throwaway secret and skip the save hook (insertMany still validates).
+        [student] = await User.insertMany([{ ...doc, password: bcrypt.hashSync(crypto.randomBytes(24).toString("hex"), 4) }]);
+      }
       undo.push(() => User.deleteOne({ _id: student._id }));
     }
 

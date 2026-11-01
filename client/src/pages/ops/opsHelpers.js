@@ -6,7 +6,16 @@ import { api } from "../../services/api";
 
 export const money = (n) => `PKR ${Number(n || 0).toLocaleString("en-PK")}`;
 export const dateShort = (d) => (d ? new Date(d).toLocaleDateString("en-GB") : "-");
-export const errMsg = (error, fallback = "Something went wrong.") => error?.response?.data?.message || error?.message || fallback;
+// validation endpoints return every problem in `errors`; show them all, not just the first
+export const errMsg = (error, fallback = "Something went wrong.") => {
+  const data = error?.response?.data;
+  // strings from hostel-ops validators, { field, message } objects from express-validator
+  if (Array.isArray(data?.errors) && data.errors.length) {
+    const list = data.errors.map((e) => (typeof e === "string" ? e : e?.message)).filter(Boolean);
+    if (list.length > 1 || data.message === "Validation failed.") return list.join(" ");
+  }
+  return data?.message || error?.message || fallback;
+};
 
 /** Load JSON from the API with loading/error state and a reload() handle. A null path loads nothing. */
 export function useLoad(path) {

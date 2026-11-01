@@ -269,6 +269,11 @@ async function offlineResidents() {
   const relogin = await http("POST", "/auth/login", { body: { email: claimEmail, password: PASSWORD } });
   const reuse = await http("POST", "/residents/claim", { body: { code: invite.data?.code, phone: S.o1.phone, password: PASSWORD } });
   check("O6g", "Normal login works afterwards; the code is single-use", relogin.status === 200 && reuse.status === 404, `${relogin.status}/${reuse.status}`);
+  // QA-08 regression: unclaimed residents are stored with a cheap hash of a throwaway secret (fast
+  // imports); the claimed password is hashed at full cost by the normal save hook.
+  const unclaimed = await User.findById(S.csv1?.studentId).select("+password loginEnabled").lean();
+  const claimed = await User.findById(S.o1.id).select("+password").lean();
+  check("O6i", "Unclaimed CSV resident: cheap placeholder hash + login disabled; claimed resident: full-cost hash", /^\$2[aby]\$04\$/.test(unclaimed?.password || "") && unclaimed.loginEnabled === false && /^\$2[aby]\$12\$/.test(claimed?.password || ""), `${String(unclaimed?.password).slice(0, 7)} ${unclaimed?.loginEnabled} / ${String(claimed?.password).slice(0, 7)}`);
   const g = await http("POST", "/parent-panel/claim", { token: S.parentO.token, body: { code: S.o1.guardianCode } });
   check("O6h", "Guardian of the offline student claims the parent invite issued at admission", g.status === 200, String(g.status));
 }

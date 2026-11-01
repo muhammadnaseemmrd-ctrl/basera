@@ -49,7 +49,7 @@ export function VisitorsTab({ hostelId, blockId }) {
   return (
     <div className="grid gap-6">
       <Notice tone={msg.tone}>{msg.text}</Notice>
-      <form onSubmit={log} className="panel grid gap-3 p-5 sm:grid-cols-3">
+      <form onSubmit={log} className="panel min-w-0 grid gap-3 p-5 sm:grid-cols-3">
         <h3 className="text-lg font-bold sm:col-span-3">Log a walk-in visitor</h3>
         <select className="input" required value={f.studentId} onChange={(e) => setF({ ...f, studentId: e.target.value })} aria-label="Resident visited">
           <option value="">Visiting which resident…</option>
@@ -61,7 +61,7 @@ export function VisitorsTab({ hostelId, blockId }) {
         <input className="input sm:col-span-2" required placeholder="Purpose" value={f.purpose} onChange={(e) => setF({ ...f, purpose: e.target.value })} />
         <button type="submit" className="btn-primary w-fit">Log visitor</button>
       </form>
-      <section className="panel p-5">
+      <section className="panel min-w-0 p-5">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <h3 className="text-lg font-bold">Visitor log</h3>
           <select className="input max-w-[10rem]" value={status} onChange={(e) => setStatus(e.target.value)} aria-label="Status">
@@ -123,7 +123,7 @@ export function ReportsTab({ hostelId, blockId, mode }) {
   const rows = data.data?.rows || [];
   const cols = rows.length ? Object.keys(rows[0]) : [];
   return (
-    <section className="panel p-5">
+    <section className="panel min-w-0 p-5">
       <div className="mb-3 grid gap-3 sm:grid-cols-[1fr_10rem_10rem_auto] sm:items-end">
         <label className="grid gap-1 text-sm font-semibold">Report
           <select className="input" value={report} onChange={(e) => setReport(e.target.value)}>
@@ -191,14 +191,14 @@ export function ExpensesTab({ hostelId }) {
     <div className="grid gap-6">
       <Notice tone={msg.tone}>{msg.text}</Notice>
       {profit.data ? (
-        <section className="panel grid gap-3 p-5 sm:grid-cols-3">
+        <section className="panel min-w-0 grid gap-3 p-5 sm:grid-cols-3">
           <div><p className="text-xs font-bold uppercase text-slate-600">Collections (this month)</p><p className="text-2xl font-extrabold">{money(profit.data.summary.collections)}</p></div>
           <div><p className="text-xs font-bold uppercase text-slate-600">Expenses</p><p className="text-2xl font-extrabold">{money(profit.data.summary.expenses)}</p></div>
           <div><p className="text-xs font-bold uppercase text-slate-600">Profit</p><p className={`text-2xl font-extrabold ${profit.data.summary.profit < 0 ? "text-[#991B1B]" : "text-accent-700"}`}>{money(profit.data.summary.profit)}</p></div>
           <p className="text-xs text-slate-600 sm:col-span-3">Collections exclude refundable security deposits. Use Reports → Profit for other months.</p>
         </section>
       ) : null}
-      <form onSubmit={add} className="panel grid gap-3 p-5 sm:grid-cols-4">
+      <form onSubmit={add} className="panel min-w-0 grid gap-3 p-5 sm:grid-cols-4">
         <h3 className="text-lg font-bold sm:col-span-4">Record an expense</h3>
         <select className="input" value={f.category} onChange={(e) => setF({ ...f, category: e.target.value })} aria-label="Category">{CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}</select>
         <input className="input" required inputMode="numeric" placeholder="Amount (PKR)" value={f.amount} onChange={(e) => setF({ ...f, amount: e.target.value })} />
@@ -206,7 +206,7 @@ export function ExpensesTab({ hostelId }) {
         <input className="input" required placeholder="Description" value={f.note} onChange={(e) => setF({ ...f, note: e.target.value })} />
         <button type="submit" className="btn-primary w-fit">Save</button>
       </form>
-      <section className="panel p-5">
+      <section className="panel min-w-0 p-5">
         <h3 className="mb-2 text-lg font-bold">This month · total {money(list.data?.total)}</h3>
         {list.loading ? <p>Loading…</p> : list.error ? <Notice tone="error">{list.error}</Notice> : (
           <ul className="grid gap-1 text-sm">
@@ -240,7 +240,7 @@ export function TransfersTab({ hostelId }) {
     }
   };
   return (
-    <section className="panel p-5">
+    <section className="panel min-w-0 p-5">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-lg font-bold">Room / seat transfers</h3>
         <select className="input max-w-[10rem]" value={status} onChange={(e) => setStatus(e.target.value)} aria-label="Status">
@@ -295,7 +295,7 @@ export function SetupWizard({ hostelId, goTo }) {
   return (
     <div className="grid gap-6">
       <Notice tone={msg.tone}>{msg.text}</Notice>
-      <section className="panel p-5">
+      <section className="panel min-w-0 p-5">
         <h3 className="mb-1 text-lg font-bold">Hostel setup checklist</h3>
         {ob.data ? <p className="mb-3 text-sm text-slate-700">Plan {ob.data.plan.tier}: {ob.data.plan.seats} seat(s){ob.data.plan.limit ? ` of ${ob.data.plan.limit}` : " (unlimited)"}.</p> : null}
         {ob.loading ? <p>Loading…</p> : ob.error ? <Notice tone="error">{ob.error}</Notice> : (
@@ -312,7 +312,7 @@ export function SetupWizard({ hostelId, goTo }) {
           </ol>
         )}
       </section>
-      <form onSubmit={saveBrand} className="panel grid gap-3 p-5 sm:grid-cols-2">
+      <form onSubmit={saveBrand} className="panel min-w-0 grid gap-3 p-5 sm:grid-cols-2">
         <h3 className="text-lg font-bold sm:col-span-2">Receipt branding</h3>
         <input className="input" placeholder="Logo URL (https://…, PNG/JPG)" value={brand.logoUrl} onChange={(e) => setBrand({ ...brand, logoUrl: e.target.value })} />
         <input className="input" placeholder="Office phone" value={brand.contactPhone} onChange={(e) => setBrand({ ...brand, contactPhone: e.target.value })} />
@@ -320,7 +320,7 @@ export function SetupWizard({ hostelId, goTo }) {
         <input className="input" placeholder="Receipt footer text" value={brand.receiptFooter} onChange={(e) => setBrand({ ...brand, receiptFooter: e.target.value })} />
         <button type="submit" className="btn-primary w-fit">Save branding</button>
       </form>
-      <section className="panel p-5">
+      <section className="panel min-w-0 p-5">
         <h3 className="mb-1 text-lg font-bold">Your data</h3>
         <p className="mb-3 text-sm text-slate-700">Download everything for this hostel (residents, invoices, receipts, complaints, notices, leave, offers, visitors, expenses) as one JSON file.</p>
         <button type="button" onClick={exportAll} className="btn-secondary">Download everything</button>

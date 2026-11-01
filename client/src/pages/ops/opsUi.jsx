@@ -21,7 +21,7 @@ export function Tabs({ tabs, value, onChange }) {
 }
 
 export function Notice({ tone = "info", children }) {
-  const tones = { info: "bg-primary-50 text-primary-800", ok: "bg-accent-50 text-accent-700", error: "bg-[#FEE2E2] text-[#991B1B]" };
+  const tones = { info: "bg-primary-50 text-primary-800", ok: "bg-[#ECFDF5] text-[#047857]", error: "bg-[#FEE2E2] text-[#991B1B]" };
   if (!children) return null;
   return (
     <p role="status" className={`mb-4 rounded-md px-4 py-3 text-sm font-semibold ${tones[tone]}`}>
@@ -83,9 +83,9 @@ export function SeatBlocks({ blocks }) {
 }
 
 const STATUS_TONE = {
-  paid: "bg-accent-50 text-accent-700",
-  resolved: "bg-accent-50 text-accent-700",
-  fixed: "bg-accent-50 text-accent-700",
+  paid: "bg-[#ECFDF5] text-[#047857]",
+  resolved: "bg-[#ECFDF5] text-[#047857]",
+  fixed: "bg-[#ECFDF5] text-[#047857]",
   partial: "bg-[#FEF3C7] text-[#92400E]",
   in_progress: "bg-[#FEF3C7] text-[#92400E]",
   under_review: "bg-[#FEF3C7] text-[#92400E]",
@@ -95,7 +95,7 @@ const STATUS_TONE = {
   escalated: "bg-[#EDE9FE] text-[#5B21B6]",
   terminated: "bg-[#FEE2E2] text-[#991B1B]",
   suspended: "bg-[#FEF3C7] text-[#92400E]",
-  active: "bg-accent-50 text-accent-700",
+  active: "bg-[#ECFDF5] text-[#047857]",
   pending: "bg-[#FEF3C7] text-[#92400E]"
 };
 export function Pill({ value }) {
@@ -135,6 +135,24 @@ export function InvoiceBreakdown({ invoice: i }) {
         <p className="font-bold text-slate-900">
           To clear today: {money(i.payToday ?? i.totalDue)}{i.payTomorrow > (i.payToday ?? i.totalDue) ? <span className="font-normal text-slate-600"> · tomorrow {money(i.payTomorrow)}</span> : null}
         </p>
+      ) : null}
+    </div>
+  );
+}
+
+/** "Showing 1–100 of 900" with previous/next for server-paged lists. */
+export function Pager({ data, page, setPage, label = "items" }) {
+  if (!data?.total) return null;
+  const from = (page - 1) * data.limit + 1;
+  const to = Math.min(data.total, page * data.limit);
+  return (
+    <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-sm text-slate-700">
+      <span>Showing {from}–{to} of {data.total} {label}</span>
+      {data.pages > 1 ? (
+        <span className="flex gap-2">
+          <button type="button" className="btn-secondary px-3 py-1 text-xs" disabled={page <= 1} onClick={() => setPage(page - 1)}>Previous</button>
+          <button type="button" className="btn-secondary px-3 py-1 text-xs" disabled={page >= data.pages} onClick={() => setPage(page + 1)}>Next</button>
+        </span>
       ) : null}
     </div>
   );

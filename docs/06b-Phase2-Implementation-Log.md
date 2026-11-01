@@ -67,7 +67,9 @@ Both live scripts need the API running outside production against the **same** t
 5. **Advance-month offers** are checked against one invoice's period at payment time. There is no "pay 3 months in one go" bundle.
 6. **Two transfers into the same seat** are prevented by a re-check after the move plus a rollback, not by a database constraint on (room, bed) for live bookings.
 7. **The runtime clock offset is per process.** With several API instances, use `CLOCK_OFFSET_DAYS`, which is shared through the environment.
-8. **List screens recompute the fines of open invoices on each request.** That is fine at pilot scale but not load-tested; at large scale, rely on the daily job and cache.
+8. **List screens recompute the fines of open invoices on each request.** Measured in QA at 300 residents / 900 invoices: Fees tab 1.5 s, Residents 1.45 s, Seats 0.9 s (see `QA-Phase2-Report.md`). Invoice and receipt lists are paged (100 per page); complaints, waivers, leave, visitors, redemptions and parent links still stop at 300 rows (QA-10).
+8a. **CSV import** runs in one request: about 20 s for 300 rows after the QA-08 fix (residents without a login get a cheap hash of a throwaway secret until they claim one). Split very large files.
+8b. **The hostel-ops screens are English-only** and have no Urdu toggle (QA-11).
 9. **Offline residents must have a phone number**, because it is the duplicate key and the claim check.
 10. **Six pre-existing marketplace pages** keep a targeted `react-hooks/set-state-in-effect` disable, and older routes still use Mongoose's deprecated `{ new: true }` (a warning only). New Phase 2 code uses `returnDocument: "after"`.
 11. **PDF reports are plain tables**; CSV is the format meant for analysis.

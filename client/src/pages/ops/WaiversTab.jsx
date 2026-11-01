@@ -51,7 +51,7 @@ export function WaiversTab({ hostelId, mode }) {
   return (
     <div className="grid gap-6">
       <Notice tone={msg.tone}>{msg.text}</Notice>
-      <section className="panel p-5">
+      <section className="panel min-w-0 p-5">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <h3 className="text-lg font-bold">Fine waiver requests</h3>
           <select className="input max-w-[10rem]" value={status} onChange={(e) => setStatus(e.target.value)} aria-label="Status">
@@ -87,7 +87,7 @@ export function WaiversTab({ hostelId, mode }) {
         )}
       </section>
       {isHead && report.data ? (
-        <section className="panel p-5">
+        <section className="panel min-w-0 p-5">
           <h3 className="mb-3 text-lg font-bold">Fines charged vs waived (by month due)</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">

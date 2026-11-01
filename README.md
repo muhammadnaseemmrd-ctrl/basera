@@ -1195,6 +1195,7 @@ GET  /api/v1/blocks/:id/seats                          seat map for one block (w
 GET|POST /api/v1/staff  ·  PUT /api/v1/staff/:id  ·  POST /api/v1/staff/:id/suspend|reinstate|terminate
 GET  /api/v1/notices/my  ·  POST /api/v1/notices  ·  POST /api/v1/notices/:id/read
 POST /api/v1/fees/invoices  ·  POST /api/v1/fees/invoices/bulk  ·  GET /api/v1/fees/invoices|payments|students|my
+GET  /api/v1/fees/invoices|payments  ?page=&limit= (default 100, max 500) → { results, total, page, pages, limit }
 POST /api/v1/fees/invoices/:id/payments                cash ⇒ receiver recorded; bank/wallet/cheque ⇒ transactionId or hosted screenshot; txn id unique per hostel
 POST /api/v1/fees/invoices/:id/void  ·  POST /api/v1/fees/payments/:id/void
 GET  /api/v1/fees/payments/:id/receipt.pdf             student, linked parent or staff of that block

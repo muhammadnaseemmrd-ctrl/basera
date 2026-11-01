@@ -3,7 +3,7 @@ import { Helmet } from "react-helmet-async";
 import { Building2, ShieldAlert } from "lucide-react";
 import { api } from "../../services/api";
 import { downloadApiPdf } from "../../utils/downloadFile";
-import { ComplaintTimeline, InvoiceBreakdown, Notice, Pill, SeatBlocks, SeatLegend, Tabs } from "./opsUi";
+import { ComplaintTimeline, InvoiceBreakdown, Notice, Pager, Pill, SeatBlocks, SeatLegend, Tabs } from "./opsUi";
 import { dateShort, errMsg, money, uploadProof, useLoad } from "./opsHelpers";
 import { PoliciesTab } from "./PoliciesTab";
 import { ResidentsTab } from "./ResidentsTab";
@@ -20,7 +20,7 @@ function AllHostels() {
   if (loading || error || !data) return null;
   const { totals } = data;
   return (
-    <section className="panel mb-6 p-5">
+    <section className="panel min-w-0 mb-6 p-5">
       <h3 className="mb-3 text-lg font-bold">All hostels ({data.hostels.length})</h3>
       <div className="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
         <p><b>{totals.residents}</b> residents</p>
@@ -39,7 +39,7 @@ function Overview({ hostelId }) {
   if (error) return <Notice tone="error">{error}</Notice>;
   const { seats, fees, complaints, staff } = data;
   const tile = (label, value, hint) => (
-    <div className="panel p-4">
+    <div className="panel min-w-0 p-4">
       <p className="text-xs font-bold uppercase tracking-widest text-slate-600">{label}</p>
       <p className="mt-1 text-2xl font-extrabold">{value}</p>
       {hint ? <p className="text-xs text-slate-600">{hint}</p> : null}
@@ -58,7 +58,7 @@ function Overview({ hostelId }) {
         {tile("Open complaints", (c.raised || 0) + (c.under_review || 0) + (c.in_progress || 0) + (c.reopened || 0) + (c.escalated || 0), `${complaints.openOverThreeDays} older than 3 days`)}
         {tile("Staff active", staff.active || 0, `${staff.suspended || 0} suspended · ${staff.terminated || 0} terminated`)}
       </div>
-      <section className="panel p-5">
+      <section className="panel min-w-0 p-5">
         <h3 className="mb-3 text-lg font-bold">Occupancy by block</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
@@ -79,7 +79,7 @@ function Overview({ hostelId }) {
         </div>
       </section>
       {data.notices?.length ? (
-        <section className="panel p-5">
+        <section className="panel min-w-0 p-5">
           <h3 className="mb-2 text-lg font-bold">Latest notices</h3>
           <ul className="grid gap-1 text-sm">{data.notices.map((n) => <li key={n._id}><Pill value={n.type} /> {n.title} · {dateShort(n.createdAt)}</li>)}</ul>
         </section>
@@ -230,10 +230,13 @@ function ReceiptActions({ paymentId, receiptNo }) {
 
 function Fees({ hostelId, blockId, mode }) {
   const q = `hostelId=${hostelId}${blockId ? `&blockId=${blockId}` : ""}`;
-  const inv = useLoad(`/fees/invoices?${q}`);
-  const pays = useLoad(`/fees/payments?${q}`);
-  const studs = useLoad(`/fees/students?${q}`);
   const [status, setStatus] = useState("");
+  // lists are paged on the server; a big hostel has far more invoices than one screen
+  const [invPage, setInvPage] = useState(1);
+  const [payPage, setPayPage] = useState(1);
+  const inv = useLoad(`/fees/invoices?${q}${status ? `&status=${status}` : ""}&page=${invPage}`);
+  const pays = useLoad(`/fees/payments?${q}&page=${payPage}`);
+  const studs = useLoad(`/fees/students?${q}`);
   const [collecting, setCollecting] = useState("");
   const [last, setLast] = useState(null);
   const [form, setForm] = useState({ studentId: "", title: "Monthly rent", amount: "", period: new Date().toISOString().slice(0, 7), dueDate: "" });
@@ -295,7 +298,7 @@ function Fees({ hostelId, blockId, mode }) {
     try { await api.post(`/fees/payments/${p.id}/void`, { reason }); reloadAll(); } catch (error) { setMsg({ tone: "error", text: errMsg(error) }); }
   };
 
-  const rows = (inv.data?.results || []).filter((i) => !status || i.status === status);
+  const rows = inv.data?.results || [];
   return (
     <div className="grid gap-8">
       <Notice tone={msg.tone}>{msg.text}</Notice>
@@ -306,7 +309,7 @@ function Fees({ hostelId, blockId, mode }) {
         </div>
       ) : null}
 
-      <section className="panel p-5">
+      <section className="panel min-w-0 p-5">
         <h3 className="mb-3 text-lg font-bold">Create invoice</h3>
         <form onSubmit={create} className="grid gap-3 sm:grid-cols-5">
           <select className="input sm:col-span-2" required value={form.studentId} onChange={(e) => setForm({ ...form, studentId: e.target.value })} aria-label="Student">
@@ -324,13 +327,14 @@ function Fees({ hostelId, blockId, mode }) {
         </form>
       </section>
 
-      <section className="panel p-5">
+      <section className="panel min-w-0 p-5">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <h3 className="text-lg font-bold">Invoices</h3>
-          <select className="input max-w-[10rem]" value={status} onChange={(e) => setStatus(e.target.value)} aria-label="Status filter">
+          <select className="input max-w-[10rem]" value={status} onChange={(e) => { setStatus(e.target.value); setInvPage(1); }} aria-label="Status filter">
             <option value="">All</option><option value="unpaid">Unpaid</option><option value="partial">Partial</option><option value="paid">Paid</option>
           </select>
         </div>
+        <Pager data={inv.data} page={invPage} setPage={setInvPage} label="invoices" />
         {inv.loading ? <p>Loading…</p> : inv.error ? <Notice tone="error">{inv.error}</Notice> : !rows.length ? <p className="text-slate-700">No invoices.</p> : (
           <div className="grid gap-3">
             {rows.map((i) => (
@@ -354,8 +358,9 @@ function Fees({ hostelId, blockId, mode }) {
         )}
       </section>
 
-      <section className="panel p-5">
+      <section className="panel min-w-0 p-5">
         <h3 className="mb-3 text-lg font-bold">Receipts</h3>
+        <Pager data={pays.data} page={payPage} setPage={setPayPage} label="receipts" />
         {pays.loading ? <p>Loading…</p> : !(pays.data?.results || []).length ? <p className="text-slate-700">No payments yet.</p> : (
           <div className="overflow-x-auto"><table className="w-full text-left text-sm">
             <thead className="text-xs uppercase text-slate-600"><tr>{["Receipt", "Student", "Amount", "Method", "Ref", "By", "Date", ""].map((h) => <th key={h} className="py-2 pr-3">{h}</th>)}</tr></thead>
@@ -411,7 +416,7 @@ function Complaints({ hostelId, blockId, mode }) {
           {data.results.map((c) => {
             const old = !["resolved", "fixed"].includes(c.status) && now - new Date(c.createdAt) > 3 * 86400000;
             return (
-              <article key={c.id} className="panel p-4">
+              <article key={c.id} className="panel min-w-0 p-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="font-bold">{c.title} <span className="font-normal text-slate-600">· {c.category.replace("_", " ")} · Room {c.room?.roomNumber || "-"} · {c.student?.name}</span></p>
                   <p><Pill value={c.status} /> {old ? <span className="ml-1 text-xs font-bold text-[#991B1B]">overdue</span> : null}</p>
@@ -482,7 +487,7 @@ function Staff({ hostelId, blocks }) {
         </section>
       ) : null}
 
-      <section className="panel p-5">
+      <section className="panel min-w-0 p-5">
         <h3 className="mb-3 text-lg font-bold">Add staff member</h3>
         <form onSubmit={add} className="grid gap-3 sm:grid-cols-3">
           <input className="input" required placeholder="Full name" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} />
@@ -499,7 +504,7 @@ function Staff({ hostelId, blocks }) {
         </form>
       </section>
 
-      <section className="panel p-5">
+      <section className="panel min-w-0 p-5">
         <h3 className="mb-3 text-lg font-bold">Staff</h3>
         {loading ? <p>Loading…</p> : error ? <Notice tone="error">{error}</Notice> : !data.results.length ? <p className="text-slate-700">No staff yet.</p> : (
           <div className="grid gap-3">
@@ -544,7 +549,7 @@ function Parents({ hostelId, blockId }) {
   };
   return (
     <div className="grid gap-8">
-      <section className="panel p-5">
+      <section className="panel min-w-0 p-5">
         <h3 className="mb-1 text-lg font-bold">Invite a parent / guardian</h3>
         <p className="mb-3 text-sm text-slate-700">The parent signs up as “Parent” and enters the one-time code. A phone number alone never gives access.</p>
         <Notice tone="error">{msg}</Notice>
@@ -564,7 +569,7 @@ function Parents({ hostelId, blockId }) {
           </div>
         ) : null}
       </section>
-      <section className="panel p-5">
+      <section className="panel min-w-0 p-5">
         <h3 className="mb-3 text-lg font-bold">Linked guardians</h3>
         {links.loading ? <p>Loading…</p> : !(links.data?.results || []).length ? <p className="text-slate-700">None yet.</p> : (
           <ul className="grid gap-2 text-sm">{links.data.results.map((l) => <li key={l.id} className="flex flex-wrap items-center gap-2"><Pill value={l.status} /> <b>{l.parentName || "Parent"}</b> ({l.parentPhone}) → {l.student?.name}</li>)}</ul>
@@ -590,7 +595,7 @@ function Notices({ hostelId, blocks, mode }) {
   };
   return (
     <div className="grid gap-8">
-      <section className="panel p-5">
+      <section className="panel min-w-0 p-5">
         <h3 className="mb-3 text-lg font-bold">Post a notice</h3>
         <Notice tone={msg.tone}>{msg.text}</Notice>
         <form onSubmit={post} className="grid gap-3 sm:grid-cols-2">
@@ -604,7 +609,7 @@ function Notices({ hostelId, blocks, mode }) {
           <div><button className="btn-primary">Post notice</button></div>
         </form>
       </section>
-      <section className="panel p-5">
+      <section className="panel min-w-0 p-5">
         <h3 className="mb-3 text-lg font-bold">Notices</h3>
         {loading ? <p>Loading…</p> : error ? <Notice tone="error">{error}</Notice> : !data.results.length ? <p className="text-slate-700">No notices.</p> : (
           <ul className="grid gap-3">{data.results.map((n) => <li key={n.id} className="rounded-lg border border-line p-3"><p className="font-semibold"><Pill value={n.type} /> {n.title}</p><p className="text-sm text-slate-700">{n.message}</p><p className="mt-1 text-xs text-slate-500">{dateShort(n.createdAt)}{n.studentRecipients ? ` · ${n.studentRecipients} students` : ""}</p></li>)}</ul>
@@ -679,7 +684,7 @@ function Setup({ hostelId, blocks, reloadBlocks }) {
     <div className="grid gap-8">
       <Notice tone={msg.tone}>{msg.text}</Notice>
       <div className="grid gap-8 lg:grid-cols-2">
-        <section className="panel p-5">
+        <section className="panel min-w-0 p-5">
           <h3 className="mb-3 text-lg font-bold">1. Create a block</h3>
           <form onSubmit={addBlock} className="flex flex-wrap gap-3">
             <input className="input max-w-[12rem]" required placeholder="Block A" value={blockForm.name} onChange={(e) => setBlockForm({ ...blockForm, name: e.target.value })} />
@@ -689,7 +694,7 @@ function Setup({ hostelId, blocks, reloadBlocks }) {
           <p className="mt-3 text-sm text-slate-700">Blocks: {blocks.length ? blocks.map((b) => b.name).join(", ") : "none yet"}</p>
         </section>
 
-        <section className="panel p-5">
+        <section className="panel min-w-0 p-5">
           <h3 className="mb-3 text-lg font-bold">2. Add rooms in bulk</h3>
           <form onSubmit={addRooms} className="grid grid-cols-2 gap-3">
             <select className="input col-span-2" value={bulk.blockId} onChange={(e) => setBulk({ ...bulk, blockId: e.target.value })} aria-label="Block"><option value="">No block yet</option>{blocks.map((b) => <option key={b.id || b._id} value={b.id || b._id}>{b.name}</option>)}</select>
@@ -704,7 +709,7 @@ function Setup({ hostelId, blocks, reloadBlocks }) {
         </section>
       </div>
 
-      <section className="panel p-5">
+      <section className="panel min-w-0 p-5">
         <h3 className="mb-3 text-lg font-bold">3. Rooms ({roomList.length}) — move into a block</h3>
         {rooms.loading ? <p>Loading…</p> : !roomList.length ? <p className="text-slate-700">No rooms yet.</p> : (
           <form onSubmit={doAssign}>
@@ -724,7 +729,7 @@ function Setup({ hostelId, blocks, reloadBlocks }) {
         )}
       </section>
 
-      <section className="panel p-5">
+      <section className="panel min-w-0 p-5">
         <h3 className="mb-1 text-lg font-bold">4. Admit a current resident to a seat</h3>
         <p className="mb-3 text-sm text-slate-700">For students already living in the hostel (or who paid you directly). Creates their login and takes the seat off the marketplace.</p>
         <form onSubmit={doAdmit} className="grid gap-3 sm:grid-cols-4">
@@ -748,7 +753,7 @@ function Setup({ hostelId, blocks, reloadBlocks }) {
         ) : null}
       </section>
 
-      <section className="panel p-5">
+      <section className="panel min-w-0 p-5">
         <h3 className="mb-3 text-lg font-bold">Residents</h3>
         {students.loading ? <p>Loading…</p> : !(students.data?.results || []).length ? <p className="text-slate-700">No residents yet.</p> : (
           <ul className="grid gap-2 text-sm">{students.data.results.map((s) => <li key={s.bookingId} className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-line p-2"><span><b>{s.name}</b> · Room {s.roomNumber}, seat {Number.isInteger(s.bedIndex) ? s.bedIndex + 1 : "?"} · {blockName(s.blockId)}{s.balanceDue ? ` · owes ${money(s.balanceDue)}` : ""}</span><button type="button" onClick={() => checkout(s)} className="btn-secondary px-3 py-1 text-xs">Check out</button></li>)}</ul>
@@ -806,7 +811,7 @@ export function HostelOpsConsole({ mode }) {
         </div>
 
         {loading ? <p>Loading…</p> : loadError ? <Notice tone="error">{loadError}</Notice> : !hostelId ? (
-          <div className="panel p-8 text-center">
+          <div className="panel min-w-0 p-8 text-center">
             <ShieldAlert className="mx-auto mb-2 text-primary-800" />
             <p className="text-lg font-bold">{isHead ? "No hostels yet" : "No block assigned yet"}</p>
             <p className="mt-2 text-slate-700">{isHead ? "Create a hostel, add blocks and rooms from the host dashboard first." : "Ask the head office to assign you to a block."}</p>
@@ -835,7 +840,7 @@ export function HostelOpsConsole({ mode }) {
             {tab === "notices" ? <Notices hostelId={hostelId} blocks={blocks} mode={mode} /> : null}
             {tab === "policies" ? <PoliciesTab hostelId={hostelId} /> : null}
             {tab === "waivers" ? <WaiversTab hostelId={hostelId} mode={mode} /> : null}
-            {tab === "leave" ? <LeaveTab hostelId={hostelId} blockId={scopeBlock} /> : null}
+            {tab === "leave" ? <LeaveTab hostelId={hostelId} blockId={scopeBlock} mode={mode} /> : null}
             {tab === "offers" ? <OffersTab hostelId={hostelId} blocks={blocks} mode={mode} /> : null}
             {tab === "visitors" ? <VisitorsTab hostelId={hostelId} blockId={scopeBlock} /> : null}
             {tab === "transfers" ? <TransfersTab hostelId={hostelId} /> : null}

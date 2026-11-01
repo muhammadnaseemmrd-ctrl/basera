@@ -28,7 +28,7 @@ function ChildView({ studentId }) {
         </section>
       ) : null}
 
-      <section className="panel p-5">
+      <section className="panel min-w-0 p-5">
         <h2 className="mb-2 text-xl font-bold">{data.student.name}’s seat</h2>
         {seat ? (
           <dl className="grid gap-2 text-sm sm:grid-cols-3">
@@ -47,7 +47,7 @@ function ChildView({ studentId }) {
         </section>
       ) : null}
 
-      <section className="panel p-5">
+      <section className="panel min-w-0 p-5">
         <h2 className="mb-1 text-xl font-bold">Fees</h2>
         <p className="mb-3 text-sm">Billed {money(fees.billed)}{fees.fines ? ` · Fines ${money(fees.fines)}` : ""}{fees.discounts ? ` · Discounts −${money(fees.discounts)}` : ""} · Paid {money(fees.paid)} · <b>Due {money(fees.due)}</b></p>
         <ul className="grid gap-2">
@@ -65,7 +65,7 @@ function ChildView({ studentId }) {
       </section>
 
       {(visitors.data?.results || []).some((v) => String(v.student?._id || v.student) === String(studentId)) ? (
-        <section className="panel p-5">
+        <section className="panel min-w-0 p-5">
           <h2 className="mb-3 text-xl font-bold">Visitors</h2>
           <ul className="grid gap-1 text-sm">
             {visitors.data.results.filter((v) => String(v.student?._id || v.student) === String(studentId)).map((v) => <li key={v.id} className="flex flex-wrap justify-between gap-2 rounded-md border border-line p-2"><span>{v.visitorName} ({v.relation || "visitor"}) · {v.purpose}</span><span>{dateShort(v.createdAt)} · {v.status.replace("_", " ")}</span></li>)}
@@ -73,14 +73,14 @@ function ChildView({ studentId }) {
         </section>
       ) : null}
 
-      <section className="panel p-5">
+      <section className="panel min-w-0 p-5">
         <h2 className="mb-3 text-xl font-bold">Complaints</h2>
         {!complaints.length ? <p className="text-sm text-slate-700">None.</p> : (
           <div className="grid gap-3">{complaints.map((c) => <article key={c.id} className="rounded-lg border border-line p-3"><div className="flex flex-wrap justify-between gap-2"><b>{c.title}</b><Pill value={c.status} /></div><ComplaintTimeline items={c.timeline} /></article>)}</div>
         )}
       </section>
 
-      <section className="panel p-5">
+      <section className="panel min-w-0 p-5">
         <h2 className="mb-3 text-xl font-bold">Hostel notices</h2>
         {!notices.length ? <p className="text-sm text-slate-700">No notices.</p> : <ul className="grid gap-3">{notices.map((n) => <li key={n._id || n.id} className="rounded-lg border border-line p-3"><b>{n.title}</b><p className="text-sm">{n.message}</p><p className="text-xs text-slate-500">{dateShort(n.createdAt)}</p></li>)}</ul>}
       </section>
@@ -120,7 +120,7 @@ export function ParentPanelPage() {
           </div>
         </div>
 
-        <section className="panel mb-8 p-5">
+        <section className="panel min-w-0 mb-8 p-5">
           <h2 className="mb-1 text-lg font-bold">Link a child</h2>
           <p className="mb-3 text-sm text-slate-700">Enter the invite code the hostel office or your child sent you (or the share code starting with HHP-). Have a read-only link instead? <Link className="font-semibold text-primary-800 underline" to="/">Open it from the message.</Link></p>
           <Notice tone={msg.tone}>{msg.text}</Notice>

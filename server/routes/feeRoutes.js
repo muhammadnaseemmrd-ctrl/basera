@@ -146,6 +146,13 @@ async function staffListQuery(req, hostelId, blockId) {
   return query;
 }
 
+/** ?page=&limit= (default 100, max 500). Lists used to stop at a hard cap with no way to see the rest. */
+function pageOf(req) {
+  const limit = Math.min(500, Math.max(1, Number.parseInt(req.query.limit, 10) || 100));
+  const page = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
+  return { limit, page, skip: (page - 1) * limit };
+}
+
 router.get("/invoices", authorize("host", "admin", "warden"), async (req, res, next) => {
   try {
     const { hostelId, blockId, status, studentId } = req.query;
@@ -155,8 +162,9 @@ router.get("/invoices", authorize("host", "admin", "warden"), async (req, res, n
     if (studentId && isId(studentId)) query.student = studentId;
     await refreshOpenInvoices(query);
     if (status) query.status = status;
-    const results = await FeeInvoice.find(query).populate("student", "name phone").sort({ dueDate: 1, createdAt: -1 }).limit(500).lean();
-    return res.json({ results: results.map((i) => present(i)) });
+    const { limit, page, skip } = pageOf(req);
+    const [results, total] = await Promise.all([FeeInvoice.find(query).populate("student", "name phone").sort({ dueDate: 1, createdAt: -1, _id: 1 }).skip(skip).limit(limit).lean(), FeeInvoice.countDocuments(query)]);
+    return res.json({ results: results.map((i) => present(i)), total, page, pages: Math.max(1, Math.ceil(total / limit)), limit });
   } catch (error) {
     return next(error);
   }
@@ -318,8 +326,9 @@ router.get("/payments", authorize("host", "admin", "warden"), async (req, res, n
     if (!isId(hostelId)) return res.status(400).json({ message: "hostelId is required." });
     const query = await staffListQuery(req, hostelId, blockId);
     if (!query) return res.status(403).json({ message: "No access to this hostel/block." });
-    const results = await FeePayment.find(query).populate("student", "name").sort({ createdAt: -1 }).limit(200).lean();
-    return res.json({ results: results.map((p) => ({ ...p, id: String(p._id) })) });
+    const { limit, page, skip } = pageOf(req);
+    const [results, total] = await Promise.all([FeePayment.find(query).populate("student", "name").sort({ createdAt: -1, _id: -1 }).skip(skip).limit(limit).lean(), FeePayment.countDocuments(query)]);
+    return res.json({ results: results.map((p) => ({ ...p, id: String(p._id) })), total, page, pages: Math.max(1, Math.ceil(total / limit)), limit });
   } catch (error) {
     return next(error);
   }

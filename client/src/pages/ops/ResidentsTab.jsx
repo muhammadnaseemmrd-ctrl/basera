@@ -76,7 +76,7 @@ function RegisterForm({ hostelId, rooms, onDone }) {
     </label>
   );
   return (
-    <form onSubmit={submit} className="panel grid gap-4 p-5">
+    <form onSubmit={submit} className="panel min-w-0 grid gap-4 p-5">
       <h3 className="text-lg font-bold">Register a student (offline)</h3>
       <Notice tone={msg.tone}>{msg.text}</Notice>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -173,6 +173,8 @@ function CsvImport({ hostelId, onDone }) {
     setCsv(await file.text());
     setPreview(null);
     setMsg({ tone: "info", text: `${file.name} loaded. Check it before importing.` });
+    // clear the input so choosing the same (edited) file again still fires a change
+    e.target.value = "";
   };
   const check = async () => {
     setBusy(true);
@@ -202,7 +204,7 @@ function CsvImport({ hostelId, onDone }) {
     }
   };
   return (
-    <section className="panel grid gap-3 p-5">
+    <section className="panel min-w-0 grid gap-3 p-5">
       <h3 className="text-lg font-bold">Bulk import (CSV)</h3>
       <Notice tone={msg.tone}>{msg.text}</Notice>
       <div className="flex flex-wrap items-center gap-3">
@@ -250,7 +252,7 @@ function ResidentList({ hostelId, blockId, students, reload }) {
   };
   const rows = (students || []).filter((s) => !blockId || s.blockId === blockId);
   return (
-    <section className="panel p-5">
+    <section className="panel min-w-0 p-5">
       <h3 className="mb-3 text-lg font-bold">Residents ({rows.length})</h3>
       <Notice tone={msg.tone}>{msg.text}</Notice>
       <div className="overflow-x-auto">

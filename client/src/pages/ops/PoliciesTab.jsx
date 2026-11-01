@@ -19,7 +19,7 @@ const intOrUndef = (v) => (v === "" || v === undefined || v === null ? undefined
 
 function HostelForm({ data, hostelId, onSaved }) {
   const v = data.hostel.values;
-  const [f, setF] = useState({
+  const [initial] = useState(() => ({
     days: v.leaveNoticeDays,
     shortNoticeAction: v.shortNoticeAction,
     shortNoticeChargeDays: v.shortNoticeChargeDays,
@@ -33,20 +33,32 @@ function HostelForm({ data, hostelId, onSaved }) {
     start: v.visitingStart,
     end: v.visitingEnd,
     curfew: v.curfew
-  });
+  }));
+  const [f, setF] = useState(initial);
   const [msg, setMsg] = useState({ tone: "info", text: "" });
   const set = (k) => (e) => setF((s) => ({ ...s, [k]: e.target.type === "checkbox" ? e.target.checked : e.target.value }));
   const save = async (e) => {
     e.preventDefault();
     try {
-      const { data: out } = await api.put(`/policies/${hostelId}`, {
-        leaveNotice: { days: Number(f.days), shortNoticeAction: f.shortNoticeAction, shortNoticeChargeDays: Number(f.shortNoticeChargeDays), wardenCanApprove: f.wardenCanApprove },
-        lateFee: { enabled: f.enabled, dueDayOfMonth: Number(f.dueDayOfMonth), finePerDay: Number(f.finePerDay), graceDays: Number(f.graceDays), maxFine: f.maxFine === "" ? null : Number(f.maxFine) },
-        feeAllocation: f.feeAllocation,
-        visitors: { start: f.start, end: f.end, curfew: f.curfew }
-      });
-      setMsg({ tone: "ok", text: "Saved. New invoices and notices use these values; issued ones keep theirs." });
-      onSaved(out);
+      // send only what the user changed, so untouched values keep inheriting the platform default
+      const changed = (k) => String(f[k]) !== String(initial[k]);
+      const pick = (pairs) => Object.fromEntries(pairs.filter(([k]) => changed(k)).map(([k, key, conv]) => [key, conv ? conv(f[k]) : f[k]]));
+      const num = (x) => Number(x);
+      const body = {
+        leaveNotice: pick([["days", "days", num], ["shortNoticeAction", "shortNoticeAction"], ["shortNoticeChargeDays", "shortNoticeChargeDays", num], ["wardenCanApprove", "wardenCanApprove"]]),
+        lateFee: pick([["enabled", "enabled"], ["dueDayOfMonth", "dueDayOfMonth", num], ["finePerDay", "finePerDay", num], ["graceDays", "graceDays", num], ["maxFine", "maxFine", (x) => (x === "" ? null : Number(x))]]),
+        visitors: pick([["start", "start"], ["end", "end"], ["curfew", "curfew"]])
+      };
+      if (changed("feeAllocation")) body.feeAllocation = f.feeAllocation;
+      Object.keys(body).forEach((k) => typeof body[k] === "object" && !Object.keys(body[k]).length && delete body[k]);
+      if (!Object.keys(body).length) {
+        setMsg({ tone: "info", text: "Nothing changed." });
+        return;
+      }
+      const { data: out } = await api.put(`/policies/${hostelId}`, body);
+      setMsg({ tone: "info", text: "" });
+      // the parent re-keys this form after a save, so the confirmation lives up there
+      onSaved(out, "Saved. New invoices and notices use these values; issued ones keep theirs.");
     } catch (error) {
       setMsg({ tone: "error", text: errMsg(error) });
     }
@@ -59,7 +71,7 @@ function HostelForm({ data, hostelId, onSaved }) {
     </label>
   );
   return (
-    <form onSubmit={save} className="panel grid gap-4 p-5">
+    <form onSubmit={save} className="panel min-w-0 grid gap-4 p-5">
       <h3 className="text-lg font-bold">Hostel defaults</h3>
       <Notice tone={msg.tone}>{msg.text}</Notice>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -111,15 +123,15 @@ function BlockOverrides({ data, hostelId, onSaved }) {
       .filter((o) => BLOCK_FIELDS.some(([k]) => o[k] !== undefined));
     try {
       const { data: out } = await api.put(`/policies/${hostelId}`, { blockOverrides });
-      setMsg({ tone: "ok", text: "Block overrides saved." });
-      onSaved(out);
+      setMsg({ tone: "info", text: "" });
+      onSaved(out, "Block overrides saved.");
     } catch (error) {
       setMsg({ tone: "error", text: errMsg(error) });
     }
   };
   if (!data.blocks.length) return null;
   return (
-    <section className="panel p-5">
+    <section className="panel min-w-0 p-5">
       <h3 className="mb-1 text-lg font-bold">Per-block overrides</h3>
       <p className="mb-3 text-sm text-slate-700">Leave a cell empty to inherit the hostel value.</p>
       <Notice tone={msg.tone}>{msg.text}</Notice>
@@ -147,6 +159,11 @@ function BlockOverrides({ data, hostelId, onSaved }) {
 export function PoliciesTab({ hostelId }) {
   const { data, loading, error } = useLoad(`/policies/${hostelId}`);
   const [saved, setSaved] = useState(null);
+  const [savedMsg, setSavedMsg] = useState("");
+  const onSaved = (out, text) => {
+    setSaved(out);
+    setSavedMsg(text);
+  };
   const view = saved || data;
   if (loading && !view) return <p>Loading policy…</p>;
   if (error) return <Notice tone="error">{error}</Notice>;
@@ -156,7 +173,7 @@ export function PoliciesTab({ hostelId }) {
       <div className="grid gap-4">
         <Notice>Policies are set by the head office. These are the rules in force for your block(s).</Notice>
         {view.blocks.map((b) => (
-          <section key={b.id} className="panel p-5">
+          <section key={b.id} className="panel min-w-0 p-5">
             <h3 className="text-lg font-bold">{b.name}</h3>
             <p className="mt-1 text-sm">{b.preview}</p>
             <ul className="mt-2 grid gap-1 text-sm text-slate-700 sm:grid-cols-2">
@@ -174,8 +191,9 @@ export function PoliciesTab({ hostelId }) {
   const key = view.policy?.updatedAt || "new";
   return (
     <div className="grid gap-6">
-      <HostelForm key={`h-${key}`} data={view} hostelId={hostelId} onSaved={setSaved} />
-      <BlockOverrides key={`b-${key}`} data={view} hostelId={hostelId} onSaved={setSaved} />
+      <Notice tone="ok">{savedMsg}</Notice>
+      <HostelForm key={`h-${key}`} data={view} hostelId={hostelId} onSaved={onSaved} />
+      <BlockOverrides key={`b-${key}`} data={view} hostelId={hostelId} onSaved={onSaved} />
     </div>
   );
 }

@@ -5,7 +5,10 @@ import { dateShort, errMsg, useLoad } from "./opsHelpers";
 
 // Leave requests queue for head office (all blocks) and wardens (own blocks; they can decide
 // only when the hostel policy allows it — the server enforces that).
-export function LeaveTab({ hostelId, blockId }) {
+export function LeaveTab({ hostelId, blockId, mode }) {
+  // wardens may decide only when the hostel policy allows it; don't offer a button that 403s
+  const policy = useLoad(mode === "warden" ? `/policies/${hostelId}` : null);
+  const canDecide = mode !== "warden" || (policy.data?.blocks || []).some((b) => b.values?.wardenCanApprove);
   const [status, setStatus] = useState("submitted");
   const list = useLoad(`/leave?hostelId=${hostelId}${status ? `&status=${status}` : ""}${blockId ? `&blockId=${blockId}` : ""}`);
   const [deciding, setDeciding] = useState("");
@@ -23,7 +26,7 @@ export function LeaveTab({ hostelId, blockId }) {
     }
   };
   return (
-    <section className="panel p-5">
+    <section className="panel min-w-0 p-5">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-lg font-bold">Leave requests</h3>
         <select className="input max-w-[11rem]" value={status} onChange={(e) => setStatus(e.target.value)} aria-label="Status">
@@ -36,6 +39,7 @@ export function LeaveTab({ hostelId, blockId }) {
         </select>
       </div>
       <Notice tone={msg.tone}>{msg.text}</Notice>
+      {!canDecide && !policy.loading ? <p className="mb-3 text-sm text-slate-700">The head office decides leave notices in this hostel; you can follow them here.</p> : null}
       {list.loading ? <p>Loading…</p> : list.error ? <Notice tone="error">{list.error}</Notice> : !list.data.results.length ? <p className="text-sm text-slate-700">Nothing here.</p> : (
         <div className="grid gap-3">
           {list.data.results.map((n) => (
@@ -51,7 +55,7 @@ export function LeaveTab({ hostelId, blockId }) {
               </p>
               {n.decisionNote ? <p className="text-xs text-slate-600">Decision note: {n.decisionNote}</p> : null}
               {n.depositSettlement?.settledAt ? <p className="text-xs text-slate-600">Settled: refund PKR {n.depositSettlement.refund}, payable PKR {n.depositSettlement.payable}.</p> : null}
-              {n.status === "submitted" ? (
+              {n.status === "submitted" && canDecide ? (
                 deciding === n.id ? (
                   <div className="mt-2 flex flex-wrap items-end gap-2">
                     <label className="grid flex-1 gap-1 text-xs font-semibold">Note (required to reject)<input className="input" value={note} onChange={(e) => setNote(e.target.value)} /></label>
