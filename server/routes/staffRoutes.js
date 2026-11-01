@@ -9,6 +9,7 @@ const ParentLink = require("../models/ParentLink");
 const ParentAccess = require("../models/ParentAccess");
 const { protect, authorize } = require("../middleware/auth");
 const requireDb = require("../middleware/requireDb");
+const clock = require("../services/clock");
 const validate = require("../middleware/validate");
 const { recordAudit } = require("../services/auditService");
 const { buildTerminationNotice, toWhatsAppNumber } = require("../services/hostelOpsRules");
@@ -157,7 +158,7 @@ router.post("/:id/suspend", async (req, res, next) => {
     if (!String(req.body.reason || "").trim()) return res.status(400).json({ message: "A reason is required." });
     const updated = await StaffMember.findOneAndUpdate(
       { _id: staff._id, status: "active" },
-      { status: "suspended", suspendedAt: new Date(), suspensionReason: req.body.reason },
+      { status: "suspended", suspendedAt: clock.now(), suspensionReason: req.body.reason },
       { new: true }
     );
     if (!updated) return res.status(409).json({ message: "Only active staff can be suspended." });
@@ -197,7 +198,7 @@ router.post("/:id/terminate", async (req, res, next) => {
     const reason = String(req.body.reason || "").trim();
     if (!reason) return res.status(400).json({ message: "A termination reason is required." });
 
-    const now = new Date();
+    const now = clock.now();
     const terminated = await StaffMember.findOneAndUpdate(
       { _id: staff._id, status: { $ne: "terminated" } },
       { status: "terminated", terminatedAt: now, terminationReason: reason, terminatedBy: uid(req.user) },

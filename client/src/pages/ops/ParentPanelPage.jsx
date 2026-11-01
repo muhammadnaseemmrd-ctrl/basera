@@ -10,6 +10,7 @@ import { dateShort, errMsg, money, useLoad } from "./opsHelpers";
 
 function ChildView({ studentId }) {
   const { data, loading, error } = useLoad(`/parent-panel/children/${studentId}/overview`);
+  const visitors = useLoad("/visitors/my");
   const [msg, setMsg] = useState("");
   const pdf = async (r) => {
     try { await downloadApiPdf({ api, endpoint: `/fees/payments/${r.id}/receipt.pdf`, filename: `${r.receiptNo}.pdf` }); } catch (e) { setMsg(errMsg(e)); }
@@ -62,6 +63,15 @@ function ChildView({ studentId }) {
           <ul className="grid gap-2">{fees.receipts.map((r) => <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-line p-3 text-sm"><span className="font-mono text-xs">{r.receiptNo}</span><span>{money(r.amount)} · {r.method.replace("_", " ")} · {dateShort(r.paidAt)} · by {r.receivedByName}</span><button type="button" className="btn-secondary px-3 py-1 text-xs" onClick={() => pdf(r)}>PDF</button></li>)}</ul>
         )}
       </section>
+
+      {(visitors.data?.results || []).some((v) => String(v.student?._id || v.student) === String(studentId)) ? (
+        <section className="panel p-5">
+          <h2 className="mb-3 text-xl font-bold">Visitors</h2>
+          <ul className="grid gap-1 text-sm">
+            {visitors.data.results.filter((v) => String(v.student?._id || v.student) === String(studentId)).map((v) => <li key={v.id} className="flex flex-wrap justify-between gap-2 rounded-md border border-line p-2"><span>{v.visitorName} ({v.relation || "visitor"}) · {v.purpose}</span><span>{dateShort(v.createdAt)} · {v.status.replace("_", " ")}</span></li>)}
+          </ul>
+        </section>
+      ) : null}
 
       <section className="panel p-5">
         <h2 className="mb-3 text-xl font-bold">Complaints</h2>

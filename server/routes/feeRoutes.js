@@ -367,7 +367,17 @@ router.get("/payments/:id/receipt.pdf", async (req, res, next) => {
     if (!payment) return res.status(404).json({ message: "Receipt not found." });
     if (!(await paymentAccess(req, payment))) return res.status(403).json({ message: "No access to this receipt." });
 
-    const [hostel, block] = await Promise.all([Hostel.findById(payment.hostel).select("name address city contactPhone").lean(), payment.block ? Block.findById(payment.block).select("name").lean() : null]);
+    const [hostel, block] = await Promise.all([Hostel.findById(payment.hostel).select("name address city contactPhone branding").lean(), payment.block ? Block.findById(payment.block).select("name").lean() : null]);
+    // per-hostel logo (best effort: a slow or broken URL never blocks the receipt)
+    let logo = null;
+    if (hostel?.branding?.logoUrl) {
+      try {
+        const r = await fetch(hostel.branding.logoUrl, { signal: AbortSignal.timeout(3000) });
+        if (r.ok && /image\/(png|jpe?g)/.test(r.headers.get("content-type") || "")) logo = Buffer.from(await r.arrayBuffer());
+      } catch {
+        logo = null;
+      }
+    }
     const url = verifyUrl(req, payment.receiptNo);
     const qr = Buffer.from((await QRCode.toDataURL(url, { margin: 1, width: 160 })).split(",")[1], "base64");
     const invView = payment.invoice ? present(payment.invoice) : null;
@@ -378,7 +388,16 @@ router.get("/payments/:id/receipt.pdf", async (req, res, next) => {
     const doc = new PDFDocument({ size: "A4", margin: 48 });
     doc.pipe(res);
 
-    doc.font("Helvetica-Bold").fontSize(12).fillColor("#0037b7").text("Basera", 48, 34);
+    if (logo) {
+      try {
+        doc.image(logo, 48, 28, { fit: [60, 40] });
+      } catch {
+        /* unreadable image: fall back to text */
+      }
+    }
+    doc.font("Helvetica-Bold").fontSize(12).fillColor("#0037b7").text(logo ? "" : "Basera", 48, 34);
+    const contact = [hostel?.contactPhone, hostel?.branding?.contactEmail].filter(Boolean).join(" · ");
+    if (contact) doc.font("Helvetica").fontSize(9).fillColor("#475569").text(contact, 300, 34, { width: 247, align: "right" });
     doc.font("Helvetica-Bold").fontSize(20).fillColor("#0f172a").text(hostel?.name || "Hostel", 48, 60, { align: "center" });
     doc.font("Helvetica").fontSize(10).fillColor("#475569").text([hostel?.address, hostel?.city].filter(Boolean).join(", "), 48, 86, { align: "center" });
     doc.font("Helvetica-Bold").fontSize(16).fillColor(payment.status === "void" ? "#b91c1c" : "#0f172a").text(payment.status === "void" ? "PAYMENT RECEIPT — VOIDED" : "PAYMENT RECEIPT", 48, 116, { align: "center" });
@@ -409,6 +428,7 @@ router.get("/payments/:id/receipt.pdf", async (req, res, next) => {
     doc.image(qr, 460, y + 34, { width: 76, height: 76 });
     doc.font("Helvetica-Bold").fontSize(11).fillColor("#0037b7").text("Verify this receipt", 64, y + 36);
     doc.font("Helvetica").fontSize(9).fillColor("#334155").text(`Scan the QR code or open:\n${url}\nOnly the online page confirms a payment. Staff terminated by the hostel cannot issue valid receipts.`, 64, y + 56, { width: 380 });
+    if (hostel?.branding?.receiptFooter) doc.font("Helvetica").fontSize(9).fillColor("#475569").text(hostel.branding.receiptFooter, 48, y + 145, { width: 499, align: "center" });
     doc.end();
     return undefined;
   } catch (error) {

@@ -106,6 +106,8 @@ const hostelSchema = new mongoose.Schema(
       dinner: [String]
     },
     contactPhone: String,
+    // printed on receipts / reports (per-hostel branding for the SaaS console)
+    branding: { logoUrl: String, receiptFooter: String, contactEmail: String },
     contactWhatsApp: String,
     ownerVerification: ownerVerificationSchema,
     totalViews: { type: Number, default: 0 }

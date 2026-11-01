@@ -18,6 +18,7 @@ const cronOrAdmin = (req, res, next) => {
 };
 router.use(requireDb, cronOrAdmin);
 
+// JobLog timestamps are operational (real wall-clock run times), not business dates.
 async function withJobLog(name, fn) {
   const log = await JobLog.create({ jobName: name, startedAt: new Date(), status: "running" });
   try {

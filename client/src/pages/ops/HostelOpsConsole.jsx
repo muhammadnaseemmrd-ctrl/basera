@@ -10,6 +10,7 @@ import { ResidentsTab } from "./ResidentsTab";
 import { WaiversTab } from "./WaiversTab";
 import { LeaveTab } from "./LeaveTab";
 import { OffersTab } from "./OffersTab";
+import { ExpensesTab, ReportsTab, SetupWizard, TransfersTab, VisitorsTab } from "./OperationsExtras";
 
 const open = (url) => window.open(url, "_blank", "noopener,noreferrer");
 
@@ -781,8 +782,8 @@ export function HostelOpsConsole({ mode }) {
   const loadError = isHead ? hostels.error : myBlocks.error;
 
   const tabs = isHead
-    ? [["overview", "Overview"], ["setup", "Setup"], ["residents", "Residents"], ["seats", "Seats"], ["fees", "Fees & receipts"], ["complaints", "Complaints"], ["staff", "Staff"], ["parents", "Parents"], ["notices", "Notices"], ["waivers", "Waivers"], ["leave", "Leave requests"], ["offers", "Offers"], ["policies", "Policies"]]
-    : [["seats", "Seats"], ["residents", "Register students"], ["fees", "Collect fees"], ["complaints", "Complaints"], ["parents", "Parents"], ["notices", "Notices"], ["waivers", "Waivers"], ["leave", "Leave requests"], ["offers", "Offers"], ["policies", "Policy"]];
+    ? [["overview", "Overview"], ["setup", "Setup"], ["residents", "Residents"], ["seats", "Seats"], ["fees", "Fees & receipts"], ["complaints", "Complaints"], ["staff", "Staff"], ["parents", "Parents"], ["notices", "Notices"], ["waivers", "Waivers"], ["leave", "Leave requests"], ["offers", "Offers"], ["visitors", "Visitors"], ["transfers", "Transfers"], ["reports", "Reports"], ["expenses", "Expenses"], ["policies", "Policies"], ["wizard", "Setup wizard"]]
+    : [["seats", "Seats"], ["residents", "Register students"], ["fees", "Collect fees"], ["complaints", "Complaints"], ["parents", "Parents"], ["notices", "Notices"], ["waivers", "Waivers"], ["leave", "Leave requests"], ["offers", "Offers"], ["visitors", "Visitors"], ["transfers", "Transfers"], ["reports", "Reports"], ["policies", "Policy"]];
   const scopeBlock = isHead ? blockFilter : "";
 
   return (
@@ -813,7 +814,7 @@ export function HostelOpsConsole({ mode }) {
         ) : (
           <>
             <Tabs tabs={tabs} value={tab} onChange={setTab} />
-            {isHead && ["fees", "complaints", "parents", "residents", "leave"].includes(tab) && blocks.length > 1 ? (
+            {isHead && ["fees", "complaints", "parents", "residents", "leave", "visitors", "reports"].includes(tab) && blocks.length > 1 ? (
               <select className="input mb-4 max-w-xs" value={blockFilter} onChange={(e) => setBlockFilter(e.target.value)} aria-label="Block filter">
                 <option value="">All blocks</option>
                 {blocks.map((b) => <option key={b.id || b._id} value={b.id || b._id}>{b.name}</option>)}
@@ -836,6 +837,11 @@ export function HostelOpsConsole({ mode }) {
             {tab === "waivers" ? <WaiversTab hostelId={hostelId} mode={mode} /> : null}
             {tab === "leave" ? <LeaveTab hostelId={hostelId} blockId={scopeBlock} /> : null}
             {tab === "offers" ? <OffersTab hostelId={hostelId} blocks={blocks} mode={mode} /> : null}
+            {tab === "visitors" ? <VisitorsTab hostelId={hostelId} blockId={scopeBlock} /> : null}
+            {tab === "transfers" ? <TransfersTab hostelId={hostelId} /> : null}
+            {tab === "reports" ? <ReportsTab hostelId={hostelId} blockId={scopeBlock} mode={mode} /> : null}
+            {tab === "expenses" && isHead ? <ExpensesTab hostelId={hostelId} /> : null}
+            {tab === "wizard" && isHead ? <SetupWizard hostelId={hostelId} goTo={setTab} /> : null}
             {tab === "residents" ? <ResidentsTab hostelId={hostelId} blockId={scopeBlock} mode={mode} /> : null}
           </>
         )}

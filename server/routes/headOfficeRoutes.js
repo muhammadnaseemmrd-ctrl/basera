@@ -17,6 +17,9 @@ const { admitResident, AdmitError } = require("../services/residentService");
 const { FeeError, refreshOpenInvoices, DUE_EXPR } = require("../services/feeService");
 const clock = require("../services/clock");
 const { checkout } = require("../services/leaveService");
+const HostelPolicy = require("../models/HostelPolicy");
+const { checkSeatLimit, PLAN_SEAT_LIMITS } = require("../services/policyRules");
+const { totalSeats } = require("../services/reportRules");
 const requireDb = require("../middleware/requireDb");
 const { buildSeatMap } = require("../services/seatMapService");
 const { canManageHostel, managedHostelIds, residents, isId } = require("../services/hostelAccess");
@@ -105,6 +108,15 @@ router.get("/hostels/:id/rooms", async (req, res, next) => {
 const roomTypeForBeds = (beds) => (beds === 1 ? ["single", "SINGLE"] : beds === 2 ? ["double", "DOUBLE"] : beds === 3 ? ["triple", "TRIPLE"] : beds === 4 ? ["quad", "QUAD"] : ["dorm", "BUNK_DORM"]);
 const genderFor = (type) => (type === "girls" ? "GIRLS_ONLY" : type === "mixed" ? "CO_ED" : "BOYS_ONLY");
 
+/** Seats the hostel's owner already runs (all their hostels) and their plan tier. */
+async function ownerSeatUsage(hostel) {
+  const owner = await User.findById(hostel.owner).select("hostProfile.saasPlan landlordProfile.saasPlan").lean();
+  const tier = owner?.hostProfile?.saasPlan?.tier || owner?.landlordProfile?.saasPlan?.tier || "STARTER";
+  const hostelIds = await Hostel.find({ owner: hostel.owner }).distinct("_id");
+  const rooms = await Room.find({ $or: [{ hostel: { $in: hostelIds } }, { hostProperty: { $in: hostelIds } }] }).select("totalBeds").lean();
+  return { tier, seats: totalSeats(rooms) };
+}
+
 // Create many rooms at once, e.g. rooms 101–120 with 3 beds in Block A.
 router.post("/hostels/:id/rooms/bulk", async (req, res, next) => {
   try {
@@ -123,6 +135,10 @@ router.post("/hostels/:id/rooms/bulk", async (req, res, next) => {
       const block = isId(blockId) ? await Block.findOne({ _id: blockId, hostelId: hostel._id }).lean() : null;
       if (!block) return res.status(400).json({ message: "That block does not belong to this hostel." });
     }
+    // SaaS plan gate: refuse (402) before writing anything; existing data is never touched
+    const usage = await ownerSeatUsage(hostel);
+    const plan = checkSeatLimit({ tier: usage.tier, currentSeats: usage.seats, addingSeats: (b - a + 1) * bedCount });
+    if (!plan.ok) return res.status(402).json({ message: plan.message, plan: { tier: usage.tier, limit: plan.limit, seats: usage.seats } });
     const numbers = Array.from({ length: b - a + 1 }, (_, i) => `${String(prefix).slice(0, 6)}${a + i}`);
     const existing = await Room.find({ $or: [{ hostel: hostel._id }, { hostProperty: hostel._id }], roomNumber: { $in: numbers } }).select("roomNumber").lean();
     if (existing.length) return res.status(409).json({ message: `Rooms already exist: ${existing.slice(0, 8).map((r) => r.roomNumber).join(", ")}${existing.length > 8 ? "…" : ""}` });
@@ -251,6 +267,93 @@ async function hostelOverview(id) {
     notices
   };
 }
+
+// Receipt / report branding (name, logo, address, contact) for this hostel.
+router.put("/hostels/:id/branding", async (req, res, next) => {
+  try {
+    if (!(await guard(req, res))) return;
+    const url = (v) => (v === "" || v === null ? "" : typeof v === "string" && /^https?:\/\//i.test(v) ? v : undefined);
+    const set = {};
+    if (req.body.logoUrl !== undefined) {
+      if (url(req.body.logoUrl) === undefined) return res.status(400).json({ message: "logoUrl must be an http(s) URL." });
+      set["branding.logoUrl"] = url(req.body.logoUrl);
+    }
+    if (req.body.receiptFooter !== undefined) set["branding.receiptFooter"] = String(req.body.receiptFooter).slice(0, 300);
+    if (req.body.contactEmail !== undefined) set["branding.contactEmail"] = String(req.body.contactEmail).slice(0, 120);
+    if (req.body.contactPhone !== undefined) set.contactPhone = String(req.body.contactPhone).slice(0, 30);
+    const hostel = await Hostel.findByIdAndUpdate(req.params.id, { $set: set }, { returnDocument: "after" }).select("name address city contactPhone branding").lean();
+    await recordAudit(req, { action: "hostel.branding", entityType: "Hostel", entityId: req.params.id, metadata: set }).catch(() => {});
+    res.json({ hostel });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Onboarding wizard status: hostel → blocks → rooms → policies → staff → students.
+router.get("/hostels/:id/onboarding", async (req, res, next) => {
+  try {
+    if (!(await guard(req, res))) return;
+    const id = req.params.id;
+    const [hostel, blocks, rooms, policy, staff, students, plan] = await Promise.all([
+      Hostel.findById(id).select("name branding contactPhone owner").lean(),
+      Block.countDocuments({ hostelId: id }),
+      Room.countDocuments({ $or: [{ hostel: id }, { hostProperty: id }] }),
+      HostelPolicy.exists({ hostel: id }),
+      StaffMember.countDocuments({ hostel: id, status: "active" }),
+      residents({ hostelId: id }).then((r) => r.length),
+      Hostel.findById(id).select("owner").lean().then((h) => ownerSeatUsage(h))
+    ]);
+    const steps = [
+      { key: "hostel", label: "Create the hostel", done: Boolean(hostel) },
+      { key: "blocks", label: "Add blocks", done: blocks > 0, count: blocks },
+      { key: "rooms", label: "Add rooms and seats", done: rooms > 0, count: rooms },
+      { key: "policies", label: "Set policies (notice, due day, fines)", done: Boolean(policy) },
+      { key: "staff", label: "Add staff / wardens", done: staff > 0, count: staff },
+      { key: "students", label: "Register or import students", done: students > 0, count: students },
+      { key: "branding", label: "Receipt branding (logo, contact)", done: Boolean(hostel?.branding?.logoUrl || hostel?.branding?.contactEmail || hostel?.contactPhone) }
+    ];
+    res.json({ steps, complete: steps.every((s) => s.done), plan: { tier: plan.tier, seats: plan.seats, limit: PLAN_SEAT_LIMITS[plan.tier] === Infinity ? null : PLAN_SEAT_LIMITS[plan.tier] } });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// "Download everything" for this hostel (owner's own data; never other tenants', never passwords).
+router.get("/hostels/:id/export", async (req, res, next) => {
+  try {
+    if (!(await guard(req, res))) return;
+    const id = req.params.id;
+    const m = (name) => mongoose.model(name);
+    const roomIds = (await Room.find({ $or: [{ hostel: id }, { hostProperty: id }] }).select("_id").lean()).map((r) => r._id);
+    const bookings = await Booking.find({ room: { $in: roomIds } }).lean();
+    const studentIds = [...new Set(bookings.map((b) => String(b.student)))];
+    const [hostel, blocks, rooms, policy, staff, students, invoices, payments, complaints, notices, leave, waivers, offers, redemptions, visitors, expenses, transfers, parentLinks] = await Promise.all([
+      Hostel.findById(id).lean(),
+      Block.find({ hostelId: id }).lean(),
+      Room.find({ _id: { $in: roomIds } }).lean(),
+      HostelPolicy.findOne({ hostel: id }).lean(),
+      StaffMember.find({ hostel: id }).lean(),
+      User.find({ _id: { $in: studentIds } }).select("name email phone gender university emergencyContact residentProfile loginEnabled createdAt").lean(),
+      FeeInvoice.find({ hostel: id }).lean(),
+      FeePayment.find({ hostel: id }).lean(),
+      Complaint.find({ hostel: id }).lean(),
+      Notice.find({ hostel: id }).select("-readBy").lean(),
+      m("LeaveNotice").find({ hostel: id }).lean(),
+      m("FineWaiverRequest").find({ hostel: id }).lean(),
+      m("HostelOffer").find({ hostel: id }).lean(),
+      m("OfferRedemption").find({ hostel: id }).lean(),
+      m("Visitor").find({ hostel: id }).lean(),
+      m("HostelExpense").find({ hostel: id }).lean(),
+      m("SeatTransfer").find({ hostel: id }).lean(),
+      m("ParentLink").find({ hostel: id }).select("-inviteCode").lean()
+    ]);
+    await recordAudit(req, { action: "hostel.exported", entityType: "Hostel", entityId: id }).catch(() => {});
+    res.setHeader("Content-Disposition", `attachment; filename="basera-hostel-${id}-${clock.dayKey(clock.now())}.json"`);
+    res.json({ exportedAt: clock.now(), hostel, blocks, rooms, policy, staff, students, bookings, invoices, payments, complaints, notices, leave, waivers, offers, redemptions, visitors, expenses, transfers, parentLinks });
+  } catch (error) {
+    next(error);
+  }
+});
 
 router.get("/hostels/:id/overview", async (req, res, next) => {
   try {

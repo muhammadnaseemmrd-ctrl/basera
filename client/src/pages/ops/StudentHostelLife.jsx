@@ -252,6 +252,82 @@ function Leave() {
   );
 }
 
+function Visitors() {
+  const { data, reload } = useLoad("/visitors/my");
+  const [f, setF] = useState({ visitorName: "", cnicLast4: "", relation: "", purpose: "", expectedAt: "" });
+  const [msg, setMsg] = useState({ tone: "info", text: "" });
+  const submit = async (e) => {
+    e.preventDefault();
+    try {
+      const { data: out } = await api.post("/visitors", { ...f, expectedAt: f.expectedAt || undefined });
+      setMsg({ tone: "ok", text: `Sent to your warden. Visiting hours: ${out.visitingHours.start}–${out.visitingHours.end}.` });
+      setF({ visitorName: "", cnicLast4: "", relation: "", purpose: "", expectedAt: "" });
+      reload();
+    } catch (error) {
+      setMsg({ tone: "error", text: errMsg(error) });
+    }
+  };
+  const cancel = async (v) => {
+    try { await api.post(`/visitors/${v.id}/cancel`); reload(); } catch (error) { setMsg({ tone: "error", text: errMsg(error) }); }
+  };
+  return (
+    <section className="panel p-5">
+      <h2 className="mb-3 text-xl font-bold">Visitors</h2>
+      <Notice tone={msg.tone}>{msg.text}</Notice>
+      <form onSubmit={submit} className="grid gap-3 sm:grid-cols-3">
+        <input className="input" required placeholder="Visitor name" value={f.visitorName} onChange={(e) => setF({ ...f, visitorName: e.target.value })} />
+        <input className="input" required maxLength={4} inputMode="numeric" placeholder="CNIC last 4 digits" value={f.cnicLast4} onChange={(e) => setF({ ...f, cnicLast4: e.target.value })} />
+        <input className="input" placeholder="Relation" value={f.relation} onChange={(e) => setF({ ...f, relation: e.target.value })} />
+        <input className="input sm:col-span-2" required placeholder="Purpose" value={f.purpose} onChange={(e) => setF({ ...f, purpose: e.target.value })} />
+        <input className="input" type="datetime-local" aria-label="Expected arrival" value={f.expectedAt} onChange={(e) => setF({ ...f, expectedAt: e.target.value })} />
+        <button type="submit" className="btn-primary w-fit">Pre-register visitor</button>
+      </form>
+      {data?.results?.length ? (
+        <ul className="mt-4 grid gap-1 text-sm">
+          {data.results.map((v) => <li key={v.id} className="flex flex-wrap justify-between gap-2 rounded-md border border-line p-2"><span>{v.visitorName} · {v.purpose} · {dateShort(v.createdAt)}</span><span><Pill value={v.status === "checked_in" ? "active" : v.status} /> {["pending", "approved"].includes(v.status) ? <button type="button" className="ml-1 text-xs underline" onClick={() => cancel(v)}>cancel</button> : null}</span></li>)}
+        </ul>
+      ) : null}
+    </section>
+  );
+}
+
+function Transfer() {
+  const options = useLoad("/transfers/options");
+  const mine = useLoad("/transfers/my");
+  const [pick, setPick] = useState("");
+  const [reason, setReason] = useState("");
+  const [msg, setMsg] = useState({ tone: "info", text: "" });
+  const open = (mine.data?.results || []).find((t) => t.status === "requested");
+  if (!options.data?.results?.length && !open) return null;
+  const submit = async (e) => {
+    e.preventDefault();
+    const [toRoomId, toBedIndex] = pick.split("#");
+    try {
+      await api.post("/transfers", { toRoomId, toBedIndex: Number(toBedIndex), reason });
+      setMsg({ tone: "ok", text: "Transfer request sent." });
+      mine.reload();
+    } catch (error) {
+      setMsg({ tone: "error", text: errMsg(error) });
+    }
+  };
+  return (
+    <section className="panel p-5">
+      <h2 className="mb-3 text-xl font-bold">Change room</h2>
+      <Notice tone={msg.tone}>{msg.text}</Notice>
+      {open ? <p className="text-sm">Request to move to room {open.toRoom?.roomNumber}, seat {open.toBed + 1} is waiting for the office.</p> : (
+        <form onSubmit={submit} className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
+          <select className="input" required value={pick} onChange={(e) => setPick(e.target.value)} aria-label="Free seat">
+            <option value="">Choose a free seat…</option>
+            {options.data.results.map((o) => <option key={`${o.roomId}#${o.bedIndex}`} value={`${o.roomId}#${o.bedIndex}`}>{o.block} · Room {o.roomNumber} · seat {o.bedIndex + 1}</option>)}
+          </select>
+          <input className="input" placeholder="Reason" value={reason} onChange={(e) => setReason(e.target.value)} />
+          <button type="submit" className="btn-primary">Request move</button>
+        </form>
+      )}
+    </section>
+  );
+}
+
 export function StudentHostelLife() {
   return (
     <>
@@ -261,6 +337,8 @@ export function StudentHostelLife() {
         <Offers />
         <Fees />
         <Leave />
+        <Visitors />
+        <Transfer />
         <Complaints />
       </div>
     </>

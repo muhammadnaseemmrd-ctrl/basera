@@ -13,6 +13,7 @@ const Notice = require("../models/Notice");
 const LeaveNotice = require("../models/LeaveNotice");
 const { protect, authorize } = require("../middleware/auth");
 const requireDb = require("../middleware/requireDb");
+const clock = require("../services/clock");
 const { recordAudit } = require("../services/auditService");
 const { present, refreshOpenInvoices } = require("../services/feeService");
 const { phoneKey, toWhatsAppNumber } = require("../services/hostelOpsRules");
@@ -42,7 +43,7 @@ router.post("/links", authorize("host", "admin", "warden"), async (req, res, nex
     if (link?.status === "active") return res.status(409).json({ message: "This parent is already linked to the student." });
     if (link) {
       link.inviteCode = inviteCode;
-      link.inviteExpiresAt = new Date(Date.now() + 14 * 86400000);
+      link.inviteExpiresAt = clock.addDays(clock.now(), 14);
       link.parentName = parentName || link.parentName;
       await link.save();
     } else {
@@ -55,7 +56,7 @@ router.post("/links", authorize("host", "admin", "warden"), async (req, res, nex
         relation,
         status: "pending",
         inviteCode,
-        inviteExpiresAt: new Date(Date.now() + 14 * 86400000),
+        inviteExpiresAt: clock.addDays(clock.now(), 14),
         createdBy: uid(req.user),
         source: "staff"
       });
@@ -119,18 +120,18 @@ router.post("/claim", authorize("parent"), async (req, res, next) => {
 
     // (a) staff-issued invite code
     let link = await ParentLink.findOneAndUpdate(
-      { inviteCode: code.toUpperCase(), status: "pending", inviteExpiresAt: { $gt: new Date() } },
-      { parent: uid(req.user), status: "active", claimedAt: new Date(), $unset: { inviteCode: 1, inviteExpiresAt: 1 } },
+      { inviteCode: code.toUpperCase(), status: "pending", inviteExpiresAt: { $gt: clock.now() } },
+      { parent: uid(req.user), status: "active", claimedAt: clock.now(), $unset: { inviteCode: 1, inviteExpiresAt: 1 } },
       { new: true }
     );
 
     // (b) student share-link token (HHP-...)
     if (!link) {
-      const access = await ParentAccess.findOne({ token: code, status: "active", expiresAt: { $gt: new Date() } }).lean();
+      const access = await ParentAccess.findOne({ token: code, status: "active", expiresAt: { $gt: clock.now() } }).lean();
       if (access?.student) {
         link = await ParentLink.findOneAndUpdate(
           { student: access.student, parent: uid(req.user) },
-          { $setOnInsert: { parentName: access.parentName, parentPhone: access.parentPhone, source: "student_token" }, status: "active", claimedAt: new Date() },
+          { $setOnInsert: { parentName: access.parentName, parentPhone: access.parentPhone, source: "student_token" }, status: "active", claimedAt: clock.now() },
           { new: true, upsert: true }
         );
       }

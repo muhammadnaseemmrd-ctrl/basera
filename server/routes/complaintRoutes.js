@@ -2,8 +2,10 @@ const express = require("express");
 const Complaint = require("../models/Complaint");
 const { protect, authorize, canonicalRole } = require("../middleware/auth");
 const requireDb = require("../middleware/requireDb");
+const clock = require("../services/clock");
 const { recordAudit } = require("../services/auditService");
 const { checkComplaintTransition } = require("../services/hostelOpsRules");
+const { emitComplaintStatus } = require("../services/hostelEvents");
 const { staffScope, recordScope, wardenBlocks, currentStay, parentStudentIds, isId, uid } = require("../services/hostelAccess");
 
 const router = express.Router();
@@ -127,7 +129,7 @@ router.post("/:id/status", async (req, res, next) => {
     const verdict = checkComplaintTransition({ from: complaint.status, to, actorRole, note: req.body.note });
     if (!verdict.ok) return res.status(verdict.code).json({ message: verdict.message });
 
-    const now = new Date();
+    const now = clock.now();
     const set = { status: to };
     const inc = {};
     if (to === "under_review") set.reviewedAt = now;
@@ -154,6 +156,8 @@ router.post("/:id/status", async (req, res, next) => {
     const updated = await Complaint.findOneAndUpdate({ _id: complaint._id, status: complaint.status }, update, { new: true });
     if (!updated) return res.status(409).json({ message: "This complaint was just updated by someone else. Refresh and try again." });
     await audit(req, { action: "complaint.status", entityType: "Complaint", entityId: complaint._id, metadata: { from: complaint.status, to, actorRole } });
+    // the student's own actions don't notify them; staff moves notify student + parents
+    if (actorRole !== "student") await emitComplaintStatus(updated, to);
     return res.json({ complaint: shape(updated) });
   } catch (error) {
     return next(error);

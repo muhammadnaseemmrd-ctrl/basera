@@ -656,7 +656,128 @@ async function offersAndDiscounts() {
   check("D13", "Head office can reverse a manually applied discount (reason required); invoice amount restored", rev.status === 200 && rev.data.invoice.discountTotal === 0 && rev.data.invoice.rentDue === 8000, `${rev.status} ${rev.data?.message || ""}`);
 }
 
-const SECTIONS = [clockAndPolicies, offlineResidents, finesAndWaivers, leaveNotices, offersAndDiscounts];
+// ---------------------------------------------------------------- notifications, visitors, reports, expenses, transfers, SaaS
+async function extras() {
+  const hA = String(S.hostelA._id);
+  await setToday(midday(2027, 2, 10));
+
+  // notification centre: complaint status reaches the student once per staff move
+  const cmp = await http("POST", "/complaints", { token: S.s2.token, body: { title: "[QA-P2] Fan broken", description: "Ceiling fan stopped", category: "electricity" } });
+  await http("POST", `/complaints/${cmp.data?.complaint?.id}/status`, { token: S.wardenB.token, body: { status: "under_review", note: "Electrician booked" } });
+  check("N3", "Complaint status change notifies the student (in-app)", cmp.status === 201 && (await notifCount(S.s2.id, "complaint_status")) === 1, String(await notifCount(S.s2.id, "complaint_status")));
+
+  // ---- visitors (S2, Block B; parentX linked to S2 for the parent view)
+  const pl = await http("POST", "/parent-panel/links", { token: S.ownerA.token, body: { hostelId: hA, studentId: S.s2.id, parentName: "PX", parentPhone: "0304-4445556" } });
+  await http("POST", "/parent-panel/claim", { token: S.parentX.token, body: { code: pl.data?.inviteCode } });
+  const badV = await http("POST", "/visitors", { token: S.s2.token, body: { visitorName: "U", cnicLast4: "12345", purpose: "" } });
+  const v = await http("POST", "/visitors", { token: S.s2.token, body: { visitorName: "Uncle Rashid", cnicLast4: "4321", relation: "uncle", purpose: "Family visit" } });
+  const vid = v.data?.visitor?.id;
+  check("V1", "Student pre-registers a visitor (CNIC last-4 only); bad input → 400", badV.status === 400 && v.status === 201 && v.data.visitor.status === "pending" && v.data.visitor.cnicLast4 === "4321", `${badV.status}/${v.status}`);
+  const wa = await http("POST", `/visitors/${vid}/decide`, { token: S.wardenA.token, body: { decision: "approve" } });
+  const xo = await http("GET", `/visitors?hostelId=${hA}`, { token: S.ownerB.token });
+  const other = await http("POST", `/visitors/${vid}/cancel`, { token: S.o2.token });
+  const wb = await http("POST", `/visitors/${vid}/decide`, { token: S.wardenB.token, body: { decision: "approve" } });
+  check("V2", "Other block's warden / other owner / other student → 403; own warden approves", wa.status === 403 && xo.status === 403 && other.status === 403 && wb.status === 200 && wb.data.visitor.status === "approved", `${wa.status}/${xo.status}/${other.status}/${wb.status}`);
+  await setToday(new Date("2027-02-10T17:00:00Z")); // 22:00 PKT, outside 09:00–20:00
+  const lateIn = await http("POST", `/visitors/${vid}/check-in`, { token: S.wardenB.token });
+  const lateOk = await http("POST", `/visitors/${vid}/check-in`, { token: S.wardenB.token, body: { overrideNote: "Arrived from Multan, train delayed" } });
+  const out = await http("POST", `/visitors/${vid}/check-out`, { token: S.wardenB.token });
+  check("V3", "Outside visiting hours needs an override note and is flagged; check-out recorded", lateIn.status === 409 && lateOk.status === 200 && lateOk.data.visitor.outsideHours === true && out.status === 200 && out.data.visitor.status === "checked_out", `${lateIn.status}/${lateOk.status}/${out.status}`);
+  const logB = await http("GET", `/visitors?hostelId=${hA}&blockId=${S.blockB._id}`, { token: S.wardenB.token });
+  const logBbyA = await http("GET", `/visitors?hostelId=${hA}&blockId=${S.blockB._id}`, { token: S.wardenA.token });
+  const pv = await http("GET", "/visitors/my", { token: S.parentX.token });
+  const pvOther = await http("GET", "/visitors/my", { token: S.parent1.token });
+  check("V4", "Block visitor log for its warden only; linked parent sees the child's visitors, an unlinked one doesn't", logB.data?.results?.some((x) => x.id === vid) && logBbyA.status === 403 && pv.data?.results?.some((x) => x.id === vid) && !pvOther.data?.results?.some((x) => x.id === vid), `${logBbyA.status}`);
+  await setToday(midday(2027, 2, 10));
+
+  // ---- expenses + profit
+  const eBad = await http("POST", "/expenses", { token: S.ownerA.token, body: { hostelId: hA, category: "x", amount: 1.5 } });
+  const eX = await http("POST", "/expenses", { token: S.ownerB.token, body: { hostelId: hA, category: "utilities", amount: 1000, note: "x" } });
+  const eW = await http("POST", "/expenses", { token: S.wardenA.token, body: { hostelId: hA, category: "utilities", amount: 1000, note: "x" } });
+  const e1 = await http("POST", "/expenses", { token: S.ownerA.token, body: { hostelId: hA, category: "utilities", amount: 12000, note: "Electricity February", spentOn: "2027-02-03" } });
+  const e2 = await http("POST", "/expenses", { token: S.ownerA.token, body: { hostelId: hA, category: "salaries", amount: 30000, note: "Staff salaries February", spentOn: "2027-02-05" } });
+  const e3 = await http("POST", "/expenses", { token: S.ownerA.token, body: { hostelId: hA, category: "other", amount: 999, note: "Typo entry", spentOn: "2027-02-05" } });
+  await http("POST", `/expenses/${e3.data?.expense?.id}/void`, { token: S.ownerA.token, body: { reason: "Entered twice" } });
+  const eList = await http("GET", `/expenses?hostelId=${hA}&from=2027-02-01&to=2027-02-28`, { token: S.ownerA.token });
+  check("E1", "Expenses: validation, head office only, void excluded from totals (42,000)", eBad.status === 400 && eX.status === 403 && eW.status === 403 && e1.status === 201 && e2.status === 201 && eList.data.total === 42000 && eList.data.byCategory.utilities === 12000, `${eBad.status}/${eX.status}/${eW.status} ${eList.data?.total}`);
+
+  // ---- reports reconcile with the underlying records
+  // a Block B receipt so the warden-scoped report has something to leave out
+  const bPay = await http("POST", `/fees/invoices/${S.s2Invoice}/payments`, { token: S.wardenB.token, body: { amount: 1000, method: "cash" } });
+  if (bPay.status !== 201) check("R0", "Block B payment for report scoping", false, `${bPay.status} ${bPay.data?.message}`);
+  const from = "2026-11-01";
+  const to = "2027-02-28";
+  const rCol = await http("GET", `/ops-reports/collections?hostelId=${hA}&from=${from}&to=${to}`, { token: S.ownerA.token });
+  const dbCash = (await FeePayment.find({ hostel: S.hostelA._id, status: "confirmed", method: { $ne: "deposit_adjustment" } }).lean()).reduce((sum, x) => sum + x.amount, 0);
+  check("R1", "Collections report total equals the sum of confirmed receipts to the rupee", rCol.status === 200 && rCol.data.summary.cashCollected === dbCash && dbCash > 0, `${rCol.data?.summary?.cashCollected} vs ${dbCash}`);
+  const rColW = await http("GET", `/ops-reports/collections?hostelId=${hA}&from=${from}&to=${to}`, { token: S.wardenA.token });
+  const dbCashA = (await FeePayment.find({ hostel: S.hostelA._id, block: S.blockA._id, status: "confirmed", method: { $ne: "deposit_adjustment" } }).lean()).reduce((sum, x) => sum + x.amount, 0);
+  check("R2", "Warden A's collections report covers Block A only", rColW.status === 200 && rColW.data.summary.cashCollected === dbCashA && dbCashA < dbCash, `${rColW.data?.summary?.cashCollected} vs ${dbCashA}`);
+  const rOut = await http("GET", `/ops-reports/outstanding?hostelId=${hA}`, { token: S.ownerA.token });
+  const openInv = await FeeInvoice.find({ hostel: S.hostelA._id, status: { $in: ["unpaid", "partial"] } }).lean();
+  const { present: presentInv } = require("../services/feeService");
+  const dbDue = openInv.map((i) => presentInv(i)).reduce((sum, i) => sum + i.totalDue, 0);
+  check("R3", "Outstanding & ageing report equals the sum of open balances; buckets add up", rOut.status === 200 && rOut.data.summary.totalDue === dbDue && Object.values(rOut.data.summary.byAge).reduce((a, b) => a + b, 0) === dbDue, `${rOut.data?.summary?.totalDue} vs ${dbDue}`);
+  const csv = await http("GET", `/ops-reports/outstanding?hostelId=${hA}&format=csv`, { token: S.ownerA.token, raw: true });
+  // fetch().text() strips a BOM, so check the raw bytes
+  const csvBytes = Buffer.from(await csv.arrayBuffer());
+  const csvText = csvBytes.toString("utf8").replace(/^﻿/, "");
+  const pdf = await http("GET", `/ops-reports/collections?hostelId=${hA}&from=${from}&to=${to}&format=pdf`, { token: S.ownerA.token, raw: true });
+  const pdfHead = Buffer.from(await pdf.arrayBuffer()).slice(0, 4).toString();
+  check("R4", "CSV (Excel BOM + header) and PDF exports work", csv.status === 200 && csvBytes.slice(0, 3).toString("hex") === "efbbbf" && csvText.startsWith("Student,Room") && pdf.status === 200 && pdfHead === "%PDF", `${csv.status}/${pdf.status}`);
+  const reports = await Promise.all(["occupancy", "movements", "complaints", "offers", "fines"].map((r) => http("GET", `/ops-reports/${r}?hostelId=${hA}&from=${from}&to=${to}`, { token: S.ownerA.token })));
+  const occ = reports[0].data;
+  const seatMap = await http("GET", `/head-office/hostels/${hA}/seats`, { token: S.ownerA.token });
+  const offerDb = (await OfferRedemption.find({ hostel: S.hostelA._id, status: "applied" }).lean()).reduce((sum, x) => sum + x.amountOff, 0);
+  check("R5", "Occupancy = seat map, movements list move-ins/outs, complaint + offer + fine reports run and reconcile", reports.every((r) => r.status === 200) && occ.summary.total === seatMap.data.summary.total && reports[1].data.summary.moveOuts >= 2 && reports[2].data.summary.raised === 1 && reports[3].data.summary.discountGiven === offerDb, reports.map((r) => r.status).join("/") + ` ${reports[3].data?.summary?.discountGiven} vs ${offerDb}`);
+  const profit = await http("GET", `/ops-reports/profit?hostelId=${hA}&from=2027-02-01&to=2027-02-28`, { token: S.ownerA.token });
+  const febIncome = (await FeePayment.find({ hostel: S.hostelA._id, status: "confirmed", method: { $ne: "deposit_adjustment" }, paidAt: { $gte: K(2027, 2, 1), $lt: K(2027, 3, 1) } }).populate("invoice", "kind").lean()).filter((x) => x.invoice?.kind !== "security_deposit").reduce((sum, x) => sum + x.amount, 0);
+  check("R6", "Profit (Feb) = rent/fee collections − expenses (42,000); deposits are not income", profit.status === 200 && profit.data.summary.expenses === 42000 && profit.data.summary.collections === febIncome && profit.data.summary.profit === febIncome - 42000, `${JSON.stringify(profit.data?.summary)} vs ${febIncome}`);
+  const rX = await Promise.all([http("GET", `/ops-reports/collections?hostelId=${hA}`, { token: S.ownerB.token }), http("GET", `/ops-reports/profit?hostelId=${hA}`, { token: S.wardenA.token }), http("GET", `/ops-reports/collections?hostelId=${hA}&blockId=${S.blockB._id}`, { token: S.wardenA.token }), http("GET", `/ops-reports/collections?hostelId=${hA}&from=2026-02-31`, { token: S.ownerA.token })]);
+  check("R7", "Other owner → 403; warden can't see profit or another block; bad dates → 400", rX[0].status === 403 && rX[1].status === 403 && rX[2].status === 403 && rX[3].status === 400, rX.map((r) => r.status).join("/"));
+
+  // ---- seat transfer (S2: B1 seat 1 → B2 seat 1, same block)
+  const bedsB1 = (await Room.findById(S.roomB1._id).lean()).availableBeds;
+  const bedsB2 = (await Room.findById(S.roomB2._id).lean()).availableBeds;
+  const taken = await http("POST", "/transfers", { token: S.s2.token, body: { toRoomId: String(S.roomA3._id), toBedIndex: 1 } });
+  const t = await http("POST", "/transfers", { token: S.s2.token, body: { toRoomId: String(S.roomB2._id), toBedIndex: 0, reason: "Quieter room" } });
+  const t2 = await http("POST", "/transfers", { token: S.s2.token, body: { toRoomId: String(S.roomB2._id), toBedIndex: 1 } });
+  check("T1", "Transfer request: taken seat → 409; one open request per stay", taken.status === 409 && t.status === 201 && t2.status === 409, `${taken.status}/${t.status}/${t2.status}`);
+  const tA = await http("POST", `/transfers/${t.data?.transfer?.id}/decide`, { token: S.wardenA.token, body: { decision: "approve" } });
+  const tX = await http("GET", `/transfers?hostelId=${hA}`, { token: S.ownerB.token });
+  const tB = await http("POST", `/transfers/${t.data?.transfer?.id}/decide`, { token: S.wardenB.token, body: { decision: "approve" } });
+  const tB2 = await http("POST", `/transfers/${t.data?.transfer?.id}/decide`, { token: S.wardenB.token, body: { decision: "approve" } });
+  const bk = await Booking.findById(S.s2.bookingId).lean();
+  const s2Open = await FeeInvoice.find({ booking: S.s2.bookingId, status: { $in: ["unpaid", "partial"] } }).lean();
+  check("T2", "Other block's warden / other owner → 403; Block B warden approves; stay moved atomically, beds adjusted, open invoices follow; twice → 409", tA.status === 403 && tX.status === 403 && tB.status === 200 && tB2.status === 409 && String(bk.room) === String(S.roomB2._id) && bk.bedIndex === 0 && (await Room.findById(S.roomB1._id).lean()).availableBeds === bedsB1 + 1 && (await Room.findById(S.roomB2._id).lean()).availableBeds === bedsB2 - 1 && s2Open.every((i) => String(i.room) === String(S.roomB2._id)), `${tA.status}/${tX.status}/${tB.status}/${tB2.status}`);
+  const cross = await http("POST", "/transfers", { token: S.ownerA.token, body: { studentId: S.s2.id, toRoomId: String(S.roomA1._id), toBedIndex: 0 } });
+  const crossW = await http("POST", `/transfers/${cross.data?.transfer?.id}/decide`, { token: S.wardenB.token, body: { decision: "approve" } });
+  const crossH = await http("POST", `/transfers/${cross.data?.transfer?.id}/decide`, { token: S.ownerA.token, body: { decision: "reject", note: "Block A is full next term" } });
+  check("T3", "Cross-block transfer: the Block B warden can't approve it; head office decides", cross.status === 201 && crossW.status === 403 && crossH.status === 200, `${cross.status}/${crossW.status}/${crossH.status}`);
+
+  // ---- SaaS: onboarding, plan gate, branding, export
+  const ob = await http("GET", `/head-office/hostels/${hA}/onboarding`, { token: S.ownerA.token });
+  const plan = ob.data?.plan || {};
+  check("S1", "Onboarding wizard status lists the steps and the plan (STARTER, 50 seats)", ob.status === 200 && ob.data.steps.length === 7 && ob.data.steps.find((x) => x.key === "students").done && plan.tier === "STARTER" && plan.limit === 50, JSON.stringify(plan));
+  const roomsBefore = await Room.countDocuments({ hostel: S.hostelA._id });
+  const over = await http("POST", `/head-office/hostels/${hA}/rooms/bulk`, { token: S.ownerA.token, body: { blockId: String(S.blockA._id), prefix: "P", from: 1, to: 50 - plan.seats + 1, beds: 1, pricePerBed: 6000 } });
+  const fits = await http("POST", `/head-office/hostels/${hA}/rooms/bulk`, { token: S.ownerA.token, body: { blockId: String(S.blockA._id), prefix: "P", from: 1, to: 50 - plan.seats, beds: 1, pricePerBed: 6000 } });
+  (await Room.find({ hostel: S.hostelA._id, roomNumber: /^P/ }).select("_id").lean()).forEach((r) => created.rooms.push(r._id));
+  check("S2", "Plan gate: one seat over 50 → 402 with an upgrade message and nothing created; exactly 50 → allowed", over.status === 402 && /Upgrade to PRO/.test(over.data?.message) && fits.status === 201 && (await Room.countDocuments({ hostel: S.hostelA._id })) === roomsBefore + (50 - plan.seats), `${over.status} ${over.data?.message} / ${fits.status}`);
+  const brandBad = await http("PUT", `/head-office/hostels/${hA}/branding`, { token: S.ownerA.token, body: { logoUrl: "javascript:alert(1)" } });
+  const brand = await http("PUT", `/head-office/hostels/${hA}/branding`, { token: S.ownerA.token, body: { receiptFooter: "Thank you for staying with us", contactEmail: "office@example.test" } });
+  const brandX = await http("PUT", `/head-office/hostels/${hA}/branding`, { token: S.ownerB.token, body: { receiptFooter: "hijack" } });
+  const anyPay = await FeePayment.findOne({ hostel: S.hostelA._id, status: "confirmed" }).lean();
+  const branded = await http("GET", `/fees/payments/${anyPay._id}/receipt.pdf`, { token: S.ownerA.token, raw: true });
+  check("S3", "Branding: bad logo URL → 400, other owner → 403; branded receipt still renders", brandBad.status === 400 && brand.status === 200 && brand.data.hostel.branding.receiptFooter === "Thank you for staying with us" && brandX.status === 403 && branded.status === 200, `${brandBad.status}/${brand.status}/${brandX.status}/${branded.status}`);
+  const exp = await http("GET", `/head-office/hostels/${hA}/export`, { token: S.ownerA.token });
+  const expText = JSON.stringify(exp.data || {});
+  const expX = await http("GET", `/head-office/hostels/${hA}/export`, { token: S.ownerB.token });
+  const expW = await http("GET", `/head-office/hostels/${hA}/export`, { token: S.wardenA.token });
+  check("S4", "Export-all: own hostel only (other owner / warden 403); no passwords, no other tenant's data", exp.status === 200 && exp.data.invoices.length > 0 && exp.data.students.length > 0 && !expText.includes("password") && !expText.includes(String(S.hostelB._id)) && expX.status === 403 && expW.status === 403, `${exp.status}/${expX.status}/${expW.status}`);
+}
+
+const SECTIONS = [clockAndPolicies, offlineResidents, finesAndWaivers, leaveNotices, offersAndDiscounts, extras];
 
 async function main() {
   if (!process.env.MONGO_URI) throw new Error("MONGO_URI is required (same database the API at BASE_URL uses).");
