@@ -11,7 +11,8 @@
     "start": "node server.js",
     "seed": "node data/seed.js",
     "test": "node --check server.js && node --test",
-    "usecases:hostel": "node scripts/hostelOpsUseCases.js"
+    "usecases:hostel": "node scripts/hostelOpsUseCases.js",
+    "usecases:phase2": "node scripts/phase2UseCases.js"
   },
   "keywords": [],
   "author": "",

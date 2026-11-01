@@ -64,6 +64,7 @@ This repository was originally implemented from six legacy `HostelHub_*.docx` pl
 - V6 AI safety behavior: student concierge, listing description generator, finance anomaly detector, dispute summarizer, review classifier, source IDs/confidence, audit logging when MongoDB is connected, and template fallback when no AI key is configured
 - V6 platform addendum: MongoDB indexes, pooled connection options, NodeCache-backed read caching, compression, scoped rate limits, Socket.io per-user/role targeting, cron job logs, host P&L/cashflow/portfolio finance, utility bill splitting, DNA score, vacancy forecast, rent negotiation, digital tenancy agreement, family portal, academic calendar intelligence, mess menu ratings, check-in verification, group booking, API marketplace, live room board, student trust score, and report-card PDFs
 - Hostel & Block operations (Phase 1, live database only): per-seat map (free / reserved / occupied / booked offline / maintenance), staff register with suspend / terminate (termination bans the login, unassigns blocks, posts a do-not-pay notice and notifies every resident + linked parent, with WhatsApp broadcast links), fee invoices and cash / bank / wallet payments with receipt PDF + QR + WhatsApp share, complaint workflow (raised → under review → in progress → fixed → resolved / reopened, head-office escalation), parent accounts linked by invite code, and a head-office overview. Spec and use cases: `docs/05-Phase1-Hostel-Block-Management.md`
+- Hostel-management SaaS (Phase 2, live database only): per-hostel / per-block policies (notice days, due day, fine per day, cap, grace, allocation, visiting hours) with Asia/Karachi business clock and QA time travel; offline-registered students identical to online ones (optional login claimed later, CSV bulk import); late fines recomputed from dates + waiver workflow; leave notice with short-notice rules, `leaving` seat state and deposit settlement at checkout; hostel offers/discounts as explicit invoice lines; visitors; reports & CSV/PDF exports; expenses & profit; seat transfers; onboarding checklist, receipt branding, export-all and plan seat limits. Design: `docs/06a-design-note.md`, log + known limits: `docs/06b-Phase2-Implementation-Log.md`
 
 ## Project Structure
 
@@ -224,8 +225,11 @@ Hostel operations:
 /head-office                 host/admin: overview (all hostels + per hostel), setup, seats, fees, complaints, staff, parents, notices
 /warden/operations           warden: own blocks only — seats, collect fees, complaints, parents, notices
 /dashboard/student/hostel    student: complaints, invoices + receipts, notices
-/parent-panel                parent: linked children — seat, fees, receipts, complaints, notices
+/parent-panel                parent: linked children — seat, fees (fines/discounts), receipts, complaints, notices, leave, visitors
+/claim                       resident registered by the hostel office activates a login with the office's code
 ```
+
+Phase 2 console tabs: Residents (register / CSV import / invite), Waivers, Leave requests, Offers, Visitors, Transfers, Reports, Expenses (head office), Policies, Setup wizard (head office). Student page adds Offers for you, invoice breakdown with waiver request + coupon, Leave hostel, Visitors, Change room.
 
 ## Environment Configuration
 
@@ -1203,6 +1207,29 @@ POST /api/v1/parent-panel/claim                        staff invite code or the 
 GET  /api/v1/parent-panel/children  ·  /children/:studentId/overview|fees|complaints|notices
 ```
 
+Phase 2 (same rules: tenant resolved from the record, 503 without a live DB, money in whole PKR, business dates from `services/clock.js`):
+
+```txt
+GET|POST /api/v1/dev/clock                             QA time travel (admin; 404 in production)
+GET|PUT  /api/v1/policies/:hostelId                    head office edits; warden reads effective values for own blocks
+POST /api/v1/residents  ·  /residents/import/preview|commit  ·  GET /residents/import/template.csv
+POST /api/v1/residents/:studentId/invite  ·  POST /api/v1/residents/claim (public, rate-limited)
+GET  /api/v1/fees/invoices/:id/quote                   amount to clear today / tomorrow + eligible offers
+POST /api/v1/fees/invoices/:id/waive                   head office proactive waiver (reason required)
+POST /api/v1/fees/waivers  ·  GET /fees/waivers|my|report  ·  POST /fees/waivers/:id/recommend|decide|cancel
+POST /api/v1/jobs/late-fees|daily                      x-cron-secret: CRON_SECRET, or admin token
+GET  /api/v1/leave/policy|my  ·  POST /leave  ·  GET /leave?hostelId=  ·  POST /leave/:id/withdraw|decide
+POST /api/v1/head-office/hostels/:id/residents/:bookingId/checkout   { damages:[{label,amount}], early? } → settlement
+/api/v1/hostel-offers  (GET|POST /, PUT /:id, POST /:id/status, GET /my, POST /apply, GET /redemptions, POST /redemptions/:id/approve|reject|reverse)
+/api/v1/visitors       (POST /, GET /, GET /my, POST /:id/decide|check-in|check-out|cancel)
+GET  /api/v1/ops-reports/:report?hostelId&from&to&blockId&format=json|csv|pdf   collections|outstanding|fines|occupancy|movements|complaints|offers|profit
+/api/v1/expenses       (GET /, POST /, POST /:id/void)
+/api/v1/transfers      (POST /, GET /, GET /my, GET /options, POST /:id/decide|cancel)
+PUT  /api/v1/head-office/hostels/:id/branding  ·  GET /head-office/hostels/:id/onboarding|export
+```
+
+Env: `CLOCK_OFFSET_DAYS` (non-production only; shifts the business clock), `CRON_SECRET` (daily job). Railway cron: `5 19 * * *` UTC → `curl -fsS -X POST -H "x-cron-secret: $CRON_SECRET" "$API_PUBLIC_URL/api/v1/jobs/daily"`.
+
 ## Validation Commands
 
 Hostel operations live use cases (needs the API running against a test database, same `MONGO_URI`; creates and deletes `[QA-HOPS]` data only):
@@ -1212,6 +1239,12 @@ BASE_URL=http://localhost:5000 MONGO_URI=<test db> RATE_LIMIT_DISABLED=true npm 
 ```
 
 (Start the API with `RATE_LIMIT_DISABLED=true` too, or the script waits out the 10/min auth limit.)
+
+Phase 2 live use cases (API must run outside production so the script can move the business clock):
+
+```bash
+BASE_URL=http://localhost:5000 MONGO_URI=<test db> npm run usecases:phase2 --prefix server
+```
 
 Backend syntax check:
 

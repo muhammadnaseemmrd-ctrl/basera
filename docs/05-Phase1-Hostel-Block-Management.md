@@ -155,5 +155,8 @@ BASE_URL=https://<staging-api> MONGO_URI=<staging db> npm run usecases:hostel   
 7. Fee collection here records money received by the hostel; it does not move money. No gateway is involved, by design.
 8. Late fees, automated monthly invoice generation and rent reminders for these invoices are not built (bulk "Bill all residents" is manual per period).
 
+## 8a. Phase 2
+Policies, offline students, fines + waivers, leave notice, offers and the hostel-SaaS extras are built on top of this layer — see `06a-design-note.md` and `06b-Phase2-Implementation-Log.md`. Phase 2 changed two Phase 1 behaviours: fee balances now include fines/discounts everywhere, and checkout settles the deposit (unpaid rent blocks it).
+
 ## 9. Readiness verdict
 Feature-complete for the Phase 1 scope; API proven green locally (§7). Remaining before go-live: browser walkthrough + staging run. After that: pilot with one real hostel (admit residents, bill one month, collect, issue receipts, raise/resolve a complaint, invite 2–3 parents) before opening to more.
