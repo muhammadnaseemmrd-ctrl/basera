@@ -91,6 +91,8 @@ const residentRoutes = require("./routes/residentRoutes");
 const waiverRoutes = require("./routes/waiverRoutes");
 const jobRoutes = require("./routes/jobRoutes");
 const leaveRoutes = require("./routes/leaveRoutes");
+// /api/v1/offers is the marketplace rent-negotiation API; hostel offers live beside it
+const hostelOfferRoutes = require("./routes/hostelOfferRoutes");
 
 if (process.env.NODE_ENV === "production" && !process.env.JWT_SECRET) {
   console.error(
@@ -272,6 +274,7 @@ app.use("/api/v1/dev", devRoutes);
 app.use("/api/v1/residents", residentRoutes);
 app.use("/api/v1/jobs", jobRoutes);
 app.use("/api/v1/leave", leaveRoutes);
+app.use("/api/v1/hostel-offers", hostelOfferRoutes);
 app.use("/api/v1", v6AliasRoutes);
 
 app.use(notFound);

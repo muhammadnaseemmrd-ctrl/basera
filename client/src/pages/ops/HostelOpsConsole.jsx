@@ -9,6 +9,7 @@ import { PoliciesTab } from "./PoliciesTab";
 import { ResidentsTab } from "./ResidentsTab";
 import { WaiversTab } from "./WaiversTab";
 import { LeaveTab } from "./LeaveTab";
+import { OffersTab } from "./OffersTab";
 
 const open = (url) => window.open(url, "_blank", "noopener,noreferrer");
 
@@ -265,6 +266,20 @@ function Fees({ hostelId, blockId, mode }) {
       reloadAll();
     } catch (error) { setMsg({ tone: "error", text: errMsg(error) }); }
   };
+  const applyOffer = async (i) => {
+    try {
+      const { data } = await api.get(`/hostel-offers?hostelId=${hostelId}`);
+      const usable = data.results.filter((o) => o.status === "active" && o.trigger !== "early_payment");
+      if (!usable.length) return setMsg({ tone: "info", text: "No active offers that can be applied by hand. Create one in Offers." });
+      const pick = window.prompt(`Apply which offer to ${i.title}?\n${usable.map((o, k) => `${k + 1}. ${o.name}`).join("\n")}`, "1");
+      const offer = usable[Number(pick) - 1];
+      if (!offer) return undefined;
+      const { data: out } = await api.post("/hostel-offers/apply", { invoiceId: i.id, offerId: offer.id });
+      setMsg({ tone: "ok", text: out.redemption.status === "applied" ? `${offer.name}: −${money(out.redemption.amountOff)} applied.` : "Sent to head office for approval." });
+      reloadAll();
+    } catch (error) { setMsg({ tone: "error", text: errMsg(error) }); }
+    return undefined;
+  };
   const requestOnBehalf = async (i) => {
     const reason = window.prompt(`Why should the PKR ${i.fineDue} fine be waived? (sent to head office, flagged as filed by you)`);
     if (!reason) return;
@@ -325,6 +340,7 @@ function Fees({ hostelId, blockId, mode }) {
                 </div>
                 <InvoiceBreakdown invoice={i} />
                 {mode === "head_office" && i.fineDue > 0 ? <button type="button" onClick={() => waive(i)} className="mt-2 mr-2 text-xs font-semibold text-primary-800 underline">Waive fine</button> : null}
+                {i.rentDue > 0 && i.status !== "void" ? <button type="button" onClick={() => applyOffer(i)} className="mt-2 mr-2 text-xs font-semibold text-primary-800 underline">Apply offer</button> : null}
                 {mode === "warden" && i.fineDue > 0 ? <button type="button" onClick={() => requestOnBehalf(i)} className="mt-2 mr-2 text-xs font-semibold text-primary-800 underline">Request waiver for student</button> : null}
                 {i.balance > 0 && i.status !== "void" ? (
                   collecting === i.id
@@ -765,8 +781,8 @@ export function HostelOpsConsole({ mode }) {
   const loadError = isHead ? hostels.error : myBlocks.error;
 
   const tabs = isHead
-    ? [["overview", "Overview"], ["setup", "Setup"], ["residents", "Residents"], ["seats", "Seats"], ["fees", "Fees & receipts"], ["complaints", "Complaints"], ["staff", "Staff"], ["parents", "Parents"], ["notices", "Notices"], ["waivers", "Waivers"], ["leave", "Leave requests"], ["policies", "Policies"]]
-    : [["seats", "Seats"], ["residents", "Register students"], ["fees", "Collect fees"], ["complaints", "Complaints"], ["parents", "Parents"], ["notices", "Notices"], ["waivers", "Waivers"], ["leave", "Leave requests"], ["policies", "Policy"]];
+    ? [["overview", "Overview"], ["setup", "Setup"], ["residents", "Residents"], ["seats", "Seats"], ["fees", "Fees & receipts"], ["complaints", "Complaints"], ["staff", "Staff"], ["parents", "Parents"], ["notices", "Notices"], ["waivers", "Waivers"], ["leave", "Leave requests"], ["offers", "Offers"], ["policies", "Policies"]]
+    : [["seats", "Seats"], ["residents", "Register students"], ["fees", "Collect fees"], ["complaints", "Complaints"], ["parents", "Parents"], ["notices", "Notices"], ["waivers", "Waivers"], ["leave", "Leave requests"], ["offers", "Offers"], ["policies", "Policy"]];
   const scopeBlock = isHead ? blockFilter : "";
 
   return (
@@ -819,6 +835,7 @@ export function HostelOpsConsole({ mode }) {
             {tab === "policies" ? <PoliciesTab hostelId={hostelId} /> : null}
             {tab === "waivers" ? <WaiversTab hostelId={hostelId} mode={mode} /> : null}
             {tab === "leave" ? <LeaveTab hostelId={hostelId} blockId={scopeBlock} /> : null}
+            {tab === "offers" ? <OffersTab hostelId={hostelId} blocks={blocks} mode={mode} /> : null}
             {tab === "residents" ? <ResidentsTab hostelId={hostelId} blockId={scopeBlock} mode={mode} /> : null}
           </>
         )}

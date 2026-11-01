@@ -44,7 +44,7 @@ Money is always integer PKR; every amount is validated with `Number.isInteger`.
 | Fines | lazy recompute on every invoice read/payment; `GET /api/v1/fees/invoices/:id/quote`, `POST /api/v1/jobs/late-fees`, `POST /api/v1/jobs/daily` (CRON_SECRET or admin) |
 | Waivers | `POST /api/v1/fees/waivers`, `GET /api/v1/fees/waivers`, `GET /api/v1/fees/waivers/my`, `POST /api/v1/fees/waivers/:id/recommend|decide|cancel`, `POST /api/v1/fees/invoices/:id/waive` (proactive), `GET /api/v1/fees/reports/fines` |
 | Leave | `POST /api/v1/leave`, `GET /api/v1/leave/my`, `GET /api/v1/leave?hostelId=`, `POST /api/v1/leave/:id/withdraw|decide`, checkout settlement in `POST /head-office/hostels/:id/residents/:bookingId/checkout` |
-| Offers | `GET|POST /api/v1/offers`, `PUT /api/v1/offers/:id`, `POST /api/v1/offers/:id/status`, `GET /api/v1/offers/my`, `POST /api/v1/offers/apply`, `POST /api/v1/offers/redemptions/:id/approve|reverse` |
+| Offers | `/api/v1/hostel-offers` (the existing `/api/v1/offers` is marketplace rent negotiation and is untouched): `GET|POST /`, `PUT /:id`, `POST /:id/status`, `GET /my`, `POST /apply`, `GET /redemptions`, `POST /redemptions/:id/approve|reject|reverse` |
 | Extras | `/api/v1/visitors`, `/api/v1/ops-reports/*`, `/api/v1/expenses`, `/api/v1/transfers`, `GET /api/v1/head-office/hostels/:id/export` |
 
 ## 4. Rules live in pure modules

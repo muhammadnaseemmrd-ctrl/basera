@@ -33,6 +33,8 @@ const ParentLink = require("../models/ParentLink");
 const HostelPolicy = require("../models/HostelPolicy");
 const AuditLog = require("../models/AuditLog");
 const LeaveNotice = require("../models/LeaveNotice");
+const OfferRedemption = require("../models/OfferRedemption");
+require("../models/HostelOffer");
 
 const results = [];
 const created = { users: [], hostels: [], blocks: [], rooms: [] };
@@ -530,7 +532,131 @@ async function leaveNotices() {
   check("L11c", "Offline O1: deposit 10,000 − fine dues − 1,000 damage settled exactly; fine cleared by a deposit adjustment receipt", o1Out.status === 200 && o1st.duesTotal === o1After.fineDue && o1st.refund === 10000 - o1After.fineDue - 1000 && o1Final.totalDue === 0 && o1Out.data.adjustments.length === 1, `${o1Out.status} ${o1Out.data?.message || ""} fine ${o1After.fineDue} ${JSON.stringify(o1st).slice(0, 140)}`);
 }
 
-const SECTIONS = [clockAndPolicies, offlineResidents, finesAndWaivers, leaveNotices];
+// ---------------------------------------------------------------- offers & discounts
+async function offersAndDiscounts() {
+  const hA = String(S.hostelA._id);
+  await setToday(midday(2027, 2, 1));
+  const O = (body) => http("POST", "/hostel-offers", { token: S.ownerA.token, body: { hostelId: hA, status: "active", ...body } });
+  const bill = async (studentId, amount) => (await http("POST", "/fees/invoices", { token: S.ownerA.token, body: { hostelId: hA, studentId, title: "Rent February", amount, kind: "rent", period: "2027-02" } })).data?.invoice?.id;
+  const csvIds = (await Booking.find({ hostel: S.hostelA._id, source: "offline", status: "active", room: { $in: [S.roomB3._id, S.roomB4._id, S.roomB5._id] } }).select("student").lean()).map((b) => String(b.student));
+  const inv = {
+    o2: await bill(S.o2.id, 7000),
+    late: await bill(S.late.id, 8000),
+    w1: await bill(S.w1.id, 7500),
+    s2: await bill(S.s2.id, 8000),
+    c: await Promise.all(csvIds.slice(0, 8).map((id) => bill(id, 7000)))
+  };
+  check("D0", "February invoices created for online + offline students", inv.o2 && inv.late && inv.w1 && inv.s2 && inv.c.every(Boolean), JSON.stringify(inv).slice(0, 120));
+
+  const bad = await O({ name: "", type: "percent", value: 150 });
+  const xCreate = await http("POST", "/hostel-offers", { token: S.ownerB.token, body: { hostelId: hA, name: "x", type: "flat", value: 1 } });
+  const wCreate = await http("POST", "/hostel-offers", { token: S.wardenA.token, body: { hostelId: hA, name: "x", type: "flat", value: 1 } });
+  check("D0b", "Invalid offer → 400; other owner / warden cannot create offers (403)", bad.status === 400 && xCreate.status === 403 && wCreate.status === 403, `${bad.status}/${xCreate.status}/${wCreate.status}`);
+  const early = await O({ name: "Early pay 2%", type: "percent", value: 2, trigger: "early_payment", condition: { payBeforeDay: 3 }, scope: "block", blocks: [String(S.blockA._id)], validFrom: "2027-02-01", validTo: "2027-02-28" });
+  const list = await http("GET", `/hostel-offers?hostelId=${hA}`, { token: S.ownerA.token });
+  check("D1", "Early-pay 2% by the 3rd (Block A, active, valid this month) is listed active", early.status === 201 && list.data.results.some((o) => o.id === early.data.offer.id && o.status === "active"), `${early.status} ${early.data?.message || ""}`);
+
+  await setToday(midday(2027, 2, 2));
+  const qO2 = await quote(inv.o2, S.o2.token);
+  const d2 = await http("POST", `/fees/invoices/${inv.o2}/payments`, { token: S.wardenA.token, body: { amount: 6860, method: "cash" } });
+  const d2inv = d2.data?.invoice || {};
+  const rcpt = await http("GET", `/fees/payments/${d2.data?.payment?.id}/receipt.pdf`, { token: S.o2.token, raw: true });
+  check("D2", "Paid on the 2nd: explicit −140 line (2% of 7,000), 6,860 settles the invoice; receipt PDF renders", qO2.eligibleOffers === undefined && d2.status === 201 && d2.data.payment.discountApplied === 140 && d2inv.discounts?.[0]?.amountOff === 140 && d2inv.discounts[0].name === "Early pay 2%" && d2inv.totalDue === 0 && d2inv.status === "paid" && rcpt.status === 200, `${d2.status} ${d2.data?.message || ""} ${JSON.stringify(d2inv.discounts)}`);
+  const qInfo = await http("GET", `/fees/invoices/${inv.late}/quote`, { token: S.ownerA.token });
+  check("D2b", "Payment screen lists the early-pay offer while it's eligible", qInfo.data?.eligibleOffers?.some((o) => o.name === "Early pay 2%" && o.amountOff === 160), JSON.stringify(qInfo.data?.eligibleOffers));
+
+  await setToday(midday(2027, 2, 4));
+  const d3 = await http("POST", `/fees/invoices/${inv.late}/payments`, { token: S.wardenA.token, body: { amount: 8000, method: "cash" } });
+  check("D3", "Paid on the 4th: no discount", d3.status === 201 && d3.data.payment.discountApplied === 0 && d3.data.invoice.discountTotal === 0, `${d3.status} ${d3.data?.message || ""}`);
+  await setToday(midday(2027, 2, 6));
+  const qLate = await http("GET", `/fees/invoices/${inv.w1}/quote`, { token: S.ownerA.token });
+  const d4 = await http("POST", `/fees/invoices/${inv.w1}/payments`, { token: S.wardenA.token, body: { amount: 7600, method: "cash" } });
+  check("D4", "Late invoice (6th): early offer not offered or applied; the fine is paid in full, never discounted", !qLate.data.eligibleOffers.some((o) => o.name === "Early pay 2%") && qLate.data.invoice.fineAccrued === 100 && d4.status === 201 && d4.data.payment.discountApplied === 0 && d4.data.payment.finePortion === 100, `${d4.status} ${d4.data?.message || ""}`);
+
+  // D5: coupon, max 2 redemptions, three applications at once
+  await setToday(midday(2027, 2, 2));
+  const coupon = await O({ name: "Welcome coupon", type: "flat", value: 500, trigger: "coupon", code: `QA${RUN}`.toUpperCase().slice(0, 12), maxRedemptions: 2, stackable: true });
+  const race = await Promise.all(inv.c.slice(0, 3).map((id) => http("POST", "/hostel-offers/apply", { token: S.ownerA.token, body: { invoiceId: id, code: coupon.data?.offer?.code } })));
+  const ok = race.filter((r) => r.status === 201).length;
+  const third = race.find((r) => r.status !== 201);
+  const dbl = await http("POST", "/hostel-offers/apply", { token: S.ownerA.token, body: { invoiceId: inv.c[0], code: coupon.data?.offer?.code } });
+  const counter = (await mongoose.model("HostelOffer").findById(coupon.data?.offer?.id).lean())?.redemptionCount;
+  check("D5", "Coupon capped at 2: three at once → exactly 2 succeed, the third gets a clear message; no double redemption", coupon.status === 201 && ok === 2 && third?.status >= 400 && /redeemed|already/.test(third?.data?.message || "") && [400, 409].includes(dbl.status) && counter === 2, `${coupon.status} ok=${ok} third=${third?.status} ${third?.data?.message} dbl=${dbl.status} n=${counter}`);
+  // true double-click: two simultaneous applies of an uncapped offer on the same invoice
+  const extra = await bill(csvIds[8], 7000);
+  const dc = await O({ name: "Double-click test", type: "flat", value: 250, trigger: "manual" });
+  const clicks = await Promise.all([1, 2].map(() => http("POST", "/hostel-offers/apply", { token: S.ownerA.token, body: { invoiceId: extra, offerId: dc.data?.offer?.id } })));
+  const dcInv = await FeeInvoice.findById(extra).lean();
+  check("D5c", "Double-click: two simultaneous applies on one invoice → one 201, one 409, discount counted once", clicks.map((r) => r.status).sort().join(",") === "201,409" && dcInv.discountTotal === 250 && dcInv.discounts.length === 1, `${clicks.map((r) => r.status)} ${dcInv.discountTotal}`);
+  const studentBadCode = await http("POST", "/hostel-offers/apply", { token: S.s2.token, body: { invoiceId: inv.s2, code: "NOPE" } });
+  check("D5b", "Wrong coupon code → 404", studentBadCode.status === 404, String(studentBadCode.status));
+
+  // D6: stackable vs non-stackable
+  const NS = await O({ name: "Non-stack 500", type: "flat", value: 500, trigger: "manual" });
+  const ST1 = await O({ name: "Stack 300", type: "flat", value: 300, trigger: "manual", stackable: true });
+  const ST2 = await O({ name: "Stack 400", type: "flat", value: 400, trigger: "manual", stackable: true });
+  const apply = (invoiceId, offer) => http("POST", "/hostel-offers/apply", { token: S.ownerA.token, body: { invoiceId, offerId: offer.data.offer.id } });
+  const a1 = await apply(inv.c[3], ST1);
+  const a2 = await apply(inv.c[3], NS);
+  const a3 = await apply(inv.c[3], ST2);
+  const b1 = await apply(inv.c[4], NS);
+  const b2 = await apply(inv.c[4], ST1);
+  check("D6", "Stackables add up (300+400); a non-stackable can't join stackables, and nothing joins a non-stackable", a1.status === 201 && a2.status === 409 && a3.status === 201 && a3.data.invoice.discountTotal === 700 && b1.status === 201 && b2.status === 409, [a1, a2, a3, b1, b2].map((r) => r.status).join("/"));
+
+  // D7: inclusive end date + paused
+  const shortLived = await O({ name: "Two-day deal", type: "flat", value: 200, trigger: "manual", validFrom: "2027-02-01", validTo: "2027-02-02" });
+  const onLastDay = await apply(inv.c[5], shortLived);
+  await setToday(midday(2027, 2, 3));
+  const dayAfter = await apply(inv.c[6], shortLived);
+  const paused = await O({ name: "Paused deal", type: "flat", value: 200, trigger: "manual" });
+  await http("POST", `/hostel-offers/${paused.data.offer.id}/status`, { token: S.ownerA.token, body: { status: "paused" } });
+  const onPaused = await apply(inv.c[6], paused);
+  check("D7", "End date is inclusive (applies on the 2nd, not the 3rd); a paused offer can't be used", onLastDay.status === 201 && dayAfter.status === 400 && /expired/.test(dayAfter.data?.message) && onPaused.status === 400, `${onLastDay.status}/${dayAfter.status}/${onPaused.status}`);
+
+  // D8: discount larger than the line
+  const huge = await O({ name: "Huge", type: "flat", value: 99999, trigger: "manual" });
+  const d8 = await apply(inv.c[7], huge);
+  check("D8", "A discount larger than the line is capped at it; the invoice never goes negative", d8.status === 201 && d8.data.redemption.amountOff === 7000 && d8.data.invoice.totalDue === 0 && d8.data.invoice.rentDue === 0, `${d8.status} ${d8.data?.redemption?.amountOff}`);
+
+  // D9: void the payment that used the early-pay discount
+  const voided = await http("POST", `/fees/payments/${d2.data?.payment?.id}/void`, { token: S.ownerA.token, body: { reason: "Counterfeit note" } });
+  const earlyCount = (await mongoose.model("HostelOffer").findById(early.data.offer.id).lean()).redemptionCount;
+  const red = await OfferRedemption.findOne({ payment: d2.data?.payment?.id }).lean();
+  const auditVoid = await AuditLog.countDocuments({ action: "fee.payment.voided", entityId: d2.data?.payment?.id });
+  check("D9", "Voiding the payment reverses its redemption, restores the counter and removes the −140 line; audited", voided.status === 200 && voided.data.redemptionsReversed === 1 && red?.status === "reversed" && earlyCount === 0 && voided.data.invoice.discountTotal === 0 && voided.data.invoice.rentDue === 7000 && auditVoid === 1, `${voided.status} ${voided.data?.redemptionsReversed} ${red?.status} ${earlyCount}`);
+
+  // D10: block scope + tenant isolation
+  const blockOnly = await O({ name: "Block A only", type: "flat", value: 100, trigger: "manual", scope: "block", blocks: [String(S.blockA._id)] });
+  const onB = await apply(inv.s2, blockOnly);
+  const xList = await http("GET", `/hostel-offers?hostelId=${hA}`, { token: S.ownerB.token });
+  const xApply = await http("POST", "/hostel-offers/apply", { token: S.ownerB.token, body: { invoiceId: inv.s2, offerId: blockOnly.data.offer.id } });
+  const xWarden = await http("POST", "/hostel-offers/apply", { token: S.wardenX.token, body: { invoiceId: inv.s2, offerId: blockOnly.data.offer.id } });
+  const myB = await http("GET", "/hostel-offers/my", { token: S.s2.token });
+  check("D10", "Block A offer: not eligible for a Block B student, invisible to them; other hostel's owner/warden → 403", onB.status === 400 && xList.status === 403 && xApply.status === 403 && xWarden.status === 403 && !myB.data.results.some((o) => o.id === blockOnly.data.offer.id), `${onB.status}/${xList.status}/${xApply.status}/${xWarden.status}`);
+  const statusX = await http("POST", `/hostel-offers/${early.data.offer.id}/status`, { token: S.ownerB.token, body: { status: "paused" } });
+  const editX = await http("PUT", `/hostel-offers/${early.data.offer.id}`, { token: S.wardenA.token, body: { name: "hijack" } });
+  check("D10b", "Other owner can't change an offer's status; a warden can't edit offers", statusX.status === 403 && editX.status === 403, `${statusX.status}/${editX.status}`);
+
+  // D11: scholarship needing approval
+  const sch = await O({ name: "Scholarship 25%", type: "percent", value: 25, trigger: "scholarship", requiresApproval: true });
+  const studentTry = await http("POST", "/hostel-offers/apply", { token: S.s2.token, body: { invoiceId: inv.s2, offerId: sch.data.offer.id } });
+  const wb = await http("POST", "/hostel-offers/apply", { token: S.wardenB.token, body: { invoiceId: inv.s2, offerId: sch.data.offer.id } });
+  const before = (await FeeInvoice.findById(inv.s2).lean()).discountTotal;
+  const wbApprove = await http("POST", `/hostel-offers/redemptions/${wb.data?.redemption?.id}/approve`, { token: S.wardenB.token });
+  const approve = await http("POST", `/hostel-offers/redemptions/${wb.data?.redemption?.id}/approve`, { token: S.ownerA.token });
+  const approveAgain = await http("POST", `/hostel-offers/redemptions/${wb.data?.redemption?.id}/approve`, { token: S.ownerA.token });
+  check("D11", "Scholarship: student can't apply it; warden's request stays pending (no discount) until head office approves once", studentTry.status === 403 && wb.status === 201 && wb.data.redemption.status === "pending_approval" && before === 0 && wbApprove.status === 403 && approve.status === 200 && approve.data.invoice.discountTotal === 2000 && approveAgain.status === 409, `${studentTry.status}/${wb.status}/${wbApprove.status}/${approve.status}/${approveAgain.status}`);
+
+  // D12: counters and "offers for you" match
+  const listAfter = await http("GET", `/hostel-offers?hostelId=${hA}`, { token: S.ownerA.token });
+  const u = (offer) => listAfter.data.results.find((o) => o.id === offer.data.offer.id)?.usage || {};
+  const my = await http("GET", "/hostel-offers/my", { token: S.s2.token });
+  check("D12", "Usage counters match (coupon 2, early-pay 0 after reversal, stack 300 ×1); student sees savings 2,000 and no coupon codes", u(coupon).applied === 2 && u(early).applied === 0 && u(early).reversed === 1 && u(ST1).applied === 1 && my.status === 200 && my.data.savings.total === 2000 && !JSON.stringify(my.data.results).includes(coupon.data.offer.code), `${JSON.stringify([u(coupon), u(early), u(ST1)])} ${my.data?.savings?.total}`);
+  const rev = await http("POST", `/hostel-offers/redemptions/${approve.data?.redemption?._id}/reverse`, { token: S.ownerA.token, body: { reason: "Scholarship withdrawn" } });
+  check("D13", "Head office can reverse a manually applied discount (reason required); invoice amount restored", rev.status === 200 && rev.data.invoice.discountTotal === 0 && rev.data.invoice.rentDue === 8000, `${rev.status} ${rev.data?.message || ""}`);
+}
+
+const SECTIONS = [clockAndPolicies, offlineResidents, finesAndWaivers, leaveNotices, offersAndDiscounts];
 
 async function main() {
   if (!process.env.MONGO_URI) throw new Error("MONGO_URI is required (same database the API at BASE_URL uses).");

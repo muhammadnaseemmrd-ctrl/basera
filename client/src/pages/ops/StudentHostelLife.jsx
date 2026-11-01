@@ -21,6 +21,15 @@ function Fees() {
       waivers.reload();
     } catch (e) { setMsg(errMsg(e)); }
   };
+  const applyCoupon = async (i) => {
+    const code = window.prompt("Coupon code:");
+    if (!code) return;
+    try {
+      const { data: out } = await api.post("/hostel-offers/apply", { invoiceId: i.id, code });
+      setOk(out.redemption.status === "applied" ? `Coupon applied: −${money(out.redemption.amountOff)}.` : "Coupon sent to the hostel office for approval.");
+      reload();
+    } catch (e) { setMsg(errMsg(e)); }
+  };
   const cancelWaiver = async (w) => {
     try { await api.post(`/fees/waivers/${w.id}/cancel`); waivers.reload(); reload(); } catch (e) { setMsg(errMsg(e)); }
   };
@@ -43,6 +52,7 @@ function Fees() {
               <li key={i.id} className="rounded-md border border-line p-3 text-sm">
                 <div className="flex flex-wrap items-center justify-between gap-2"><span className="font-semibold">{i.title}{i.period ? ` (${i.period})` : ""}</span><Pill value={i.status} /></div>
                 <InvoiceBreakdown invoice={i} />
+                {i.rentDue > 0 ? <button type="button" onClick={() => applyCoupon(i)} className="mt-2 mr-2 text-xs font-semibold text-primary-800 underline">Have a coupon?</button> : null}
                 {i.fineDue > 0 && !pending ? <button type="button" onClick={() => requestWaiver(i)} className="btn-secondary mt-2 px-3 py-1 text-xs">Request fine waiver</button> : null}
                 {pending ? <p className="mt-2 text-xs">Waiver request pending · <button type="button" className="font-semibold underline" onClick={() => cancelWaiver(pending)}>cancel</button></p> : null}
               </li>
@@ -160,6 +170,28 @@ function Notices() {
   );
 }
 
+function Offers() {
+  const { data, loading, error } = useLoad("/hostel-offers/my");
+  if (loading || error || !data) return null;
+  if (!data.results.length && !data.savings.total) return null;
+  return (
+    <section className="panel p-5">
+      <h2 className="mb-1 text-xl font-bold">Offers for you</h2>
+      {data.savings.total ? <p className="mb-3 text-sm text-accent-700">You have saved <b>{money(data.savings.total)}</b> with hostel offers.</p> : null}
+      <ul className="grid gap-2 text-sm">
+        {data.results.map((o) => (
+          <li key={o.id} className="rounded-md border border-line p-3">
+            <b>{o.name}</b> — {o.type === "percent" ? `${o.value}%` : o.type === "flat" ? money(o.value) : `${o.value} free day(s)`} off
+            {o.trigger === "early_payment" ? ` when you pay by day ${o.condition?.payBeforeDay} (applied automatically)` : ""}
+            {o.needsCode ? " — enter the code on an invoice below" : ""}
+            {o.validTo ? <span className="text-slate-600"> · until {dateShort(o.validTo)}</span> : null}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 function Leave() {
   const policy = useLoad("/leave/policy");
   const mine = useLoad("/leave/my");
@@ -226,6 +258,7 @@ export function StudentHostelLife() {
       <Helmet><title>My Hostel | Basera</title></Helmet>
       <div className="grid gap-6">
         <Notices />
+        <Offers />
         <Fees />
         <Leave />
         <Complaints />

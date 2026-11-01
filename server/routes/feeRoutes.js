@@ -4,6 +4,7 @@ const PDFDocument = require("pdfkit");
 const QRCode = require("qrcode");
 const FeeInvoice = require("../models/FeeInvoice");
 const FeePayment = require("../models/FeePayment");
+const OfferRedemption = require("../models/OfferRedemption");
 const Hostel = require("../models/Hostel");
 const Block = require("../models/Block");
 const User = require("../models/User");
@@ -280,6 +281,7 @@ router.post("/invoices/:id/payments", authorize("host", "admin", "warden"), asyn
       beforeAllocate: (inv) => reserveAutoOffers(inv, { amount: Number(amount), actor: req.user })
     });
     const view = present(updated);
+    if (payment.redemptions?.length) await OfferRedemption.updateMany({ _id: { $in: payment.redemptions } }, { payment: payment._id });
     await audit(req, { action: "fee.payment.recorded", entityType: "FeePayment", entityId: payment._id, metadata: { amount: payment.amount, method, receiptNo: payment.receiptNo, invoice: String(invoice._id), rentPortion: payment.rentPortion, finePortion: payment.finePortion, discount: payment.discountApplied } });
     await emitPaymentReceived(payment, view);
     return res.status(201).json({ payment: shape(payment), invoice: view, balance: view.totalDue, receiptNo: payment.receiptNo });
