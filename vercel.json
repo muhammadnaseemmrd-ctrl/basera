@@ -7,6 +7,10 @@
   "outputDirectory": "client/dist",
   "rewrites": [
     {
+      "source": "/demo",
+      "destination": "/demo/index.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

@@ -189,6 +189,7 @@ Public:
 /login
 /landlord/onboarding     legacy path, now Host onboarding
 /verify/:receiptId       public receipt/document verification
+/demo                    animated hostel-management demo (static page: client/public/demo/index.html, source docs/demo/basera-hostel-demo.html)
 ```
 
 Student:

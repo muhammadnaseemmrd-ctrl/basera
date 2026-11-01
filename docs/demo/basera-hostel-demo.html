@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Basera Hostel Management — Animated Demo</title>
+<style>
+:root{--p:#00535B;--p2:#0a7480;--p50:#e6f3f4;--ink:#0f172a;--mut:#475569;--line:#d8e1e6;--ok:#047857;--okbg:#e3f6ee;--warn:#92400e;--warnbg:#fef3c7;--bad:#991b1b;--badbg:#fee2e2;--pur:#5b21b6;--purbg:#ede9fe;--bg:#f4f7f8}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:#0b1f24;color:var(--ink)}
+.wrap{max-width:1100px;margin:0 auto;padding:14px}
+.top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;color:#fff;margin-bottom:10px}
+.brand{font-weight:800;letter-spacing:.3px}.brand small{font-weight:500;opacity:.7;margin-left:8px}
+.roles{display:flex;gap:6px}
+.roles button,.ctl button{border:0;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;background:#1c3a41;color:#cfe6e9}
+.roles button.on{background:#fff;color:var(--p)}
+.ctl{display:flex;gap:6px}.ctl button{padding:8px 11px}
+.dots{display:flex;gap:5px;flex-wrap:wrap;margin:0 0 10px}
+.dot{height:6px;flex:1;min-width:18px;background:#1c3a41;border-radius:4px;overflow:hidden;cursor:pointer}
+.dot i{display:block;height:100%;width:0;background:#4fd1c5}
+.dot.done i{width:100%}.dot.cur i{animation:fill var(--d,8s) linear forwards}
+@keyframes fill{to{width:100%}}
+.browser{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px #0008;position:relative}
+.bar{display:flex;align-items:center;gap:8px;background:#e8eef0;padding:9px 12px}
+.lights span{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;background:#f87171}.lights span:nth-child(2){background:#fbbf24}.lights span:nth-child(3){background:#34d399}
+.url{flex:1;background:#fff;border-radius:6px;padding:5px 10px;font-size:12px;color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who{font-size:12px;font-weight:700;color:#fff;background:var(--p);border-radius:20px;padding:3px 10px}
+#screen{min-height:470px;padding:18px;background:var(--bg);position:relative;overflow:hidden}
+.fade{animation:fade .5s both}@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+h2{margin:0 0 4px;font-size:21px}h3{margin:0 0 8px;font-size:15px}.sub{color:var(--mut);font-size:13px;margin-bottom:14px}
+.grid{display:grid;gap:10px}.g4{grid-template-columns:repeat(4,1fr)}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:760px){.g4,.g2,.g3{grid-template-columns:1fr 1fr}}
+.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px}
+.tile .l{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}.tile .v{font-size:25px;font-weight:800;margin-top:3px}.tile .h{font-size:11px;color:var(--mut)}
+table{width:100%;border-collapse:collapse;font-size:13px}th{font-size:10px;text-transform:uppercase;color:var(--mut);text-align:left;padding:5px}td{padding:6px 5px;border-top:1px solid var(--line)}
+.input{width:100%;border:1px solid var(--line);border-radius:7px;padding:8px 9px;font-size:13px;background:#fff;font-family:inherit}
+label{font-size:12px;font-weight:700;display:grid;gap:3px}
+.btn{border:0;border-radius:7px;padding:8px 13px;font-weight:700;background:var(--p);color:#fff;font-size:13px;cursor:default}
+.btn.sec{background:var(--p50);color:var(--p)}.btn.red{background:#c81e1e}.btn.wa{background:#25d366}.btn.sm{padding:4px 9px;font-size:11px}
+.pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:800;background:var(--p50);color:var(--p)}
+.pill.ok{background:var(--okbg);color:var(--ok)}.pill.warn{background:var(--warnbg);color:var(--warn)}.pill.bad{background:var(--badbg);color:var(--bad)}.pill.pur{background:var(--purbg);color:var(--pur)}
+.seat{min-width:104px;border:1.5px solid;border-radius:8px;padding:5px 8px;font-size:11px;transition:all .5s}
+.seat b{display:block}.s-free{border-color:#0f766e;background:#e3f6ee;color:#065f46}.s-res{border-color:#b45309;background:var(--warnbg);color:#92400e}
+.s-occ{border-color:#0a7480;background:var(--p50);color:#063c43}.s-off{border-color:#6d28d9;background:var(--purbg);color:var(--pur)}.s-mnt{border-color:#c81e1e;background:var(--badbg);color:var(--bad)}
+.room{display:flex;align-items:center;gap:8px;margin:6px 0;flex-wrap:wrap}.room>span{width:62px;font-weight:800;font-size:12px}
+.msg{padding:9px 12px;border-radius:8px;font-size:13px;font-weight:700;margin:8px 0}.msg.ok{background:var(--okbg);color:var(--ok)}.msg.bad{background:var(--badbg);color:var(--bad)}
+.hide{display:none}.shake{animation:shake .5s}@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.pulse{animation:pulse .4s}@keyframes pulse{50%{box-shadow:0 0 0 6px #4fd1c566}}
+#cursor{position:absolute;z-index:50;width:22px;height:22px;left:30px;top:30px;transition:left .65s ease,top .65s ease;pointer-events:none;filter:drop-shadow(0 2px 3px #0006)}
+#cursor svg{width:22px;height:22px}#cursor.click::after{content:"";position:absolute;left:-8px;top:-8px;width:34px;height:34px;border-radius:50%;border:3px solid #4fd1c5;animation:rip .45s}
+@keyframes rip{from{transform:scale(.3);opacity:1}to{transform:scale(1.2);opacity:0}}
+.caption{background:#06161a;color:#e8f6f7;padding:13px 16px;font-size:15px;min-height:62px;border-top:3px solid #4fd1c5;display:flex;gap:10px;align-items:center}
+.caption b{color:#4fd1c5}
+.demo{font-size:11px;color:#9fc3c8;text-align:center;margin-top:9px}
+.node{width:22px;height:22px;border-radius:50%;background:#cbd5e1;display:inline-block;margin:2px;transition:all .3s}.node.on{background:#25d366;transform:scale(1.25)}.node.p.on{background:#0a7480}
+.fan{display:flex;flex-wrap:wrap;max-width:560px}
+.phone{position:absolute;right:20px;bottom:14px;width:250px;background:#e5ddd5;border:6px solid #111;border-radius:22px;padding:8px;z-index:30;box-shadow:0 12px 34px #0005}
+.phone .hd{background:#075e54;color:#fff;margin:-8px -8px 8px;padding:8px 12px;font-size:12px;font-weight:700;border-radius:14px 14px 0 0}
+.bub{background:#dcf8c6;border-radius:8px;padding:7px 9px;font-size:11px;white-space:pre-line}
+.stars{color:#f59e0b;font-size:20px;letter-spacing:3px}
+.tl{border-left:2px solid var(--line);padding-left:10px;font-size:12px;margin-top:6px}.tl div{margin:4px 0}
+.lock{border:2px dashed #c81e1e;background:#fff5f5}
+.warnnote{border:2px solid #c81e1e;background:#fef2f2;border-radius:10px;padding:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">Basera <small>Hostel Management · animated walkthrough</small></div>
+    <div class="roles" id="roles"></div>
+    <div class="ctl"><button id="prev" title="Previous">⏮</button><button id="play" title="Pause/Play">⏸</button><button id="next" title="Next">⏭</button><button id="spd" title="Speed">1×</button></div>
+  </div>
+  <div class="dots" id="dots"></div>
+  <div class="browser">
+    <div class="bar"><div class="lights"><span></span><span></span><span></span></div><div class="url" id="url"></div><div class="who" id="who"></div></div>
+    <div id="screen"></div>
+    <div id="cursor"><svg viewBox="0 0 24 24"><path d="M3 2l7 19 3-8 8-3z" fill="#fff" stroke="#0f172a" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
+    <div class="caption" id="cap"></div>
+  </div>
+  <div class="demo">Illustrative demo built from the real screens' layout and rules, using sample data for “ZK Hostel”. Not a recording of the live system or its data.</div>
+</div>
+
+<script>
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+let gen=0,paused=false,speed=1,cur=0;
+const sleep=ms=>new Promise((res,rej)=>{const g=gen;let t=0;const iv=setInterval(()=>{if(g!==gen){clearInterval(iv);rej("abort");return}if(!paused){t+=40;if(t>=ms/speed){clearInterval(iv);res()}}},40)});
+const screen=$("#screen"),cursor=$("#cursor");
+const say=(h)=>{$("#cap").innerHTML="<span>▶</span><div>"+h+"</div>"};
+const set=(html)=>{screen.innerHTML='<div class="fade">'+html+"</div>"};
+async function go(el,dx=14,dy=14){const s=screen.getBoundingClientRect(),r=el.getBoundingClientRect();cursor.style.left=(r.left-s.left+Math.min(dx,r.width/2))+"px";cursor.style.top=(r.top-s.top+Math.min(dy,r.height/2))+"px";await sleep(750)}
+async function click(el){await go(el);cursor.classList.add("click");el.classList.add("pulse");await sleep(300);cursor.classList.remove("click");el.classList.remove("pulse")}
+async function type(el,text,d=45){el.focus&&el.focus();await go(el);for(const c of text){el.value+=c;await sleep(d)}}
+async function count(el,to,fmt=(n)=>n,steps=18){for(let i=1;i<=steps;i++){el.textContent=fmt(Math.round(to*i/steps));await sleep(35)}}
+const money=n=>"PKR "+n.toLocaleString("en-PK");
+const tile=(l,v,h="")=>`<div class="card tile"><div class="l">${l}</div><div class="v">${v}</div><div class="h">${h}</div></div>`;
+const seat=(i,s,t,x="")=>`<div class="seat s-${s}" data-i="${i}"><b>Seat ${i}</b>${t}${x?`<br><b>${x}</b>`:""}</div>`;
+
+/* ---------------- scenes ---------------- */
+const scenes=[
+/* ===== HEAD OFFICE ===== */
+{role:"Head Office",title:"Overview",url:"basera-cyan.vercel.app/head-office",who:"Head Office · ZK Hostel",dur:9,async run(){
+ set(`<h2>Head Office — ZK Hostel</h2><div class="sub">Seats, fees, staff, complaints and parents — every block in one place.</div>
+ <div class="grid g4">${tile("Residents",0,"")}${tile("Seats free",0,"of 60")}${tile("Collected (month)","PKR 0","")}${tile("Outstanding","PKR 0","")}${tile("Open complaints",0,"")}${tile("Reserved",0,"")}${tile("Staff active",0,"")}${tile("Occupancy","0%","")}</div>
+ <div class="card" style="margin-top:12px"><h3>Occupancy by block</h3><table><tr><th>Block</th><th>Warden</th><th>Free</th><th>Reserved</th><th>Occupied</th><th>Total</th></tr>
+ <tr><td><b>Block A</b></td><td>Rashid Khan</td><td>6</td><td>2</td><td>16</td><td>24</td></tr><tr><td><b>Block B</b></td><td>Imran Ali</td><td>9</td><td>1</td><td>26</td><td>36</td></tr></table></div>`);
+ say("The <b>Head Office</b> opens one dashboard for the whole hostel — every block, every seat, every rupee.");
+ const v=$$(".tile .v");const t=[[42,x=>x],[15,x=>x],[345000,money],[62000,money],[4,x=>x],[3,x=>x],[6,x=>x],[70,x=>x+"%"]];
+ await Promise.all(v.map((e,i)=>count(e,t[i][0],t[i][1])));
+ say("Live totals: <b>42 residents</b>, <b>15 free seats</b>, <b>PKR 345,000 collected</b> this month and <b>4 open complaints</b>.");await sleep(2600)}},
+
+{role:"Head Office",title:"Set up blocks & rooms",url:"basera-cyan.vercel.app/head-office  ›  Setup",who:"Head Office · ZK Hostel",dur:13,async run(){
+ set(`<h2>Setup &amp; residents</h2><div class="sub">Create blocks, add rooms in bulk, admit students who already live there.</div>
+ <div class="grid g2"><div class="card"><h3>1 · Add rooms in bulk</h3><div class="grid g2"><label>Block<select class="input" id="b"><option>Block A</option></select></label><label>Seats per room<input class="input" id="be"></label><label>From room<input class="input" id="f"></label><label>To room<input class="input" id="t"></label><label>Rent per seat<input class="input" id="r"></label><div style="align-self:end"><button class="btn" id="go">Create rooms</button></div></div><div id="m1"></div></div>
+ <div class="card"><h3>2 · Admit a current resident</h3><div class="grid g2"><label>Name<input class="input" id="n"></label><label>Phone<input class="input" id="p"></label><label>Room · seat<input class="input" id="rm"></label><label>Monthly rent<input class="input" id="mr"></label></div><button class="btn" id="ad" style="margin-top:8px">Admit resident</button><div id="m2"></div></div></div>
+ <div class="card" style="margin-top:10px"><h3>Room 101</h3><div class="room"><span>Room 101</span><div id="r101" style="display:flex;gap:8px">${seat(1,"free","Free")}${seat(2,"free","Free")}${seat(3,"free","Free")}</div></div></div>`);
+ say("First the <b>structure</b>: add 20 rooms to Block A in one go instead of one by one.");
+ await type($("#be"),"3");await type($("#f"),"101");await type($("#t"),"120");await type($("#r"),"8000");
+ await click($("#go"));$("#m1").innerHTML='<div class="msg ok fade">20 rooms created in Block A (60 seats).</div>';await sleep(1200);
+ say("Students who <b>registered offline</b> are admitted straight into a seat — they get a login and are managed exactly like online students.");
+ await type($("#n"),"Ahmed Raza");await type($("#p"),"0300-5551234");await type($("#rm"),"101 · seat 1");await type($("#mr"),"8000");
+ await click($("#ad"));$("#m2").innerHTML='<div class="msg ok fade">Ahmed Raza admitted to room 101, seat 1. Login + guardian invite code created.</div>';
+ $("#r101").innerHTML=seat(1,"occ","Occupied","Ahmed Raza")+seat(2,"free","Free")+seat(3,"free","Free");await sleep(2500)}},
+
+{role:"Head Office",title:"Live seat map",url:"basera-cyan.vercel.app/head-office  ›  Seats",who:"Head Office · ZK Hostel",dur:14,async run(){
+ const st={1:["occ","Occupied","Ahmed Raza"],2:["free","Free"],3:["free","Free"]};
+ const draw=()=>{const sm={free:0,res:0,occ:0,off:0,mnt:0};Object.values(rooms).flat().forEach(s=>sm[s[0]]++);
+  $("#leg").innerHTML=`<span class="pill ok">Free ${sm.free}</span> <span class="pill warn">Reserved ${sm.res}</span> <span class="pill">Occupied ${sm.occ}</span> <span class="pill pur">Booked offline ${sm.off}</span> <span class="pill bad">Maintenance ${sm.mnt}</span>`;
+  $("#map").innerHTML=Object.entries(rooms).map(([r,ss])=>`<div class="room"><span>Room ${r}</span>${ss.map((s,i)=>seat(i+1,s[0],s[1],s[2]||"")).join("")}</div>`).join("")};
+ const rooms={101:[["occ","Occupied","Ahmed Raza"],["free","Free"],["free","Free"]],102:[["occ","Occupied","Bilal Khan"],["occ","Occupied","Usman Ali"],["free","Free"]],103:[["free","Free"],["free","Free"],["free","Free"]],104:[["occ","Occupied","Hamza S."],["free","Free"],["free","Free"]]};
+ set(`<h2>Seat map — Block A</h2><div class="sub">Every seat, colour-coded, updated live.</div><div id="leg" style="margin-bottom:10px"></div><div class="card" id="map"></div>`);draw();
+ say("Head office sees <b>which seat is free, reserved, occupied, booked offline or under maintenance</b> — per room, per block.");await sleep(2200);
+ rooms[103][0]=["res","Reserved","payment pending"];draw();say("A student starts booking seat 1 in room 103 → it turns <b>Reserved</b> while the payment is pending.");await sleep(2400);
+ rooms[103][0]=["occ","Occupied","Saad Malik"];draw();say("Payment received → the seat becomes <b>Occupied</b>. No double-booking is possible.");await sleep(2400);
+ rooms[104][1]=["off","Booked offline","cash, family"];draw();say("The warden marks seat 2 in room 104 as <b>booked offline</b> (a family paid cash on site).");await sleep(2400);
+ rooms[102][2]=["mnt","Maintenance","broken bed"];draw();say("Seat 3 in room 102 is held for <b>maintenance</b> — not sellable until released.");await sleep(2600)}},
+
+{role:"Head Office",title:"Fees & receipts",url:"basera-cyan.vercel.app/head-office  ›  Fees & receipts",who:"Head Office · ZK Hostel",dur:16,async run(){
+ set(`<h2>Fees &amp; receipts</h2><div class="sub">Cash or bank — with proof — and a system receipt.</div>
+ <div class="card" id="inv"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px"><b>Ahmed Raza <span style="font-weight:400;color:#475569">· Monthly rent (2026-11)</span></b><span id="st"><span class="pill bad">unpaid</span> PKR 0 / 8,000 · <b>Due PKR 8,000</b></span></div>
+ <button class="btn sec sm" id="col" style="margin-top:8px">Collect payment</button><div id="form" class="hide"><div class="grid g2" style="margin-top:10px"><label>Amount (PKR)<input class="input" id="am" value="8000"></label><label>Method<select class="input" id="me"><option value="cash">Cash</option><option value="bank">Bank transfer</option></select></label>
+ <label id="txl" class="hide" style="grid-column:1/3">Transaction ID<input class="input" id="tx" placeholder="e.g. TID 8839201"></label></div><div id="err"></div><button class="btn" id="rec" style="margin-top:8px">Record payment &amp; issue receipt</button></div></div><div id="ok"></div>`);
+ say("An unpaid invoice. The warden or head office taps <b>Collect payment</b>.");await click($("#col"));$("#form").classList.remove("hide");await sleep(600);
+ $("#me").value="bank";$("#txl").classList.remove("hide");say("Bank transfer chosen → the system <b>demands proof</b>: a transaction ID or a screenshot.");await sleep(1500);
+ await click($("#rec"));$("#err").innerHTML='<div class="msg bad shake">Bank/wallet payments need a transaction ID (min 4 chars) or an uploaded screenshot.</div>';say("Trying to save with no proof is <b>refused</b> — nobody can record a bank payment without evidence.");await sleep(2500);
+ await type($("#tx"),"TID 8839201");await click($("#rec"));$("#err").innerHTML="";
+ $("#st").innerHTML='<span class="pill ok">paid</span> PKR 8,000 / 8,000';$("#form").classList.add("hide");
+ $("#ok").innerHTML='<div class="msg ok fade">Receipt <b>BSR-2026-000001</b> issued — balance PKR 0 <div style="margin-top:8px"><button class="btn sec sm">Receipt PDF</button> <button class="btn wa sm" id="wa">Share on WhatsApp</button></div></div>';
+ say("Saved. The system issues a <b>numbered receipt with a QR code</b> and a one-tap <b>Share on WhatsApp</b> to the student.");await sleep(2000);
+ await click($("#wa"));screen.insertAdjacentHTML("beforeend",'<div class="phone fade"><div class="hd">Ahmed Raza · WhatsApp</div><div class="bub">Assalam o Alaikum Ahmed,\nPayment received at ZK Hostel.\nReceipt: BSR-2026-000001\nAmount: PKR 8,000\nRemaining balance: PKR 0\nVerify: basera…/fees/verify/BSR-2026-000001</div></div>');
+ say("WhatsApp opens with the receipt message ready — staff just press Send. Anyone can <b>verify the receipt</b> online by its number.");await sleep(3200)}},
+
+{role:"Head Office",title:"Terminate a warden",url:"basera-cyan.vercel.app/head-office  ›  Staff",who:"Head Office · ZK Hostel",dur:17,async run(){
+ set(`<h2>Staff</h2><div class="sub">Add, suspend or terminate wardens and employees.</div>
+ <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px"><div><b>Rashid Khan</b> <span style="color:#475569">· warden · Block A · login seed.warden</span></div><div><span class="pill ok" id="sp">active</span> <button class="btn sec sm">Suspend</button> <button class="btn red sm" id="tm">Terminate…</button></div></div></div>
+ <div id="dlg" class="hide card" style="margin-top:10px;border:2px solid #c81e1e"><b>TERMINATE Rashid Khan?</b><div class="sub">Every student and parent in Block A will be told not to pay this person.</div><label>Reason<input class="input" id="rs"></label><button class="btn red" id="cf" style="margin-top:8px">Terminate &amp; notify</button></div><div id="res"></div>`);
+ say("A warden is caught taking money outside the system. The head office taps <b>Terminate</b>.");await click($("#tm"));$("#dlg").classList.remove("hide");await type($("#rs"),"Collected cash without issuing receipts");
+ await click($("#cf"));$("#dlg").classList.add("hide");$("#sp").className="pill bad";$("#sp").textContent="terminated";
+ $("#res").innerHTML=`<div class="warnnote fade" style="margin-top:10px"><b>Notice sent to Block A</b><div style="font-size:13px;margin:4px 0">Rashid Khan (warden) has been terminated from ZK Hostel (Block A). <b>Do NOT pay any money, fees or deposits to this person.</b> Pay only at the hostel office and always collect the system receipt.</div><div class="fan" id="fan">${Array.from({length:24},()=>'<span class="node"></span>').join("")}${Array.from({length:20},()=>'<span class="node p"></span>').join("")}</div><div id="cnt" style="font-weight:800;margin-top:6px"></div></div>`;
+ say("The system instantly notifies <b>every student</b> (green) <b>and every parent</b> (teal) of that block.");
+ const nodes=$$(".node");for(let i=0;i<nodes.length;i++){nodes[i].classList.add("on");if(i%3==0)await sleep(90);$("#cnt").textContent=`${Math.min(i+1,24)>=24?24:i+1} students · ${Math.max(0,i+1-24)} guardians notified`}
+ $("#cnt").innerHTML="24 students · 20 guardians notified · login disabled · <span style='color:#047857'>old receipts stay valid</span>";
+ say("Done. His <b>login stops working immediately</b>, he is removed from the block, and WhatsApp links are ready for every parent.");await sleep(3000)}},
+
+/* ===== WARDEN ===== */
+{role:"Warden",title:"My block only",url:"basera-cyan.vercel.app/warden/operations",who:"Warden · Block A",dur:11,async run(){
+ set(`<h2>Warden Operations — Block A</h2><div class="sub">Seats, fee collection, complaints and notices for your block.</div>
+ <div class="card"><div style="margin-bottom:8px"><span class="pill ok">Free 6</span> <span class="pill warn">Reserved 2</span> <span class="pill">Occupied 16</span></div>
+ <div class="room"><span>Room 101</span>${seat(1,"occ","Occupied","Ahmed Raza")}${seat(2,"free","Free")}${seat(3,"res","Reserved")}</div>
+ <div class="room"><span>Room 102</span>${seat(1,"occ","Occupied","Bilal Khan")}${seat(2,"occ","Occupied","Usman Ali")}${seat(3,"free","Free")}</div></div>
+ <div class="card lock hide" id="b" style="margin-top:10px"><b>Block B</b> — 403: you are not assigned to this block.</div>`);
+ say("The warden sees <b>only their own block</b> — seats, residents and balances.");await sleep(2600);
+ $("#b").classList.remove("hide");$("#b").classList.add("shake");say("Trying to open <b>another block</b>, or another hostel, is blocked by the server — not just hidden in the screen.");await sleep(3200)}},
+
+{role:"Warden",title:"Collect cash & share receipt",url:"basera-cyan.vercel.app/warden/operations  ›  Collect fees",who:"Warden · Block A",dur:14,async run(){
+ set(`<h2>Collect fees</h2><div class="sub">Bilal Khan · Monthly rent · Due PKR 8,000</div>
+ <div class="card"><div class="grid g2"><label>Amount<input class="input" id="a"></label><label>Method<input class="input" id="m" value="Cash"></label></div><div style="margin-top:8px"><button class="btn" id="r">Record payment &amp; issue receipt</button></div></div><div id="o"></div>`);
+ say("Bilal pays <b>PKR 3,000 in cash</b> at the office.");await type($("#a"),"3000");await click($("#r"));
+ $("#o").innerHTML='<div class="msg ok fade">Receipt <b>BSR-2026-000002</b> issued — balance PKR 5,000 <div style="margin-top:8px"><button class="btn sec sm">Receipt PDF</button> <button class="btn wa sm" id="wa">Share on WhatsApp</button></div></div>';
+ say("Partial payments are fine: the receipt shows <b>PKR 5,000 still due</b>. The warden is recorded as the receiver.");await sleep(2200);
+ await click($("#wa"));screen.insertAdjacentHTML("beforeend",'<div class="phone fade"><div class="hd">Bilal Khan · WhatsApp</div><div class="bub">Payment received at ZK Hostel.\nReceipt: BSR-2026-000002\nAmount: PKR 3,000\nRemaining balance: PKR 5,000\nVerify: basera…/fees/verify/BSR-2026-000002</div></div>');
+ say("One tap on <b>Share on WhatsApp</b> — the student gets proof instantly.");await sleep(3000)}},
+
+{role:"Warden",title:"Fix a complaint",url:"basera-cyan.vercel.app/warden/operations  ›  Complaints",who:"Warden · Block A",dur:15,async run(){
+ set(`<h2>Complaints — Block A</h2><div class="sub">Review → in progress → fixed. The student confirms.</div>
+ <div class="card"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px"><b>Tap leaking in bathroom <span style="font-weight:400;color:#475569">· plumbing · Room 102 · Usman Ali</span></b><span class="pill bad" id="p">raised</span></div>
+ <div class="tl" id="tl"><div><span class="pill bad">raised</span> Student · today</div></div><div style="margin-top:10px;display:flex;gap:6px"><button class="btn sm" id="b1">Start review</button></div></div>`);
+ say("A new complaint lands in the warden's queue — <b>automatically routed to the right block</b>.");await sleep(2000);
+ const step=async(label,cls,note,next)=>{await click($("#b1"));$("#p").className="pill "+cls;$("#p").textContent=label;$("#tl").insertAdjacentHTML("beforeend",`<div class="fade"><span class="pill ${cls}">${label}</span> Warden${note?` · “${note}”`:""}</div>`);$("#b1").textContent=next||"";if(!next)$("#b1").classList.add("hide")};
+ await step("under_review","warn","","Mark in progress");say("Warden starts the review…");await sleep(1200);
+ await step("in_progress","warn","Plumber called","Mark fixed");say("…plumber assigned…");await sleep(1200);
+ await step("fixed","ok","Washer replaced, tested");$("#tl").insertAdjacentHTML("beforeend",'<div style="color:#475569">Waiting for the student to confirm.</div>');
+ say("Warden marks it <b>fixed</b> with a note — but only the <b>student</b> can close it.");await sleep(3200)}},
+
+/* ===== STUDENT ===== */
+{role:"Student",title:"Notices & safety alert",url:"basera-cyan.vercel.app/dashboard/student/hostel",who:"Student · Ahmed Raza",dur:11,async run(){
+ set(`<h2>My Hostel</h2><div class="sub">Notices, fees and complaints — in one place.</div>
+ <div class="card"><h3>Hostel notices <span class="pill bad">1 new</span></h3>
+ <div class="warnnote fade" style="margin-top:6px"><b>⚠ Notice: Rashid Khan is no longer employed at ZK Hostel (Block A)</b><div style="font-size:13px;margin-top:4px">Do NOT pay any money, fees, deposits or hand over documents or keys to this person. Pay only through the official hostel office and always collect the system-generated receipt. Questions? Contact the head office.</div></div>
+ <div class="card" style="margin-top:8px"><b>Water supply maintenance</b><div style="font-size:13px;color:#475569">Water will be off on Sunday 10am–1pm.</div></div></div>`);
+ say("The student sees the <b>safety notice</b> the moment the head office terminates a staff member — red and pinned on top.");await sleep(4500);
+ say("Their <b>parents get the same warning</b> in the Parent Panel and on WhatsApp.");await sleep(3000)}},
+
+{role:"Student",title:"Fees & receipts",url:"basera-cyan.vercel.app/dashboard/student/hostel",who:"Student · Ahmed Raza",dur:11,async run(){
+ set(`<h2>Hostel fees</h2><div class="sub">Billed PKR 8,000 · Paid PKR 8,000 · <b>Due PKR 0</b></div>
+ <div class="card"><div style="display:flex;justify-content:space-between"><span>Monthly rent (2026-11)</span><span><span class="pill ok">paid</span> PKR 8,000 / 8,000</span></div></div>
+ <div class="card" style="margin-top:10px"><h3>My receipts</h3><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px"><code>BSR-2026-000001</code><span>PKR 8,000 · bank transfer · today</span><button class="btn sec sm" id="dl">Download PDF</button></div></div><div id="o"></div>`);
+ say("Every payment appears with its <b>receipt number</b> — the student never has to rely on a paper slip.");await sleep(2200);
+ await click($("#dl"));$("#o").innerHTML='<div class="msg ok fade">⬇ BSR-2026-000001.pdf downloaded — includes QR code to verify online.</div>';
+ say("One tap downloads the PDF receipt, verifiable by anyone with the QR code.");await sleep(3000)}},
+
+{role:"Student",title:"Raise & close a complaint",url:"basera-cyan.vercel.app/dashboard/student/hostel",who:"Student · Ahmed Raza",dur:20,async run(){
+ set(`<h2>Complaints</h2><div class="sub">Raise it → warden fixes it → you confirm.</div>
+ <div class="card"><div class="grid g2"><label>What is the problem?<input class="input" id="t"></label><label>Category<input class="input" value="plumbing"></label></div><button class="btn" id="s" style="margin-top:8px">Raise complaint</button></div>
+ <div id="c"></div>`);
+ say("Ahmed reports a problem.");await type($("#t"),"No hot water in bathroom");await click($("#s"));
+ $("#c").innerHTML=`<div class="card fade" style="margin-top:10px"><div style="display:flex;justify-content:space-between"><b>No hot water in bathroom</b><span class="pill bad" id="p">raised</span></div><div class="tl" id="tl"><div><span class="pill bad">raised</span> You</div></div><div id="ask"></div></div>`;
+ say("It goes straight to <b>his block's warden</b>.");await sleep(1600);
+ const add=(l,cls,who,n)=>{$("#p").className="pill "+cls;$("#p").textContent=l;$("#tl").insertAdjacentHTML("beforeend",`<div class="fade"><span class="pill ${cls}">${l}</span> ${who}${n?` · “${n}”`:""}</div>`)};
+ add("under_review","warn","Warden");say("Warden reviews…");await sleep(1300);add("in_progress","warn","Warden","Geyser technician coming");say("…is working on it…");await sleep(1300);add("fixed","ok","Warden","Geyser element replaced");
+ $("#ask").innerHTML='<div class="msg ok fade" style="margin-top:8px">The warden says this is fixed. Is it? <div style="margin-top:6px"><button class="btn sm" id="y">Yes — mark resolved</button> <button class="btn sec sm">No — reopen</button></div></div>';
+ say("Warden marks it <b>fixed</b> — now it is the <b>student's decision</b>: resolved, or reopen if it isn't really fixed.");await sleep(2200);
+ await click($("#y"));$("#ask").innerHTML='';add("resolved","ok","You","Confirmed fixed");$("#ask").innerHTML='<div class="stars fade">★★★★★</div>';
+ say("Student confirms → <b>resolved</b>, with a 5-star rating. The full history stays on record for the head office.");await sleep(3200)}}
+];
+
+/* ---------------- player ---------------- */
+const roles=[...new Set(scenes.map(s=>s.role))];
+$("#roles").innerHTML=roles.map(r=>`<button data-r="${r}">${r}</button>`).join("");
+$("#dots").innerHTML=scenes.map((s,i)=>`<div class="dot" data-i="${i}" title="${s.role}: ${s.title}"><i></i></div>`).join("");
+function mark(){$$(".dot").forEach((d,i)=>{d.classList.toggle("done",i<cur);d.classList.toggle("cur",i===cur);d.style.setProperty("--d",(scenes[i].dur/speed)+"s");if(i===cur){const n=d.cloneNode(true);d.replaceWith(n);n.onclick=()=>play(i)}else d.onclick=()=>play(i)});
+ $$("#roles button").forEach(b=>b.classList.toggle("on",b.dataset.r===scenes[cur].role))}
+async function play(i){gen++;cur=((i%scenes.length)+scenes.length)%scenes.length;const sc=scenes[cur];cursor.style.left="30px";cursor.style.top="30px";
+ $("#url").textContent="https://"+sc.url;$("#who").textContent=sc.who;mark();
+ try{await sc.run();await sleep(500);play(cur+1)}catch(e){if(e!=="abort")console.error(e)}}
+$$("#roles button").forEach(b=>b.onclick=()=>play(scenes.findIndex(s=>s.role===b.dataset.r)));
+$("#prev").onclick=()=>play(cur-1);$("#next").onclick=()=>play(cur+1);
+$("#play").onclick=()=>{paused=!paused;$("#play").textContent=paused?"▶":"⏸";$$(".dot.cur i").forEach(i=>i.style.animationPlayState=paused?"paused":"running")};
+$("#spd").onclick=()=>{speed=speed===1?1.5:speed===1.5?0.7:1;$("#spd").textContent=(speed===0.7?"0.7":speed)+"×"};
+play(0);
+</script>
+</body>
+</html>
