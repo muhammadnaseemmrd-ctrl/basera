@@ -12,6 +12,7 @@ if (typeof globalThis.crypto === "undefined") {
 }
 
 const express = require("express");
+const mongoose = require("mongoose");
 const http = require("http");
 const cors = require("cors");
 const helmet = require("helmet");
@@ -159,6 +160,25 @@ app.use((req, res, next) => {
   next();
 });
 app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
+// Serverless (Vercel): there is no long-lived process that connects at boot, so connect on
+// the first request of a cold instance and reuse the connection for later requests.
+let dbConnecting = null;
+if (process.env.VERCEL) {
+  app.use(async (req, res, next) => {
+    try {
+      if (mongoose.connection.readyState !== 1) {
+        dbConnecting = dbConnecting || connectDB().catch((error) => {
+          dbConnecting = null;
+          throw error;
+        });
+        app.locals.dbReady = await dbConnecting;
+      }
+      next();
+    } catch (error) {
+      next(error);
+    }
+  });
+}
 app.use("/api/v1/auth", authLimiter);
 app.use("/api/v1/payments", paymentLimiter);
 app.use("/api/v1/manual-payments", paymentLimiter);
@@ -334,7 +354,10 @@ io.on("connection", (socket) => {
   });
 });
 
-connectDB().then((ready) => {
+// On Vercel the platform invokes the exported app per request (see api/index.js); a normal
+// host (local, Render, Railway) connects once and listens.
+module.exports = app;
+if (!process.env.VERCEL) connectDB().then((ready) => {
   app.locals.dbReady = ready;
   if (ready) {
     ensureIndexes().then((result) => {

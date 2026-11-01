@@ -640,6 +640,14 @@ PUBLIC_APP_URL=https://<your-vercel-domain>
 https://<your-railway-domain>/api/v1/health
 ```
 
+### Backend On Vercel (serverless, no card needed)
+
+A second Vercel project with **Root Directory `server`** runs the same Express app as functions: `server/api/index.js` exports the app and `server/vercel.json` routes every path to it. With `VERCEL` set (Vercel does this automatically) `server.js` does not listen; it connects to MongoDB on the first request of a cold instance and reuses the connection.
+
+Project env vars: `NODE_ENV=production`, `MONGO_URI`, `JWT_SECRET`, `CLIENT_URL` (frontend origin), `PUBLIC_APP_URL`, `CRON_SECRET`. Then set the frontend project's `VITE_API_URL` to `https://<api-project>.vercel.app/api/v1` and redeploy the frontend.
+
+Limits on serverless: Socket.io real-time chat/typing does not run (REST works); the daily job must be called by Vercel Cron or an external scheduler (`POST /api/v1/jobs/daily` with `x-cron-secret`); the first request after idle is a cold start.
+
 ### Frontend On Vercel
 
 The repository now includes:
