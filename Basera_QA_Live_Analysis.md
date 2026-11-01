@@ -282,7 +282,32 @@ You confirmed `basera-pk.netlify.app` was correct (Netlify free-tier credits ran
 - Updated the Railway `CLIENT_URL` and `PUBLIC_APP_URL` environment variables to `https://basera-cyan.vercel.app` (applied without triggering a redeploy yet, so it lands together with the code fix).
 - `client/index.html`, `client/public/robots.txt`, `client/public/sitemap.xml`: updated every URL from the old Netlify domain to the new Vercel domain (same fix as §5e, just re-pointed again).
 
-**Status: fixed locally, NOT YET DEPLOYED — this is the most urgent item in this entire report.** The production site is non-functional for real use until this is pushed and I redeploy Railway. Please push immediately; I'll trigger the backend redeploy and do a full smoke-retest the moment it's up.
+**RESOLVED — deployed and verified live, September 13, 2026.** Backend redeployed on Railway (commit `2de561e`, build+deploy `SUCCESS`). Retested from the actual live Vercel origin (`https://basera-cyan.vercel.app`) via the browser's own JS console, so this reflects exactly what a real visitor's browser would do:
+
+| Retest (from `https://basera-cyan.vercel.app`) | Result |
+|---|---|
+| `GET /api/v1/health` | `200`, no CORS error |
+| `GET /api/v1/hostels` | `200`, real data returned |
+| `POST /api/v1/auth/login` | `401` (wrong test password used, not a CORS/connectivity issue — request reached the server and returned a normal auth error, confirming the pipe is open) |
+| `GET /robots.txt` on the live Vercel deployment | Correctly serves the updated version with all 5 private-dashboard disallow rules and the right sitemap URL |
+| `GET /sitemap.xml` on the live Vercel deployment | Correctly serves all 6 URLs pointed at `basera-cyan.vercel.app` |
+
+The site is fully functional again. Also note: I attempted to connect a Vercel MCP integration to manage the frontend deployment/env vars directly, but hit two limits worth recording — (1) the connector's team lookup currently returns empty, so project-level calls fail with "Team ID required"; (2) even with access, this Vercel MCP toolset has no environment-variable read/write tool at all (only project/deployment/error/domain tools). Confirmed via the live CORS error message itself that `VITE_API_URL` was already correctly configured on Vercel, so this didn't block the actual fix — but any future Vercel env var changes will need to go through Vercel's own dashboard, or a differently-scoped integration.
+
+---
+
+## 0c. Full regression pass after Vercel migration + CORS fix
+
+Ran a fresh regression suite (new throwaway QA accounts, since the original session's cached tokens were lost when navigating between origins) against every previously-fixed critical bug, on the now-live Vercel+Railway stack:
+
+| Regression check | Result |
+|---|---|
+| Hostel creation with full valid payload (Mongoose-9 hook fix) | `201` — still fixed |
+| Room creation with no coordinates (geo-index fix) | `201` — still fixed |
+| Cross-owner hostel update IDOR | `403` — still blocked |
+| Cross-owner hostel-bookings-view IDOR | `403` — still blocked |
+
+**No regressions from the Vercel migration or CORS fix.** The full stack (Vercel frontend + Railway backend + Atlas database) is confirmed working end-to-end.
 
 ---
 
