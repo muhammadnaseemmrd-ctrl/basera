@@ -646,6 +646,8 @@ A second Vercel project with **Root Directory `server`** runs the same Express a
 
 Project env vars: `NODE_ENV=production`, `MONGO_URI`, `JWT_SECRET`, `CLIENT_URL` (frontend origin), `PUBLIC_APP_URL`, `CRON_SECRET`. Then set the frontend project's `VITE_API_URL` to `https://<api-project>.vercel.app/api/v1` and redeploy the frontend.
 
+CORS allows `CLIENT_URL`, `https://basera-cyan.vercel.app`, localhost in development, and this team's own frontend deployment URLs (`https://basera-<id>-muhammadnaseemmrd-5358.vercel.app`, `basera-git-<branch>-…`; override the suffix with `CORS_TEAM_SUFFIX`). Other origins get no CORS headers (not a 500).
+
 Limits on serverless: Socket.io real-time chat/typing does not run (REST works); the daily job must be called by Vercel Cron or an external scheduler (`POST /api/v1/jobs/daily` with `x-cron-secret`); the first request after idle is a cold start.
 
 ### Frontend On Vercel

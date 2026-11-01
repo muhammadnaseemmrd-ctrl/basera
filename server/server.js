@@ -137,10 +137,18 @@ const isLocalDevOrigin = (origin = "") => {
   }
 };
 
+// Every Vercel deployment of the frontend gets its own URL (basera-<id>-<team>.vercel.app,
+// basera-git-<branch>-<team>.vercel.app) besides the production domain. Only this team can create
+// hosts with the "-muhammadnaseemmrd-5358" suffix, so allowing that pattern admits our own
+// deployments and nothing else. CORS_TEAM_SUFFIX overrides it if the Vercel team changes.
+const teamSuffix = (process.env.CORS_TEAM_SUFFIX || "muhammadnaseemmrd-5358").replace(/[^a-z0-9-]/gi, "");
+const ownVercelFrontend = new RegExp(`^https://basera(?:-(?!api-)[a-z0-9-]+)?-${teamSuffix}\\.vercel\\.app$`);
+
 const corsOptions = {
   origin(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin) || isLocalDevOrigin(origin)) return callback(null, true);
-    return callback(new Error(`CORS blocked origin: ${origin}`));
+    if (!origin || allowedOrigins.includes(origin) || isLocalDevOrigin(origin) || ownVercelFrontend.test(origin)) return callback(null, true);
+    // refuse without throwing: a thrown error became a 500 with no CORS headers at all
+    return callback(null, false);
   },
   credentials: true
 };
